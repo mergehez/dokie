@@ -27,7 +27,7 @@ Currently, it only has a NuGet package for ASP.NET Core applications, but it is 
 
 To use Dokie in your ASP.NET Core application, you'll have to use OpenAPI to document your API endpoints. Dokie will automatically generate the UI based on the OpenAPI specification.
 
-### Example
+After installing the package, you can set it up in your `Program.cs` file as follows:
 
 ```csharp
 using Microsoft.OpenApi;
@@ -74,6 +74,8 @@ if (app.Environment.IsDevelopment())
 
 app.Run();
 ```
+
+After setting up the above code, you can access the Dokie UI at `/dokie` in your browser.
 
 ## Features
 
