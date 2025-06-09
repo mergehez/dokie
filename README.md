@@ -91,11 +91,7 @@ app.Run();
 > - Global headers
 > - Favorite endpoints
 > - Current hostname
-> - Endpoint specific:
-    >
-- Path/Query parameters
->   - Headers
->   - Postscript
+> - Endpoint specific: Path/Query parameters, Headers and Postscript
 
 ## Screenshots
 
