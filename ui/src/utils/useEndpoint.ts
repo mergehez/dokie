@@ -60,7 +60,6 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     }, 200);
 
     const activeRequestTab = ref<'params' | 'body' | 'headers' | 'postscript'>('params');
-    const activeResponseTab = ref<'body' | 'preview' | 'headers'>('body');
 
 
     if (opts.addDefaults ?? true) {
@@ -119,7 +118,6 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
         routeKeyVals: routeKeyVals,
         requestInstance: currReqInstance,
         activeRequestTab: activeRequestTab,
-        activeResponseTab: activeResponseTab,
         updateIndexedDb: async () => {
             await _allKeyVals.upsert(id, _all);
             await _allKeyVals.updateDb();
