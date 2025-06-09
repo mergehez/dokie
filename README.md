@@ -86,7 +86,7 @@ app.Run();
 - **Postscripts**: Add custom scripts that run after a request is made, allowing you to set environment variables or global headers based on the response. (JavaScript)
 - **Endpoint Configuration**: Easily add path/query parameters, headers and body to requests. You can use environment variables just like in Postman.
 
-> Note that changes are stored in your local machine and not share with other people using the same project. Following information is stored in the browser's local storage:
+> Note that changes are stored in your local machine and not shared with other people using the same project. Following information is stored in the browser's indexedDB:
 > - Environment variables
 > - Global headers
 > - Favorite endpoints
