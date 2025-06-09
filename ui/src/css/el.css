@@ -1,0 +1,31 @@
+@import 'element-plus/dist/index.css';
+@import 'element-plus/theme-chalk/dark/css-vars.css';
+
+:root {
+    --el-color-primary: var(--color-indigo-500);
+    --el-border-color: var(--bg5) !important;
+}
+
+.el-checkbox__label {
+    padding-left: 4px;
+}
+
+.el-mention-dropdown {
+    --el-mention-max-height: 300px;
+}
+
+.el-autocomplete-suggestion__wrap {
+    max-height: 300px;
+}
+
+.el-mention-dropdown__item.is-disabled {
+    font-weight: bold;
+    height: auto;
+    padding-top: 10px;
+    line-height: 1;
+    text-decoration: underline;
+}
+
+.el-segmented__item-selected {
+    transition: transform 0.3s;
+}

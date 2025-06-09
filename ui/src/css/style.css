@@ -1,0 +1,85 @@
+@import './el.css';
+@import './tw.css';
+@import './button.css';
+@import "./scrollbar.css";
+
+html {
+    --clr-scheme: light;
+}
+
+html.dark {
+    --clr-scheme: dark;
+}
+
+html {
+    color-scheme: var(--clr-scheme);
+    background-color: var(--bg0);
+    color: var(--clr-default);
+    font-family: 'Roboto', sans-serif
+}
+
+
+@layer base {
+
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+
+    .icon {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        background-color: currentColor;
+        --fallback: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xOC4xODIgMEMxOS4xODYgMCAyMCAuODE0IDIwIDEuODE4djE2LjM2NEExLjgyIDEuODIgMCAwIDEgMTguMTgyIDIwSDEuODE4QTEuODIgMS44MiAwIDAgMSAwIDE4LjE4MlYxLjgxOEMwIC44MTQuODE0IDAgMS44MTggMHptLTUuOTc1IDYuODE4TDEwLjAxIDkuMDFMNy44MTUgNi44MThhLjY4LjY4IDAgMCAwLS44OC0uMDcybC0uMDg0LjA3MmEuNjguNjggMCAwIDAgMCAuOTY0bDIuMTk1IDIuMTkzbC0yLjE5NSAyLjE5M2EuNjgyLjY4MiAwIDEgMCAuOTY0Ljk2NWwyLjE5NS0yLjE5NWwyLjE5NyAyLjE5NWMuMjQuMjQuNjEzLjI2My44OC4wNzFsLjA4NC0uMDcyYS42OC42OCAwIDAgMCAwLS45NjRsLTIuMTk2LTIuMTkzbDIuMTk1LTIuMTkzYS42ODIuNjgyIDAgMCAwLS45NjMtLjk2NCIvPjwvc3ZnPg==);
+        -webkit-mask-image: var(--svg, var(--fallback));
+        mask-image: var(--svg, var(--fallback));
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+    }
+
+
+    .list-group-item {
+        @apply w-full px-3 md:px-4 py-2 flex items-center focus-visible:outline-hidden focus-visible:bg-gray-50 dark:focus-visible:bg-gray-800;
+    }
+
+    div.list-group-item:not(.active) {
+        @apply cursor-pointer hover:bg-x1;
+    }
+
+    div.list-group-item.active {
+        @apply cursor-pointer text-green-600 dark:text-green-400 font-bold;
+    }
+}
+
+@layer base {
+    .monaco-editor {
+        --vscode-editor-background: var(--bg0) !important;
+        --vscode-focusBorder: transparent !important;
+        --vscode-editorGutter-background: var(--color-x0) !important;
+        --vscode-scrollbar-shadow: var(--color-x2) !important;
+        --vscode-editorStickyScroll-background: var(--color-x1) !important;
+        --vscode-editorStickyScroll-shadow: var(--color-x0) !important;
+    }
+
+    .monaco-editor .margin {
+        @apply border-r border-x2/60;
+    }
+}
+
+.text-2xs {
+    font-size: 0.625rem;
+    line-height: 0.75rem;
+}
+
+.text-3xs {
+    font-size: 0.25rem;
+    line-height: 0.3rem;
+}
+
+.text-4xs {
+    font-size: 0.125rem;
+    line-height: 0.15rem;
+}

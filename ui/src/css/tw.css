@@ -1,0 +1,57 @@
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@plugin "../../tailwind-iconify4" {
+    forceBrackets: false
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+@source "../../node_modules/@mergehez/vue-color-picker";
+@source "../../node_modules/md-editor-v3";
+@source "../../node_modules/element-plus/theme-chalk";
+
+:root {
+    --bg-reverse: rgb(18 18 18);
+
+    --clr-default: rgb(58 58 58);
+
+    --bg0: white;
+    --bg1: rgb(248 249 250);
+    --bg2: rgb(241 243 245);
+    --bg3: rgb(233 236 240);
+    --bg4: rgb(225 229 235);
+    --bg5: rgb(216 222 230);
+    --bg6: rgb(207 214 224);
+}
+
+.dark {
+    --bg-reverse: rgb(255 255 255);
+
+    --clr-default: rgb(204 204 204);
+
+    --bg0: rgb(22 21 34);
+    --bg1: rgb(22 28 41);
+    --bg2: rgb(28 35 49);
+    --bg3: rgb(34 42 57);
+    --bg4: rgb(40 49 64);
+    --bg5: rgb(46 55 68);
+    --bg6: rgb(52 62 72);
+}
+
+@theme {
+    --breakpoint-xs: 475px;
+    --breakpoint-laptop: 992px;
+
+    --color-x0: var(--bg0);
+    --color-x1: var(--bg1);
+    --color-x2: var(--bg2);
+    --color-x3: var(--bg3);
+    --color-x4: var(--bg4);
+    --color-x5: var(--bg5);
+    --color-x6: var(--bg6);
+    --color-reverse: var(--bg-reverse);
+    --color-default: var(--clr-default);
+}
