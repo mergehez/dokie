@@ -63,9 +63,9 @@ function copyBody() {
                     </ArgButton>
                 </div>
 
-                <div v-if="endpoint.description" class="text-xs opacity-70 pl-1">
+                <div v-if="endpoint.description || endpoint.summary" class="text-xs opacity-70 pl-1">
                     <span class="opacity-80 pr-1">Description:</span>
-                    <span class="font-bold italic">{{ endpoint.description }}</span>
+                    <span class="font-bold italic">{{ endpoint.description || endpoint.summary }}</span>
                 </div>
 
                 <!-- Request Configuration Tabs -->
