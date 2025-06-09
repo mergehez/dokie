@@ -74,7 +74,6 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
             header: getParamsFromSpec('header'),
             query: getParamsFromSpec('query'),
         } satisfies Record<Part, ParameterObject[]>;
-        console.log('allParams', allParams);
         for (const key in allParams) {
             const k = key as Part;
             const params = allParams[k] ?? [];

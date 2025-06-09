@@ -36,7 +36,6 @@ function beforeMount(monaco: MonacoEditor) {
 }
 
 function onMount(editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: MonacoEditor) {
-    console.log(editor, monaco)
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
         allowComments: true,

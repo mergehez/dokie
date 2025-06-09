@@ -124,12 +124,6 @@ export function useDb() {
                 request_part_height: 50,
             }));
 
-            console.log({
-                keyVals: _keyVals,
-                globalKeyVals: _globalKeyVals,
-                requestHistory: _requestHistory,
-                navState: _navState
-            })
         },
         keyVals: {
             value: _keyVals,

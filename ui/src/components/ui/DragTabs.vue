@@ -54,7 +54,6 @@ const draggingIndex = ref<number>();
 
 function useTab(item: Item) {
     function onDragStart(e: DragEvent) {
-        console.log('drag start', e.target, item.data);
         draggingIndex.value = item.index;
         e.dataTransfer?.setDragImage(e.target as any, 0, 0);
         addClass(e.target, draggedClass);
@@ -71,14 +70,12 @@ function useTab(item: Item) {
     }
 
     function onDragEnd(e: DragEvent) {
-        console.log('drag end');
         e.preventDefault();
         draggingIndex.value = undefined;
         removeClass(e.target, draggedClass);
     }
 
     function onDrop(e: DragEvent) {
-        console.log('drop', item.data.id, item.data.hash, (e.target as any).id);
         removeClass(e.target, dragOverClass);
         // const sourceIndex = Number(e.dataTransfer?.getData('text/plain'));
         const sourceIndex = draggingIndex.value
@@ -134,7 +131,6 @@ const tabs = ref<ReturnType<typeof useTab>[]>([]);
 function init() {
     const wrapper = document.querySelector('#tagsWrapper');
     if (!wrapper) return;
-    // console.log('DragTabs init', items2.value);
     const tabEls = wrapper.querySelectorAll(`.${requiredClass}`);
     tabEls.forEach((tabEl) => {
         const hash = tabEl.id;
