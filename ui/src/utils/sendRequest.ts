@@ -1,6 +1,6 @@
 import {useUri} from "@/utils/useUri.ts";
 import {JSONC} from "@/utils/json_helpers.ts";
-import axios, {type AxiosRequestConfig} from "axios";
+import axios, {type AxiosError, type AxiosRequestConfig, type AxiosResponse} from "axios";
 import {runPostscript} from "@/utils/usePostscript.ts";
 import {type Endpoint} from "@/utils/useEndpoint.ts";
 import {useGlobalEnvs} from "./useGlobalEnvs";
@@ -49,7 +49,6 @@ export async function sendRequest(e: Endpoint) {
             'Content-Type': 'application/json',
             'Accept': '*/*',
             'Cache-Control': 'no-cache',
-            'OpenApiUiToken': 'blabla',
             'Access-Control-Expose-Headers': '*',
             ...globalKeyVals.headers.merge(e.headerKeyVals).reduce((acc, {key, value}) => {
                 if (key && value) {
@@ -73,36 +72,64 @@ export async function sendRequest(e: Endpoint) {
             data: body ? JSON.parse(body) : body,
         };
         try {
-            const res = await axios.request(config)
-                .then(t => t)
-                .catch(t => t.response ?? t.message);
+            function handleResponse(res: AxiosResponse) {
+                let dataStr = typeof res.data == 'object' || !res.data
+                    ? JSON.stringify(res.data || {failedRequestInfo: res}, null, 2)
+                    : (res.data || res.statusText).toString();
+                const size = dataStr.length;
+                const contentType = res.headers?.['content-type'];
+                const isJson = contentType?.includes('application/json') ||
+                    contentType?.includes('application/problem+json');
+                if (isJson) {
+                    const data = JSON.parse(dataStr);
+                    dataStr = JSON.stringify(data, null, 2);
+                }
+                currReqInstance.request.headers = headers;
+                currReqInstance.response = {
+                    duration: performance.now() - startTime,
+                    isRedirect: res.status >= 300 && res.status < 400,
+                    isSuccess: res.status >= 200 && res.status < 300,
+                    body: dataStr,
+                    status: res.status,
+                    statusText: res.statusText,
+                    size: size,
+                    isJson: isJson,
+                    headers: res.headers ? Object.entries(res.headers) : [],
+                    contentType: res.headers?.['Content-Type'] || res.headers?.['content-type'] || '',
+                };
 
-            let dataStr = typeof res.data == 'object' || !res.data
-                ? JSON.stringify(res.data || {failedRequestInfo: res}, null, 2)
-                : (res.data || res.statusText).toString();
-            const size = dataStr.length;
-            const contentType = res.headers?.['content-type'];
-            const isJson = contentType?.includes('application/json') ||
-                contentType?.includes('application/problem+json');
-            if (isJson) {
-                const data = JSON.parse(dataStr);
-                dataStr = JSON.stringify(data, null, 2);
+                return res;
             }
-            currReqInstance.request.headers = headers;
-            currReqInstance.response = {
-                duration: performance.now() - startTime,
-                isRedirect: res.status >= 300 && res.status < 400,
-                isSuccess: res.status >= 200 && res.status < 300,
-                body: dataStr,
-                status: res.status,
-                statusText: res.statusText,
-                size: size,
-                isJson: isJson,
-                headers: Object.entries(res.headers),
-                contentType: res.headers['Content-Type'] || res.headers['content-type'] || '',
-            };
 
-            runPostscript(currReqInstance.request.postscript, res);
+            const res = await axios.request(config)
+                .then(handleResponse)
+                .catch((t: AxiosError) => {
+                    if (t.response)
+                        return handleResponse(t.response);
+
+                    throw t;
+                    // const msg = t.message || t.cause?.message || t.code || 'Unknown error';
+                    // e.axiosError = msg;
+                    // currReqInstance.request.headers = headers;
+                    // currReqInstance.response = {
+                    //     duration: performance.now() - startTime,
+                    //     isRedirect: false,
+                    //     isSuccess: false,
+                    //     body: msg,
+                    //     status: t.status || 0,
+                    //     statusText: t.code || 'Error',
+                    //     size: -1,
+                    //     isJson: false,
+                    //     headers: [],
+                    //     contentType: '',
+                    // };
+                    //
+                    // return undefined;
+                });
+
+
+            if (res)
+                runPostscript(currReqInstance.request.postscript, res);
         } catch (error) {
             console.error('Error sending request:', error);
             e.axiosError = error as any;
