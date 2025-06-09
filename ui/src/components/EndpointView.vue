@@ -172,7 +172,7 @@ function copyBody() {
                         <!-- Left side: Response content tabs -->
                         <div class="flex-1 flex flex-col border-r border-x4 w-full">
                             <div class="flex border-b border-x4 items-center">
-                                <button v-for="tab in ['body', 'headers'] as const" :key="tab" @click="endpoint.activeResponseTab = tab"
+                                <button v-for="tab in ['body', 'preview', 'headers'] as const" :key="tab" @click="endpoint.activeResponseTab = tab"
                                         class="px-4 py-2 text-sm font-medium transition-colors" :class="{
                                 'border-b-2 border-blue-600 text-blue-600': endpoint.activeResponseTab === tab,
                                 'text-gray-600 dark:text-gray-400': endpoint.activeResponseTab !== tab
@@ -194,6 +194,20 @@ function copyBody() {
                                          class="flex">
                                         <span class="font-medium min-w-[200px]">{{ v[0] }}:</span>
                                         <span class="text-gray-600 dark:text-gray-400">{{ v[1] }}</span>
+                                    </div>
+                                </div>
+                                <div class="inset-0 absolute space-y-2 p-4"
+                                     :class="endpoint.activeResponseTab === 'preview' ? '' : 'invisible'">
+                                    <iframe
+                                        v-if="endpoint.requestInstance.response?.contentType?.startsWith('text/html')"
+                                        :srcdoc="endpoint.requestInstance.response?.body"
+                                        class="w-full h-full border border-x4 rounded overflow-hidden">
+                                    </iframe>
+                                    <div v-else class="text-gray-500 dark:text-gray-400 h-full flex items-center justify-center">
+                                        <span class="text-sm">
+                                            Preview is only available for HTML responses. <br>
+                                            But current response is: <strong>{{ endpoint.requestInstance.response?.contentType }}</strong>
+                                        </span>
                                     </div>
                                 </div>
                                 <button v-if="endpoint.activeResponseTab === 'body'" @click="copyBody"

@@ -9,6 +9,8 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
         const i = keyVals.findIndex(kv => kv.id === p.id);
         if (i !== -1) {
             keyVals.splice(i, 1);
+        } else {
+            console.warn("KeyValCollection: remove called with non-existing key", p);
         }
     }
 

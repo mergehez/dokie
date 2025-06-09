@@ -11,8 +11,8 @@ const createNavState = () => {
     const navState = db.navState.value;
     const {allEndpoints} = useSpec();
 
-    const init = allEndpoints.reduce((acc, e) => {
-        e.tags?.forEach(tag => {
+    let init = allEndpoints.reduce((acc, e) => {
+        (e.tags ?? ['uncategorized']).forEach(tag => {
             if (!acc[tag]) {
                 acc[tag] = [];
             }
@@ -20,6 +20,10 @@ const createNavState = () => {
         });
         return acc;
     }, {} as Record<string, Endpoint[]>);
+    if (Object.keys(init).length === 1 && init['uncategorized']) {
+        // If there's only one group and it's 'uncategorized', we can just use that directly
+        init = {'All Endpoints': init['uncategorized']};
+    }
     const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
     const appConfig = useAppConfig();
     const groupedEndpoints = ref(

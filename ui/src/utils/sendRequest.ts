@@ -63,6 +63,9 @@ export async function sendRequest(e: Endpoint) {
         if (body && body.includes('//')) {
             body = JSON.stringify(JSONC.parse(body), null, 2);
         }
+        if (body) {
+            body = applyEnvsToString(body);
+        }
         const config: AxiosRequestConfig = {
             method: currReqInstance.request.method,
             url: url,
@@ -72,7 +75,7 @@ export async function sendRequest(e: Endpoint) {
         try {
             const res = await axios.request(config)
                 .then(t => t)
-                .catch(t => t.response);
+                .catch(t => t.response ?? t.message);
 
             let dataStr = typeof res.data == 'object' || !res.data
                 ? JSON.stringify(res.data || {failedRequestInfo: res}, null, 2)
@@ -96,6 +99,7 @@ export async function sendRequest(e: Endpoint) {
                 size: size,
                 isJson: isJson,
                 headers: Object.entries(res.headers),
+                contentType: res.headers['Content-Type'] || res.headers['content-type'] || '',
             };
 
             runPostscript(currReqInstance.request.postscript, res);

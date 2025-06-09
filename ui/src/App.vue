@@ -6,16 +6,17 @@ import {useSpec} from "@/utils/useSpec.ts";
 import {useAppConfig} from "@/utils/useAppConfig.ts";
 import {distinct} from "@/utils/utils.ts";
 import type {OpenAPIV3} from "@/utils/types.ts";
+import {useDb} from "@/utils/useDb.ts";
 
 const apiSpec = ref<OpenAPIV3>()
 const config = useAppConfig();
 
-fetch(config.openApiUrl)
+fetch(config.openApiJsonUrl)
     .then(r => r.json())
-    .then(t => useSpec(t))
-    .then((spec) => {
-        config.hostnames = distinct([...(spec.spec.servers?.map(t => t.url) ?? []), ...config.hostnames]);
-        apiSpec.value = spec.spec;
+    .then(async (spec: OpenAPIV3) => {
+        config.hostnames = distinct([...(spec.servers?.map(t => t.url) ?? []), ...config.hostnames]);
+        await useDb().init(config.openApiJsonUrl);
+        apiSpec.value = useSpec(spec).spec;
     })
 </script>
 

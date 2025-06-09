@@ -44,6 +44,7 @@ export interface RequestInstance {
         size: number // in bytes
         isJson: boolean
         headers: [string, any][]
+        contentType: string
         // cookies: Record<string, string>
     }
 }
@@ -71,7 +72,8 @@ export type GlobalKeyVals = {
     hostname: string;
 }
 
-const _db = new Dexie('db-555') as Dexie & {
+
+let _db: Dexie & {
     keyVals: EntityTable<Required<IdbKeyVal>, 'id'>,
     globalKeyVals: EntityTable<{
         id: number;
@@ -83,15 +85,6 @@ const _db = new Dexie('db-555') as Dexie & {
         value: string;
     }, 'id'>
 };
-
-_db.version(1).stores({
-    keyVals: '++id, &e_id, value', // Primary key and indexed props
-    globalKeyVals: '++id, value',
-    requestHistory: '++id, date, request',
-    navState: '++id, value'
-});
-
-
 let _keyVals: IdbKeyVal[];
 let _globalKeyVals: GlobalKeyVals;
 let _requestHistory: IdbRequestHistory[];
@@ -99,7 +92,16 @@ let _navState: IdbNavState;
 
 export function useDb() {
     return {
-        init: async () => {
+        init: async (dbName: string) => {
+            console.log('initializing db with name:', dbName);
+            _db = new Dexie(btoa(dbName) + '-555') as any;
+
+            _db.version(1).stores({
+                keyVals: '++id, &e_id, value', // Primary key and indexed props
+                globalKeyVals: '++id, value',
+                requestHistory: '++id, date, request',
+                navState: '++id, value'
+            });
             _keyVals = (await _db.keyVals.toArray()).map(e => ({
                 ...e,
                 // value: JSON.parse(e.value) as Record<Part, KeyVal[]>
@@ -121,6 +123,13 @@ export function useDb() {
                 sidebar_width: 31,
                 request_part_height: 50,
             }));
+
+            console.log({
+                keyVals: _keyVals,
+                globalKeyVals: _globalKeyVals,
+                requestHistory: _requestHistory,
+                navState: _navState
+            })
         },
         keyVals: {
             value: _keyVals,

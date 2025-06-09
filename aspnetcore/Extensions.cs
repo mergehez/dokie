@@ -78,7 +78,7 @@ public static class Extensions
                       <script>
                           window.dokie = {
                               currentHostname: "{{currentHostname}}",
-                              documentName: "{{documentName}}", 
+                              openApiJsonUrl: "{{currentHostname}}/openapi/{{documentName}}.json",
                               hostnames: {{Serialize(opts.HostnameOptions ?? [], opts)}},
                               variables: {{Serialize(opts.PredefinedVariables ?? [], opts)}},
                               headers: {{Serialize(opts.PredefinedHeaders ?? [], opts)}},

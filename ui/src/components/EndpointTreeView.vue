@@ -1,18 +1,10 @@
 <script setup lang="ts">
-import {onMounted} from 'vue'
 import HttpMethod from './HttpMethod.vue';
 import {useNavState} from "@/utils/useNavState.ts";
 import {ElScrollbar} from "element-plus";
 import {sendRequest} from "@/utils/sendRequest.ts";
 
 const sidebar = useNavState();
-
-onMounted(() => {
-    if (!sidebar.selectedEndpoints.length) {
-        sidebar.selectEndpoint(sidebar.groupedEndpoints['Tasks']?.[5]);
-        sidebar.selectEndpoint(sidebar.groupedEndpoints['Products']?.[5]);
-    }
-})
 </script>
 
 <template>

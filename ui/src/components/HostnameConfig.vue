@@ -1,42 +1,29 @@
 <script setup lang="ts">
 
-import {uniqueId} from "@/utils/utils.ts";
-import {ref, watch} from "vue";
+import {ref} from "vue";
 import {useGlobalEnvs} from "@/utils/useGlobalEnvs";
 import ArgInput from "@/components/ui/ArgInput.vue";
 
 const globalKeyVals = useGlobalEnvs()
+const activeIndex = ref(globalKeyVals.hostnames.findIndex(t => t === globalKeyVals.hostname));
 
-const activeHostname = ref(globalKeyVals.hostname ?? '')
-const hostNames = ref<{ id: string, value: string, active: boolean }[]>(globalKeyVals.hostnames.map((t: any) => ({
-    id: uniqueId(),
-    value: t,
-    active: t === activeHostname.value
-})));
-
-let timeout: any;
-watch(hostNames, (nv) => {
-    globalKeyVals.hostnames = nv.map(x => x.value);
-    if (timeout) {
-        clearTimeout(timeout);
+function changeActive(index: number, newValue: boolean) {
+    if (!newValue && activeIndex.value === index) {
+        activeIndex.value = -1;
+        globalKeyVals.hostname = '';
+    } else {
+        activeIndex.value = index;
+        globalKeyVals.hostname = globalKeyVals.hostnames[index];
     }
-    timeout = setTimeout(() => {
-        const empty = nv.filter(x => !x.value.length)
-        if (empty.length > 1) {
-            for (let i = 0; i < empty.length - 1; i++) {
-                const idx = nv.findIndex(x => x.id === empty[i].id);
-                if (idx >= 0) {
-                    nv.splice(idx, 1);
-                }
-            }
-        }
-    }, 1000);
-}, {deep: true});
+    globalKeyVals.updateIndexedDb();
+}
 
-function setHostnameActive(h: { id: string, value: string, active: boolean }) {
-    activeHostname.value = h.value
-    hostNames.value.forEach(t => t.active = t.value === h.value)
-    globalKeyVals.hostname = h.value;
+function onChange(val: string, index: number) {
+    globalKeyVals.hostnames[index] = val;
+    if (activeIndex.value === index) {
+        globalKeyVals.hostname = val;
+    }
+    globalKeyVals.updateIndexedDb();
 }
 </script>
 
@@ -45,22 +32,24 @@ function setHostnameActive(h: { id: string, value: string, active: boolean }) {
         <div class="whitespace-nowrap w-full flex items-center justify-between text-sm font-bold">
             Hostname
             <button
-                :disabled="hostNames.some(t => !t.value)"
-                @click="() => hostNames.push({id: uniqueId(), value: '', active: false})"
+                :disabled="globalKeyVals.hostnames.some(t => !t)"
+                @click="() => globalKeyVals.hostnames.push('')"
                 class="px-2 py-0.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                :class="hostNames.some(t => !t.value) ? 'opacity-50': ''"
+                :class="globalKeyVals.hostnames.some(t => !t) ? 'opacity-50': ''"
             >
                 <i class="icon icon-[mdi--plus]"></i>
                 Add
             </button>
         </div>
         <div class="flex flex-col w-full">
-            <template v-for="h in hostNames" :key="h.id">
+            <template v-for="(_, i) in globalKeyVals.hostnames" :key="i">
                 <div class="w-full flex gap-1 items-center">
-                    <input type="checkbox" v-model="h.active" @change="setHostnameActive(h)" class="size-5"/>
+                    <input type="checkbox"
+                           :checked="activeIndex === i"
+                           @change="e => changeActive(i, (e.target as HTMLInputElement).checked)" class="size-5"/>
                     <ArgInput
-                        v-model="h.value"
-                        @update:model-value="() => globalKeyVals.updateIndexedDb()"
+                        :model-value="globalKeyVals.hostnames[i]"
+                        @update:model-value="(v) => onChange(v||'', i)"
                         placeholder="Value"
                     />
                 </div>

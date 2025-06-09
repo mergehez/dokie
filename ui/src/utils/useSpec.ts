@@ -4,11 +4,15 @@ import {type Endpoint, useEndpoint} from "@/utils/useEndpoint.ts";
 let _spec: OpenAPIV3;
 
 export function useSpec(spec?: OpenAPIV3) {
+    if (spec) {
+        console.log('Using provided OpenAPI spec', spec);
+    }
     _spec ??= spec!;
     return {
         spec: _spec,
         allEndpoints: Object.entries(_spec.paths ?? []).flatMap(([path, methods]) => {
             return Object.entries(methods as object).map(([method, details]) => {
+                console.log(`Creating endpoint for ${method.toUpperCase()} ${path} with details:`, details);
                 return useEndpoint({
                     path,
                     method: method.toUpperCase(),

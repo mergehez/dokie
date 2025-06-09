@@ -14,7 +14,7 @@ defineProps<{
 
 <template>
     <div class="space-y-1 grid items-center" style="grid-template-columns: auto auto 1fr auto">
-        <template v-for="(p) in kvCollection.keyVals" :key="p.key">
+        <template v-for="(p) in kvCollection.keyVals" :key="p.id">
             <template v-if="!skip || !skip(p)">
                 <span v-if="p.required" class="icon icon-[gg--asterisk] -ml-4"> </span>
                 <i v-else></i>

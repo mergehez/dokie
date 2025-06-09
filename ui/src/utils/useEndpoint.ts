@@ -26,8 +26,8 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
         request: {
             method: opts.method,
             url: opts.path,
-            body: '',
-            headers: {},
+            body: _all.body ?? '',
+            headers: Object.fromEntries(_all.header.map(t => [t.key, t.value || ''])),
             postscript: _all.postscript ?? config.postscripts[id],
         },
     });
@@ -55,18 +55,19 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     }
 
     setTimeout(() => {
-        currReqInstance.request.body = JSONC.stringify(generateDefaultBody().unparse(false));
+        if (!currReqInstance.request.body)
+            currReqInstance.request.body = JSONC.stringify(generateDefaultBody().unparse(false));
     }, 200);
 
     const activeRequestTab = ref<'params' | 'body' | 'headers' | 'postscript'>('params');
-    const activeResponseTab = ref<'body' | 'headers'>('body');
+    const activeResponseTab = ref<'body' | 'preview' | 'headers'>('body');
 
 
     if (opts.addDefaults ?? true) {
         function getParamsFromSpec(type: 'path' | 'query' | 'header') {
-            return opts.openApiEndpoint.parameters?.filter((param) => {
+            return (opts.openApiEndpoint.parameters?.filter((param) => {
                 return param && 'in' in param && param.in === type;
-            }) as ParameterObject[] | [];
+            }) ?? []) as ParameterObject[] | [];
         }
 
         const allParams = {
@@ -74,6 +75,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
             header: getParamsFromSpec('header'),
             query: getParamsFromSpec('query'),
         } satisfies Record<Part, ParameterObject[]>;
+        console.log('allParams', allParams);
         for (const key in allParams) {
             const k = key as Part;
             const params = allParams[k] ?? [];
