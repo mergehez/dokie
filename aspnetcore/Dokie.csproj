@@ -9,12 +9,12 @@
         <Nullable>enable</Nullable>
         <Authors>mergehez</Authors>
         <Description>An API Documentation tool for your APIs.</Description>
-        <PackageProjectUrl>https://github.com/mergehez/dokie</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/mergehez/dokie</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/mergehez/dokie/tree/main/aspnetcore</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/mergehez/dokie/tree/main/aspnetcore</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageTags>OpenAPI;API;API Client;API Documentation;Asp.NetCore;Middleware;C#;.Net;React</PackageTags>
+        <PackageTags>OpenAPI;API;API Client;API Documentation;Asp.NetCore;Middleware;C#;.Net</PackageTags>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
