@@ -15,7 +15,8 @@ public struct DokieOptions
     public List<string>? HostnameOptions { get; init; }
     public Dictionary<string, string>? PredefinedVariables { get; init; }
     public Dictionary<string, string>? PredefinedHeaders { get; init; }
-    public Dictionary<string, string>? Postscripts { get; init; }
+    public Dictionary<string, string>? PredefinedPostscripts { get; init; }
+    public Dictionary<string, string>? PredefinedBodies { get; init; }
     public List<string>? PredefinedFavoriteEndpoints { get; init; }
     public Func<object, string>? JsonSerialize { get; init; }
 }
@@ -82,7 +83,8 @@ public static class Extensions
                               hostnames: {{Serialize(opts.HostnameOptions ?? [], opts)}},
                               variables: {{Serialize(opts.PredefinedVariables ?? [], opts)}},
                               headers: {{Serialize(opts.PredefinedHeaders ?? [], opts)}},
-                              postscripts: {{Serialize(opts.Postscripts ?? [], opts)}},
+                              postscripts: {{Serialize(opts.PredefinedPostscripts ?? [], opts)}},
+                              bodies: {{Serialize(opts.PredefinedBodies ?? [], opts)}},
                               favorites: {{Serialize(opts.PredefinedFavoriteEndpoints ?? [], opts)}},
                           };
                       </script>
