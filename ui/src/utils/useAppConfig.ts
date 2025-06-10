@@ -4,7 +4,7 @@ import {defineStore} from "@/utils/utils.ts";
 function _useAppConfig() {
     const config: typeof window.dokie = window.dokie ?? {
         "currentHostname": location.host,
-        "openApiJsonUrl": "",
+        "openApiJsonUrl": "http://127.0.0.1:8000/openapi",
         "hostnames": [],
         "variables": {
             "username": "mazlum",
