@@ -14,7 +14,7 @@ class UserController extends Controller
     /**
      * login user and return api key.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Auth'])]
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -66,7 +66,7 @@ class UserController extends Controller
     /**
      * logout user.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Auth'])]
     public function logout()
     {
         $user = auth()->user();
@@ -90,7 +90,7 @@ class UserController extends Controller
     /**
      * Retrieve all users.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Users'])]
     public function index()
     {
         $users = User::all();
@@ -103,7 +103,7 @@ class UserController extends Controller
     /**
      * Retrieve by ID.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Users'])]
     public function show(int $id)
     {
         $user = User::find($id);
@@ -119,7 +119,7 @@ class UserController extends Controller
     /**
      * Create a new user.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Users'])]
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -143,7 +143,7 @@ class UserController extends Controller
      *
      * Note that this method does not allow changing the password. Use 'change-password' method for that.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Users'])]
     public function update(Request $request, $id)
     {
         $user = User::find($id);
@@ -166,7 +166,7 @@ class UserController extends Controller
     /**
      * Change user password.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Users'])]
     public function changePassword(Request $request, $id)
     {
         $user = User::find($id);
@@ -195,7 +195,7 @@ class UserController extends Controller
     /**
      * Delete a user.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Users'])]
     public function destroy(int $id)
     {
         $user = User::find($id);

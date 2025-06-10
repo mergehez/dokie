@@ -12,7 +12,7 @@ class CategoryController extends Controller
     /**
      * Retrieve all categories.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Categories'])]
     public function index()
     {
         $categories = Category::all();
@@ -26,7 +26,7 @@ class CategoryController extends Controller
     /**
      * Retrieve a specific category by ID.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Categories'])]
     public function show(int $id)
     {
         $category = Category::with(['products'])->find($id);
@@ -43,7 +43,7 @@ class CategoryController extends Controller
     /**
      * Store a new category.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Categories'])]
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -62,7 +62,7 @@ class CategoryController extends Controller
     /**
      * Update an existing category.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Categories'])]
     public function update(Request $request, $id)
     {
         $category = Category::find($id);
@@ -86,7 +86,7 @@ class CategoryController extends Controller
     /**
      * Delete a category.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Categories'])]
     public function destroy(int $id)
     {
         $category = Category::find($id);

@@ -14,7 +14,7 @@ class ProductPriceController extends Controller
     /**
      * Retrieve all product prices.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Product Prices'])]
     public function index()
     {
         $productPrices = ProductPrice::with(['product'])->get();
@@ -28,7 +28,7 @@ class ProductPriceController extends Controller
     /**
      * Retrieve a specific product price by ID.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Product Prices'])]
     public function show(int $id)
     {
         $productPrice = ProductPrice::with(['product'])->find($id);
@@ -45,7 +45,7 @@ class ProductPriceController extends Controller
     /**
      * Store a new product price.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Product Prices'])]
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -74,7 +74,7 @@ class ProductPriceController extends Controller
     /**
      * Update an existing product price.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Product Prices'])]
     public function update(Request $request, $id)
     {
         $productPrice = ProductPrice::find($id);
@@ -101,7 +101,7 @@ class ProductPriceController extends Controller
     /**
      * Delete a product price.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Product Prices'])]
     public function destroy(int $id)
     {
         $productPrice = ProductPrice::find($id);

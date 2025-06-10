@@ -23,11 +23,26 @@ return [
 
             'tags' => [
 
-                // [
-                //    'name' => 'user',
-                //    'description' => 'Application users',
-                // ],
-
+                [
+                    'name' => 'Auth',
+                    'description' => 'Authentication',
+                ],
+                [
+                    'name' => 'Users',
+                    'description' => 'Users',
+                ],
+                [
+                    'name' => 'Categories',
+                    'description' => 'Categories',
+                ],
+                [
+                    'name' => 'Products',
+                    'description' => 'Products',
+                ],
+                [
+                    'name' => 'Product Prices',
+                    'description' => 'Product Prices',
+                ],
             ],
 
             'security' => [

@@ -12,7 +12,7 @@ class ProductController extends Controller
     /**
      * Retrieve all products with optional prices.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Products'])]
     public function index(Request $request)
     {
         $withPrices = $request->query('with_prices', false);
@@ -33,7 +33,7 @@ class ProductController extends Controller
     /**
      * Retrieve a specific product by ID.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Products'])]
     public function show(int $id)
     {
         $product = Product::with(['category', 'prices', 'createdBy'])->find($id);
@@ -50,7 +50,7 @@ class ProductController extends Controller
     /**
      * Store a new product.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Products'])]
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -69,7 +69,7 @@ class ProductController extends Controller
     /**
      * Update an existing product.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Products'])]
     public function update(Request $request, $id)
     {
         $product = Product::find($id);
@@ -94,7 +94,7 @@ class ProductController extends Controller
     /**
      * Delete a product by ID.
      */
-    #[OpenApi\Operation]
+    #[OpenApi\Operation(tags: ['Products'])]
     public function destroy(int $id)
     {
         $product = Product::find($id);
