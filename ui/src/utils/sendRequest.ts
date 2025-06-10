@@ -69,7 +69,7 @@ export async function sendRequest(e: Endpoint) {
             method: currReqInstance.request.method,
             url: url,
             headers: headers,
-            data: body ? JSON.parse(body) : body,
+            data: body ? JSON.parse(body) : (currReqInstance.request.method === 'GET' ? undefined : {}),
         };
         try {
             function handleResponse(res: AxiosResponse) {
@@ -98,6 +98,7 @@ export async function sendRequest(e: Endpoint) {
                     contentType: res.headers?.['Content-Type'] || res.headers?.['content-type'] || '',
                 };
 
+                runPostscript(currReqInstance.request.postscript, res);
                 return res;
             }
 
@@ -108,28 +109,7 @@ export async function sendRequest(e: Endpoint) {
                         return handleResponse(t.response);
 
                     throw t;
-                    // const msg = t.message || t.cause?.message || t.code || 'Unknown error';
-                    // e.axiosError = msg;
-                    // currReqInstance.request.headers = headers;
-                    // currReqInstance.response = {
-                    //     duration: performance.now() - startTime,
-                    //     isRedirect: false,
-                    //     isSuccess: false,
-                    //     body: msg,
-                    //     status: t.status || 0,
-                    //     statusText: t.code || 'Error',
-                    //     size: -1,
-                    //     isJson: false,
-                    //     headers: [],
-                    //     contentType: '',
-                    // };
-                    //
-                    // return undefined;
                 });
-
-
-            if (res)
-                runPostscript(currReqInstance.request.postscript, res);
         } catch (error) {
             console.error('Error sending request:', error);
             e.axiosError = error as any;
