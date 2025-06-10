@@ -3,13 +3,28 @@
 import MonacoEditor from "@/components/MonacoEditor.vue";
 import type {RequestInstance} from "@/utils/useDb.ts";
 import {ref} from "vue";
+import ArgButton from "@/components/ui/ArgButton.vue";
 
-defineProps<{
+const props = defineProps<{
     response: Exclude<RequestInstance['response'], undefined>
 }>()
 
-function copyBody() {
+const canCopy = 'navigator' in window && 'clipboard' in navigator;
+const copied = ref<boolean>();
 
+function copyBody() {
+    navigator.clipboard.writeText(props.response.body ?? '')
+        .then(() => {
+            copied.value = true;
+        })
+        .catch((err) => {
+            copied.value = false;
+            console.error('Failed to copy response body:', err);
+        }).finally(() => {
+        setTimeout(() => {
+            copied.value = undefined;
+        }, 2000);
+    });
 }
 
 const activeTab = ref<'body' | 'preview' | 'headers'>('body');
@@ -83,10 +98,16 @@ const activeTab = ref<'body' | 'preview' | 'headers'>('body');
                                         </span>
                         </div>
                     </div>
-                    <button v-if="activeTab === 'body'" @click="copyBody"
-                            class="absolute z-10 right-8 top-2 px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                        Copy
-                    </button>
+                    <template v-if="canCopy && activeTab === 'body'">
+                        <ArgButton
+                            :severity="copied === true ? 'success' : copied === false ? 'danger' : 'primary'"
+                            class="absolute z-10 right-6 top-2 px-2 py-1 text-xs"
+                            @click="copyBody"
+                        >
+                            <i class="icon icon-[ic--round-content-copy]"></i>
+                            {{ copied === true ? 'Copied!' : copied === false ? 'Failed to copy, see console!' : 'Copy Body' }}
+                        </ArgButton>
+                    </template>
                 </div>
             </div>
         </div>
