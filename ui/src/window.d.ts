@@ -7,6 +7,7 @@ declare global {
             hostnames: string[],
             variables: Record<string, string>,
             headers: Record<string, string>,
+            bodies: Record<string, string>,
             postscripts: Record<string, string>,
             favorites: string[],
         };

@@ -17,14 +17,21 @@ function _useAppConfig() {
         "postscripts": {
             "GET /api/login": "envs.headers['x-api-key'] = response.data.value.ticket;",
         },
+        "bodies": {
+            "GET /api/login": `{
+                "email": "{{email}}",
+                "password": "{{password}}"
+            }`,
+        },
         "favorites": [
             "GET /api/login",
         ]
     }
 
-    config.postscripts ??= {};
     config.currentHostname ||= location.host
     config.openApiJsonUrl ||= config.currentHostname + '/openapi/v1.json';
+    config.postscripts ??= {};
+    config.bodies ??= {};
     config.hostnames ??= [];
     config.variables ??= {};
     config.headers ??= {};
