@@ -41,5 +41,7 @@ Route::get('/dokie', function () {
         $html
     );
 
-    return response($finalHtml)->header('Content-Type', 'text/html');
+    return response($finalHtml)
+        ->header('Content-Type', 'text/html')
+        ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
 });
