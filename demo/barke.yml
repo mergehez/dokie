@@ -59,7 +59,11 @@ steps:
   #  - predefined: # example of a predefined method
   #      method: local:sleep
   #      ms: 1000
-
+  #
+  #  - shell:
+  #      command: cd ../ui && bun run build
+  #      message: blue|\n-> ${command}
+  #      on_error: 'print'
   - predefined: local:laravel_clear_cache
   - predefined: local:laravel_build
   - predefined: server:find_new_files
@@ -80,7 +84,7 @@ steps:
       on_error: 'ignore'
   - predefined: server:unzip
   - predefined: server:delete_zip
-  - predefined: server:laravel_composer_update
+  #  - predefined: server:laravel_composer_update
   - predefined:
       method: server:laravel_ensure_dirs_exist
       dirs: # these are automatically created: "storage/framework/cache" "storage/logs"
@@ -92,6 +96,11 @@ steps:
       permissions: '0755'
       owner: www
       group: www
+  - shell:
+      ssh: true
+      command: php artisan optimize:clear
+      message: blue|\n-> ${command}
+      on_error: 'print'
   - predefined: server:laravel_optimize
   - predefined: local:laravel_clear_cache
   - predefined: local:dispose_ssh
