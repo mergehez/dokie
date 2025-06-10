@@ -9,6 +9,8 @@
 An API client and documentation UI, inspired by [Postman](https://www.postman.com/).
 A replacement for libraries like [Swagger UI](https://swagger.io/tools/swagger-ui) and [Scalar](https://scalar.com/).
 
+See the demo at: [https://dokie.mergesoft.dev/dokie](https://dokie.mergesoft.dev/dokie).
+
 ## Installation
 
 1. Using Package Manager:

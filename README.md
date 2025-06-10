@@ -9,6 +9,8 @@
 An API client and documentation UI, inspired by [Postman](https://www.postman.com/).
 A replacement for libraries like [Swagger UI](https://swagger.io/tools/swagger-ui) and [Scalar](https://scalar.com/).
 
+See the demo at: [https://dokie.mergesoft.dev/dokie](https://dokie.mergesoft.dev/dokie).
+
 Currently, it only has a NuGet package for ASP.NET Core applications, but it is planned to be extended to other platforms in the future. If you are interested in a specific platform, please open an issue or pull request.
 
 ## Installation
