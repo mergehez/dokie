@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/dokie', function () {
     $html = file_get_contents(public_path('dokie.html'));
-    $currentHostname = explode('/dokie', url()->current())[0];
+    $currentHostname = \Illuminate\Support\Str::rtrim(url()->current(), '/dokie');
     $finalHtml = str_replace(
         '<script>/*inject-area*/</script>',
         "<script>
@@ -12,6 +12,7 @@ Route::get('/dokie', function () {
                 currentHostname: '$currentHostname',
                 openApiJsonUrl: '$currentHostname/openapi',
                 hostnames: [
+                    '$currentHostname'
                 ],
                 variables: {
                     email: 'demo@dokie.com',
@@ -19,9 +20,16 @@ Route::get('/dokie', function () {
                 },
                 headers: {
                     'x-api-key': '',
+                    'Accept': 'application/json'
+                },
+                bodies: {
+                    'POST /api/login': JSON.stringify({
+                        email: '{{email}}',
+                        password: '{{password}}'
+                    }, null, 2),
                 },
                 postscripts: {
-                    'POST /api/login': \"envs.headers['x-api-key'] = response.data.value.ticket;\",
+                    'POST /api/login': \"envs.headers['x-api-key'] = response.data.value.api_key;\",
                     'POST /api/logout': \"envs.headers['x-api-key'] = '';\" // Clear the API key on logout
                 },
                 favorites: [
