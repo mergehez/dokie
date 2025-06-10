@@ -1,0 +1,98 @@
+config:
+  target_os: unix                         # 'windows' or 'unix'
+  local_basepath: ./                      # base path for the files to upload 
+  remote_basepath: /www/wwwroot/dokie.mergesoft.dev    # (full) absolute path on the server to upload to
+  host: ${env.HOST_SERVER}                # you can use ${env.*} or the plain value directly
+  # ftp:                                  # you can use ftp to upload files. this is required for "server:upload_files_ftp"
+  #   username: ${env.FTP_USERNAME}
+  #   password: ${env.FTP_PASSWORD}
+  #   base_path: /www/wwwroot
+  ssh:
+    username: ${env.SSH_USERNAME}
+    password: ${env.SSH_PASSWORD}
+    port: ${env.SSH_PORT}
+  # private_key_path: ${env.SSH_PRIVATE_KEY_PATH} # optional, if you want to use a private key
+
+  # for printing "files to upload". files inside these dirs, won't be printed, instead "dir/*"
+  dist_dirs:
+    - public/build
+    - vendor/composer
+    - storage/framework/cache
+    - storage/framework/views
+    - storage/framework/sessions
+
+  ignores:
+    - /vendor
+    - /bootstrap/cache
+    - .gitignore
+
+    #folders
+    - node_modules
+    - /database
+    - /tests
+    - /example
+    - /resources/js
+    - /resources/css
+    - /resources/sass
+    - /resources/svg
+    - /resources/markdown
+    - /storage/debugbar
+    - /public/images
+
+    #files
+    - /.*             # root level dot files
+    - /*.*            # root level files
+    - .DS_Store       # .DS_Store file anywhere
+    - \*.zip          # zip files anywhere
+    - laravel.log
+    - \!composer.json # un-ignore composer.json
+
+steps:
+  #    - shell: # example of a ssh shell command
+  #        ssh: true
+  #        command: sudo chown -R www:www storage;
+  #        message: blue|\n-> ${command}
+  #        on_error: 'print'
+  #   - log: I am a log # example of a log
+  #   - log:
+  #       message: I am an object log
+  #  - predefined: # example of a predefined method
+  #      method: local:sleep
+  #      ms: 1000
+
+  - predefined: local:laravel_clear_cache
+  - predefined: local:laravel_build
+  - predefined: server:find_new_files
+  - predefined: local:exit_if_dry_run
+  - predefined: server:upload_files_ssh
+  - predefined:
+      method: server:delete_file
+      path: public/build/manifest.json
+      on_error: 'ignore'
+  - predefined:
+      method: server:delete_dir
+      path: public/build/assets
+      message: blue|\n-> Deleting old auto-generated vue&js files on server
+      on_error: 'ignore'
+  - predefined:
+      method: server:delete_file
+      path: public/hot
+      on_error: 'ignore'
+  - predefined: server:unzip
+  - predefined: server:delete_zip
+  - predefined: server:laravel_composer_update
+  - predefined:
+      method: server:laravel_ensure_dirs_exist
+      dirs: # these are automatically created: "storage/framework/cache" "storage/logs"
+        - storage/framework/views
+        - storage/framework/cache
+        - storage/logs
+        - bootstrap/cache
+        - storage
+      permissions: '0755'
+      owner: www
+      group: www
+  - predefined: server:laravel_optimize
+  - predefined: local:laravel_clear_cache
+  - predefined: local:dispose_ssh
+  - predefined: local:finish
