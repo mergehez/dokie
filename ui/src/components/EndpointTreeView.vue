@@ -14,9 +14,9 @@ const sidebar = useNavState();
                 <div @click="sidebar.toggleGroup(tag)"
                      class="flex items-center gap-2 px-2 rounded cursor-pointer hover:bg-x2 transition-colors select-none">
                     <i class="icon opacity-80" :class="sidebar.isGroupExpanded(tag) ? 'icon-[mingcute--down-fill]': 'icon-[mingcute--right-fill]'"></i>
-                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ tag }}</span>
+                    <span class="font-bold text-gray-700 dark:text-gray-300 capitalize">{{ tag }}</span>
                 </div>
-                <div v-show="sidebar.isGroupExpanded(tag)" class=" space-y-1 mt-1 pr-2">
+                <div v-show="sidebar.isGroupExpanded(tag)" class="space-y-1 mt-1 pr-2 pb-3">
                     <div
                         v-for="endpoint in endpoints" :key="`${endpoint.method}-${endpoint.path}`"
                         @click="sidebar.selectEndpoint(endpoint)"
