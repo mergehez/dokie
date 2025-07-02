@@ -9,10 +9,6 @@ use Vyuldashev\LaravelOpenApi\Attributes as OpenApi;
 #[OpenApi\PathItem]
 class CategoryController extends Controller
 {
-    /**
-     * Retrieve all categories.
-     */
-    #[OpenApi\Operation(tags: ['Categories'])]
     public function index()
     {
         $categories = Category::all();

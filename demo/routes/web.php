@@ -10,7 +10,7 @@ Route::get('/dokie', function () {
         "<script>
             window.dokie = {
                 currentHostname: '$currentHostname',
-                openApiJsonUrl: '$currentHostname/openapi',
+                openApiJsonUrl: '$currentHostname/docs/api.json',
                 hostnames: [
                     '$currentHostname'
                 ],
