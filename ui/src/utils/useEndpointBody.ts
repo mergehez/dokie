@@ -156,7 +156,8 @@ function createDefaultFromSchema(
     }
 
     // Handle different types
-    switch (schema.type) {
+    const type = Array.isArray(schema.type) ? schema.type.filter(t => t != 'null' && t != 'undefined')[0] : schema.type;
+    switch (type) {
         case 'string':
             if (schema.format == 'date-time')
                 return Parsed.primitive(new Date().toISOString(), schema.description);
