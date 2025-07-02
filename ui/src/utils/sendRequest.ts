@@ -12,6 +12,7 @@ export async function sendRequest(e: Endpoint) {
 
         function applyEnvsToString(str: string) {
             const allGlobalKeyVals = globalKeyVals.headers.merge(globalKeyVals.variables);
+            str = str?.toString() || '';
             str = str.replace(/{{([A-z0-9_-]+)}}/g, (match, p1) => allGlobalKeyVals.find(t => t.key == p1)?.value || match);
             str = str.replace(/{([A-z0-9_-]+)}/g, (match, p1) => {
                 return e.routeKeyVals.getValue(p1) || match

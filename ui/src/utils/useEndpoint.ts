@@ -80,7 +80,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
             for (const param of params) {
                 const s = param.schema as SchemaObject;
                 const fromState = _all[k].find((kv) => kv.key === param.name);
-                const defValue = param.example || (s && s.default) || '';
+                const defValue = String(param.example || (s && s.default) || '');
                 if (!fromState) {
                     _all[k].push({
                         id: uniqueId(),
