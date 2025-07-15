@@ -60,13 +60,10 @@ const activeTab = ref<'body' | 'preview' | 'headers'>('body');
             <!-- Left side: Response content tabs -->
             <div class="flex-1 flex flex-col border-r border-x4 w-full">
                 <div class="flex border-b border-x4 items-center">
-                    <button v-for="tab in ['body', 'preview', 'headers'] as const" :key="tab" @click="activeTab = tab"
-                            class="px-4 py-2 text-sm font-medium transition-colors" :class="{
-                                'border-b-2 border-blue-600 text-blue-600': activeTab === tab,
-                                'text-gray-600 dark:text-gray-400': activeTab !== tab
-                            }">
-                        {{ tab.charAt(0).toUpperCase() + tab.slice(1) }}
-                    </button>
+                    <TabButton v-model="activeTab" tab="body" text="Body"/>
+                    <TabButton v-model="activeTab" tab="preview" text="Preview" v-if="canBeViewed()"/>
+                    <TabButton v-model="activeTab" tab="headers" text="Headers"/>
+
                     <i class="flex-1"></i>
                     <!-- copy button if body -->
                 </div>

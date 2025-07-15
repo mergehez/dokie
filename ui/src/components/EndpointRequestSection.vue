@@ -5,6 +5,7 @@ import MonacoEditor from "@/components/MonacoEditor.vue";
 import {ElScrollbar} from "element-plus";
 import EnvDataTable from "@/components/EnvDataTable.vue";
 import type {Endpoint} from "@/utils/useEndpoint.ts";
+import TabButton from "@/components/TabButton.vue";
 
 const props = defineProps<{
     endpoint: Endpoint
@@ -14,13 +15,10 @@ const props = defineProps<{
 <template>
     <div class="flex-1 flex flex-col border border-x4 rounded overflow-y-auto">
         <div class="flex border-b border-x4">
-            <button v-for="tab in ['params', 'headers', 'body', 'postscript'] as const" :key="tab" @click="endpoint.activeRequestTab = tab"
-                    class="px-4 py-2 text-sm font-medium transition-colors" :class="{
-                        'border-b-2 border-blue-600 text-blue-600': endpoint.activeRequestTab === tab,
-                        'text-gray-600 dark:text-gray-400': endpoint.activeRequestTab !== tab
-                    }">
-                {{ tab.charAt(0).toUpperCase() + tab.slice(1) }}
-            </button>
+            <TabButton v-model="endpoint.activeRequestTab" tab="params" text="Params"/>
+            <TabButton v-model="endpoint.activeRequestTab" tab="headers" text="Headers"/>
+            <TabButton v-model="endpoint.activeRequestTab" tab="body" :text="`Body (${ext})`"/>
+            <TabButton v-model="endpoint.activeRequestTab" tab="postscript" text="Postscript"/>
         </div>
 
         <div class="py-1 flex-1 overflow-y-auto">
