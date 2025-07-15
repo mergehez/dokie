@@ -5,11 +5,21 @@ import MonacoEditor from "@/components/MonacoEditor.vue";
 import {ElScrollbar} from "element-plus";
 import EnvDataTable from "@/components/EnvDataTable.vue";
 import type {Endpoint} from "@/utils/useEndpoint.ts";
+import {computed} from "vue";
+import mime from "mime";
 import TabButton from "@/components/TabButton.vue";
 
 const props = defineProps<{
     endpoint: Endpoint
 }>()
+
+const req = computed(() => props.endpoint.apiCall.request);
+
+function getHeader(name: string): string | undefined {
+    return Object.entries(req.value.headers).find(t => t[0].toLowerCase() === name.toLowerCase())?.[1];
+}
+
+const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'application/json') || 'json');
 </script>
 
 <template>
@@ -67,6 +77,7 @@ const props = defineProps<{
                 <div v-if="endpoint.activeRequestTab === 'body'" class="space-y-2 h-full">
                     <MonacoEditor
                         v-model="props.endpoint.apiCall.request.body"
+                        :language="ext"
                     />
                 </div>
 
