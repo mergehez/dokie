@@ -1,7 +1,7 @@
 import {reactive, ref} from "vue";
 import {defineStore, uniqueId} from "@/utils/utils";
 import type {OpenApiEndpoint, OpenAPIV3, ParameterObject, SchemaObject} from "./types";
-import {type KeyVal, type RequestInstance, useDb} from "@/utils/useDb.ts";
+import {type ApiCall, type KeyVal, useDb} from "@/utils/useDb.ts";
 import {AxiosError} from "axios";
 import {useUri} from "@/utils/useUri.ts";
 import {JSONC} from "@/utils/json_helpers.ts";
@@ -22,7 +22,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     const _all = reactive(_allKeyVals.getEndpoint(id))
 
     const config = useAppConfig()
-    const currReqInstance = reactive<RequestInstance>({
+    const apiCall = reactive<ApiCall>({
         request: {
             method: opts.method,
             url: opts.path,
@@ -33,13 +33,13 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     });
 
     function updateCurrentUrl() {
-        const uri = useUri(currReqInstance.request.url);
+        const uri = useUri(apiCall.request.url);
         Object.values(_all.query).forEach(({key, value}) => {
             if (key && value) {
                 uri.params[key] = value;
             }
         });
-        currReqInstance.request.url = uri.toString()[1];
+        apiCall.request.url = uri.toString()[1];
     }
 
     updateCurrentUrl();
@@ -55,8 +55,8 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     }
 
     setTimeout(() => {
-        if (!currReqInstance.request.body)
-            currReqInstance.request.body = JSONC.stringify(generateDefaultBody().unparse(false));
+        if (!apiCall.request.body)
+            apiCall.request.body = JSONC.stringify(generateDefaultBody().unparse(false));
     }, 200);
 
     const activeRequestTab = ref<'params' | 'body' | 'headers' | 'postscript'>('params');
@@ -115,7 +115,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
         queryKeyVals: queryKeyVals,
         headerKeyVals: headerKeyVals,
         routeKeyVals: routeKeyVals,
-        requestInstance: currReqInstance,
+        apiCall: apiCall,
         activeRequestTab: activeRequestTab,
         updateIndexedDb: async () => {
             await _allKeyVals.upsert(id, _all);

@@ -26,7 +26,7 @@ type IdbKeyVal = {
     }
 }
 
-export interface RequestInstance {
+export interface ApiCall {
     request: {
         method: string
         url: string
@@ -39,12 +39,15 @@ export interface RequestInstance {
         isSuccess: boolean
         isRedirect: boolean
         body: string
+        bodyArrayBuffer: ArrayBuffer
+        bodyStr: string
         status: number
         statusText: string
         size: number // in bytes
         isJson: boolean
         headers: [string, any][]
         contentType: string
+        ext: string // common extension for the content type, e.g. 'json', 'html', 'xml', etc.
         // cookies: Record<string, string>
     }
 }
@@ -52,7 +55,7 @@ export interface RequestInstance {
 export type IdbRequestHistory = {
     id: number;
     date: Date;
-    request: RequestInstance;
+    request: ApiCall;
 }
 
 export type IdbNavState = {

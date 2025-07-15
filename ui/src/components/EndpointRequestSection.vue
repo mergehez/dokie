@@ -66,15 +66,15 @@ const props = defineProps<{
                 <!-- Body Tab -->
                 <div v-if="endpoint.activeRequestTab === 'body'" class="space-y-2 h-full">
                     <MonacoEditor
-                        v-model="props.endpoint.requestInstance.request.body"
+                        v-model="props.endpoint.apiCall.request.body"
                     />
                 </div>
 
                 <!-- postscript Tab -->
                 <div v-if="endpoint.activeRequestTab === 'postscript'" class="space-y-2 h-full">
                     <MonacoEditor
-                        :model-value="props.endpoint.requestInstance.request.postscript ?? defaultPostscript(props.endpoint)"
-                        @update:modelValue="v => props.endpoint.requestInstance.request.postscript = v ?? ''"
+                        :model-value="props.endpoint.apiCall.request.postscript ?? defaultPostscript(props.endpoint)"
+                        @update:modelValue="v => props.endpoint.apiCall.request.postscript = v ?? ''"
                         language="typescript"
                     />
                 </div>

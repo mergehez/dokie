@@ -8,7 +8,7 @@ import {useGlobalEnvs} from "./useGlobalEnvs";
 export async function sendRequest(e: Endpoint) {
     try {
         const globalKeyVals = useGlobalEnvs();
-        const currReqInstance = e.requestInstance;
+        const currApiCall = e.apiCall;
 
         function applyEnvsToString(str: string) {
             const allGlobalKeyVals = globalKeyVals.headers.merge(globalKeyVals.variables);
@@ -26,7 +26,7 @@ export async function sendRequest(e: Endpoint) {
         let hostname = globalKeyVals.hostname ?? '';
         if (hostname.endsWith('/'))
             hostname = hostname.substring(0, hostname.length - 1);
-        const uri = useUri(hostname + applyEnvsToString(currReqInstance.request.url));
+        const uri = useUri(hostname + applyEnvsToString(currApiCall.request.url));
         for (const {key, value, required} of Object.values(e.queryKeyVals.keyVals)) {
             if (key && value) {
                 uri.params[key] = applyEnvsToString(value);
@@ -59,18 +59,20 @@ export async function sendRequest(e: Endpoint) {
             }, {} as Record<string, string>)
         };
         console.log('url: ' + url);
-        let body = currReqInstance.request?.body;
         if (body && body.includes('//')) {
+        let body = currApiCall.request?.body;
             body = JSON.stringify(JSONC.parse(body), null, 2);
         }
         if (body) {
             body = applyEnvsToString(body);
         }
         const config: AxiosRequestConfig = {
-            method: currReqInstance.request.method,
+            method: currApiCall.request.method,
             url: url,
             headers: headers,
-            data: body ? JSON.parse(body) : (currReqInstance.request.method === 'GET' ? undefined : {}),
+            data: isContentJson && body
+                ? JSON.parse(body)
+                : (currApiCall.request.method === 'GET' ? undefined : isContentJson ? {} : body),
         };
         try {
             function handleResponse(res: AxiosResponse) {
@@ -85,8 +87,8 @@ export async function sendRequest(e: Endpoint) {
                     const data = JSON.parse(dataStr);
                     dataStr = JSON.stringify(data, null, 2);
                 }
-                currReqInstance.request.headers = headers;
                 currReqInstance.response = {
+                currApiCall.request.headers = headers;
                     duration: performance.now() - startTime,
                     isRedirect: res.status >= 300 && res.status < 400,
                     isSuccess: res.status >= 200 && res.status < 300,
@@ -115,8 +117,8 @@ export async function sendRequest(e: Endpoint) {
             console.error('Error sending request:', error);
             e.axiosError = error as any;
         } finally {
-            e.all.body = currReqInstance.request.body
-            e.all.postscript = currReqInstance.request.postscript
+            e.all.body = currApiCall.request.body
+            e.all.postscript = currApiCall.request.postscript
             e.updateIndexedDb();
         }
     } finally {
