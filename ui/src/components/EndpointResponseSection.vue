@@ -15,7 +15,7 @@ const canCopy = 'navigator' in window && 'clipboard' in navigator;
 const copied = ref<boolean>();
 
 function copyBody() {
-    navigator.clipboard.writeText(props.response.body ?? '')
+    navigator.clipboard.writeText(props.response.bodyStr ?? '')
         .then(() => {
             copied.value = true;
         })
@@ -29,7 +29,45 @@ function copyBody() {
     });
 }
 
+function canBeViewed(): boolean {
+    const viewableExts = ['txt', 'json', 'html', 'htm', 'xml', 'csv', 'pdf'];
+    return props.response.ext ? viewableExts.includes(props.response.ext) : false;
+}
+
+function sizeToString(size: number): string {
+    if (!size) return '';
+    if (size < 1024) return `${size} B`;
+    else if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+    else if (size < 1024 * 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+    else return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+function downloadResponse() {
+    let ext = mime.getExtension(props.response.contentType) || 'txt'; // Use mime-types to get the extension
+    const ab = props.response.bodyArrayBuffer
+
+    if (!ab) {
+        console.error('No body data available for download');
+        return;
+    }
+    if (ext === 'xls' || ext === 'xlsx') {
+        ext = 'xlsx'; // Ensure we use a consistent extension for Excel files
+    }
+    const blob = new Blob([ab], {type: props.response.contentType});
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    const dt = new Date().toISOString().split('.')[0].replace(/[:T]/g, '-'); // Format date for filename
+    a.download = `response-${dt}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 const activeTab = ref<'body' | 'preview' | 'headers'>('body');
+
 </script>
 
 <template>
@@ -54,7 +92,7 @@ const activeTab = ref<'body' | 'preview' | 'headers'>('body');
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-gray-500 dark:text-gray-400">Size:</span>
-                    <span>{{ Math.round((response.size ?? 0) / 1024 * 100) / 100 }}KB</span>
+                    <span>{{ sizeToString(response.size) }}</span>
                 </div>
             </div>
         </div>
@@ -67,14 +105,40 @@ const activeTab = ref<'body' | 'preview' | 'headers'>('body');
                     <TabButton v-model="activeTab" tab="headers" text="Headers"/>
 
                     <i class="flex-1"></i>
+
+                    <ArgButton
+                        severity="secondary"
+                        class="z-10 px-2 py-1 text-xs"
+                        @click="downloadResponse"
+                    >
+                        <i class="icon icon-[mdi--content-save]"></i>
+                        Download Response ({{ response.ext || 'txt' }})
+                    </ArgButton>
                     <!-- copy button if body -->
                 </div>
                 <div class=" flex-1 relative">
                     <MonacoEditor
-                        :model-value="response.body?.replace(/\/Users\/mazlum\/Documents/g, 'file:///Users/mazlum/Documents').replace(/:line/g,':line:')"
+                        :model-value="response.bodyStr?.replace(/:line/g,':line:')"
                         readonly
-                        :class="activeTab === 'body' ? '' : ' invisible'"
+                        :language="response.ext || 'json'"
+                        :class="activeTab === 'body' && canBeViewed() ? '' : ' invisible'"
                     />
+                    <div
+                        :class="activeTab === 'body' && !canBeViewed() ? '' : 'invisible'"
+                        class="inset-0 absolute space-y-2 p-4 flex flex-col items-center justify-center">
+                        <div class="text-center">
+                            <u><b>{{ response.ext || response.contentType }}</b></u> files cannot be displayed in the editor.
+                        </div>
+
+                        <ArgButton
+                            severity="secondary"
+                            class="z-10 px-2 py-1 text-xs"
+                            @click="downloadResponse"
+                        >
+                            <i class="icon icon-[mdi--content-save]"></i>
+                            Download Response ({{ sizeToString(response.size) }})
+                        </ArgButton>
+                    </div>
                     <div class="inset-0 absolute space-y-2 p-4"
                          :class="activeTab === 'headers' ? '' : 'invisible'">
                         <div v-for="(v) in response.headers" :key="v[0]"
@@ -83,18 +147,18 @@ const activeTab = ref<'body' | 'preview' | 'headers'>('body');
                             <span class="text-gray-600 dark:text-gray-400">{{ v[1] }}</span>
                         </div>
                     </div>
-                    <div class="inset-0 absolute space-y-2 p-4"
+                    <div class="inset-0 absolute space-y-2 p-4 flex overflow-auto"
                          :class="activeTab === 'preview' ? '' : 'invisible'">
                         <iframe
-                            v-if="response.contentType?.startsWith('text/html')"
-                            :srcdoc="response.body"
+                            v-if="response.ext == 'html' || response.ext == 'htm'"
+                            :srcdoc="response.bodyStr"
                             class="w-full h-full border border-x4 rounded overflow-hidden">
                         </iframe>
-                        <div v-else class="text-gray-500 dark:text-gray-400 h-full flex items-center justify-center">
-                                        <span class="text-sm">
-                                            Preview is only available for HTML responses. <br>
-                                            But current response is: <strong>{{ response.contentType }}</strong>
-                                        </span>
+                        <div v-else class="text-gray-500 dark:text-gray-400 h-full w-full flex items-center justify-center">
+                            <span class="text-sm">
+                                Preview is only available for HTML responses. <br>
+                                But current response is: <strong>{{ response.contentType }}</strong>
+                            </span>
                         </div>
                     </div>
                     <template v-if="canCopy && activeTab === 'body'">

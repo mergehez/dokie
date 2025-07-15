@@ -4,6 +4,7 @@ import axios, {type AxiosError, type AxiosRequestConfig, type AxiosResponse} fro
 import {runPostscript} from "@/utils/usePostscript.ts";
 import {type Endpoint} from "@/utils/useEndpoint.ts";
 import {useGlobalEnvs} from "./useGlobalEnvs";
+import mime from "mime";
 
 export async function sendRequest(e: Endpoint) {
     try {
@@ -47,26 +48,28 @@ export async function sendRequest(e: Endpoint) {
         let url = uri.toString()[0] + uri.toString()[1];
         url = applyEnvsToString(url);
         const headers = {
-            'Content-Type': 'application/json',
-            'Accept': '*/*',
-            'Cache-Control': 'no-cache',
-            'Access-Control-Expose-Headers': '*',
+            'content-type': 'application/json',
+            'accept': '*/*',
+            'cache-control': 'no-cache',
+            'access-control-expose-headers': '*',
             ...globalKeyVals.headers.merge(e.headerKeyVals).reduce((acc, {key, value}) => {
                 if (key && value) {
-                    acc[key] = applyEnvsToString(value);
+                    acc[key.toLowerCase()] = applyEnvsToString(value);
                 }
                 return acc;
             }, {} as Record<string, string>)
         };
         console.log('url: ' + url);
-        if (body && body.includes('//')) {
         let body = currApiCall.request?.body;
+        const isContentJson = headers['content-type'] == 'application/json';
+        if (body && body.includes('//') && isContentJson) {
             body = JSON.stringify(JSONC.parse(body), null, 2);
         }
         if (body) {
             body = applyEnvsToString(body);
         }
         const config: AxiosRequestConfig = {
+            responseType: 'arraybuffer',
             method: currApiCall.request.method,
             url: url,
             headers: headers,
@@ -76,9 +79,21 @@ export async function sendRequest(e: Endpoint) {
         };
         try {
             function handleResponse(res: AxiosResponse) {
-                let dataStr = typeof res.data == 'object' || !res.data
-                    ? JSON.stringify(res.data || {failedRequestInfo: res}, null, 2)
-                    : (res.data || res.statusText).toString();
+                let dataStr = res.data instanceof ArrayBuffer
+                    ? new TextDecoder().decode(res.data)
+                    : typeof res.data == 'object' || !res.data
+                        ? JSON.stringify(res.data || {failedRequestInfo: res}, null, 2)
+                        : (res.data || res.statusText).toString();
+
+                let dataObj = {} as any;
+                try {
+                    if (res.data instanceof ArrayBuffer)
+                        dataObj = JSON.parse(dataStr);
+                    else if (typeof res.data === 'object')
+                        dataObj = res.data;
+                } catch (_) {
+                }
+
                 const size = dataStr.length;
                 const contentType = res.headers?.['content-type'];
                 const isJson = contentType?.includes('application/json') ||
@@ -87,21 +102,28 @@ export async function sendRequest(e: Endpoint) {
                     const data = JSON.parse(dataStr);
                     dataStr = JSON.stringify(data, null, 2);
                 }
-                currReqInstance.response = {
                 currApiCall.request.headers = headers;
+                const cType = res.headers?.['Content-Type'] || res.headers?.['content-type'] || '';
+                let ext = mime.getExtension(cType) || (cType == 'application/problem+json' ? 'json' : '');
+                currApiCall.response = {
                     duration: performance.now() - startTime,
                     isRedirect: res.status >= 300 && res.status < 400,
                     isSuccess: res.status >= 200 && res.status < 300,
-                    body: dataStr,
+                    bodyArrayBuffer: res.data, // arraybuffer
+                    body: dataObj, // arraybuffer
+                    bodyStr: dataStr,
                     status: res.status,
                     statusText: res.statusText,
                     size: size,
                     isJson: isJson,
                     headers: res.headers ? Object.entries(res.headers) : [],
-                    contentType: res.headers?.['Content-Type'] || res.headers?.['content-type'] || '',
+                    contentType: cType,
+                    ext: ext,
                 };
-
-                runPostscript(currReqInstance.request.postscript, res);
+                runPostscript(currApiCall.request.postscript, {
+                    ...res,
+                    data: dataObj,
+                });
                 return res;
             }
 
