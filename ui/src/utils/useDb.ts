@@ -148,7 +148,7 @@ export function useDb() {
                 if (i === -1) {
                     _keyVals.push(newIdbKv);
                 } else {
-                    _keyVals[i].value = value;
+                    _keyVals[i]!.value = value;
                 }
             },
             updateDb: useDebounceFn(async () => {

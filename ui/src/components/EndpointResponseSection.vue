@@ -58,7 +58,7 @@ function downloadResponse() {
 
     const a = document.createElement('a');
     a.href = url;
-    const dt = new Date().toISOString().split('.')[0].replace(/[:T]/g, '-'); // Format date for filename
+    const dt = new Date().toISOString().split('.')[0]!.replace(/[:T]/g, '-'); // Format date for filename
     a.download = `response-${dt}.${ext}`;
     document.body.appendChild(a);
     a.click();

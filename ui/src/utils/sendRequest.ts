@@ -45,7 +45,7 @@ export async function sendRequest(e: Endpoint) {
             }
         }
 
-        let url = uri.toString()[0] + uri.toString()[1];
+        let url = uri.toString()[0]! + uri.toString()[1]!;
         url = applyEnvsToString(url);
         const headers = {
             'content-type': 'application/json',

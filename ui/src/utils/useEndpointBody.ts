@@ -82,7 +82,7 @@ export function generateDefaultBodyFromSchema(
         return Parsed.emptyObject()
     }
 
-    const mediaTypeObject = requestBody.content[contentTypes[0]];
+    const mediaTypeObject = requestBody.content[contentTypes[0]!];
     if (!mediaTypeObject || !mediaTypeObject.schema) {
         return Parsed.emptyObject()
     }
@@ -136,7 +136,7 @@ function createDefaultFromSchema(
         if (refPath.startsWith('#/components/schemas/')) {
             const schemaName = refPath.replace('#/components/schemas/', '');
             if (spec.components?.schemas && schemaName in spec.components.schemas) {
-                const refSchema = spec.components.schemas[schemaName];
+                const refSchema = spec.components.schemas[schemaName]!;
                 if ((refSchema as SchemaObject).readOnly)
                     return Parsed.skip();
                 return createDefaultFromSchema(
@@ -201,7 +201,7 @@ function createDefaultFromSchema(
 
                     let isRequired = false;
                     if (schema.required) {
-                        isRequired = schema.required.includes(propName) || schema.required.includes(propName[0].toUpperCase() + propName.substring(1));
+                        isRequired = schema.required.includes(propName) || schema.required.includes(propName[0]!.toUpperCase() + propName.substring(1));
                     }
 
                     if (isRequired)

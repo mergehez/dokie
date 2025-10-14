@@ -28,7 +28,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
             url: opts.path,
             body: _all.body || config.bodies[id] || '',
             headers: Object.fromEntries(_all.header.map(t => [t.key, t.value || ''])),
-            postscript: _all.postscript ?? config.postscripts[id],
+            postscript: _all.postscript ?? config.postscripts[id]!,
         },
     });
 
@@ -39,7 +39,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
                 uri.params[key] = value;
             }
         });
-        apiCall.request.url = uri.toString()[1];
+        apiCall.request.url = uri.toString()[1]!;
     }
 
     updateCurrentUrl();

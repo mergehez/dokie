@@ -15,12 +15,12 @@ function _createGlobalEnvs() {
     const variables = useKeyValCollection(all.value.variables);
 
     for (const predefinedHeader in config.headers) {
-        headers.insertIfNotExists(predefinedHeader, config.headers[predefinedHeader]);
+        headers.insertIfNotExists(predefinedHeader, config.headers[predefinedHeader]!);
         headers.get(predefinedHeader)!.locked = true;
     }
 
     for (const predefinedVariable in config.variables) {
-        variables.insertIfNotExists(predefinedVariable, config.variables[predefinedVariable]);
+        variables.insertIfNotExists(predefinedVariable, config.variables[predefinedVariable]!);
         variables.get(predefinedVariable)!.locked = true;
     }
     watch(all, () => {

@@ -47,8 +47,8 @@ function onMount(editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: Mona
             if (resource.scheme == 'file') {
                 let line = '';
                 if (path.includes(':line')) {
-                    line = (path.split(':line:')[1] || path.split(':line')[1]).trim();
-                    path = path.split(':line')[0]
+                    line = (path.split(':line:')[1] || path.split(':line')[1])!.trim();
+                    path = path.split(':line')[0]!
                 }
 
                 const toTry = [
@@ -60,7 +60,7 @@ function onMount(editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: Mona
                     () => `vscode://file/${path}`,
                     () => `phpstorm://open?file=${path}`,
                 ]
-                urlToOpen.value = [path, toTry[0](), toTry[1](), toTry[2]()];
+                urlToOpen.value = [path, toTry[0]!(), toTry[1]!(), toTry[2]!()];
             }
 
             return true;

@@ -13,7 +13,7 @@ function changeActive(index: number, newValue: boolean) {
         globalKeyVals.hostname = '';
     } else {
         activeIndex.value = index;
-        globalKeyVals.hostname = globalKeyVals.hostnames[index];
+        globalKeyVals.hostname = globalKeyVals.hostnames[index]!;
     }
     globalKeyVals.updateIndexedDb();
 }

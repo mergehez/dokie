@@ -9,29 +9,29 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@formkit/auto-animate": "^0.8.2",
+    "@formkit/auto-animate": "^0.9.0",
     "@guolao/vue-monaco-editor": "^1.5.5",
-    "@tailwindcss/vite": "^4.1.11",
-    "@vueuse/core": "^13.5.0",
-    "axios": "^1.10.0",
-    "dexie": "^4.0.11",
-    "element-plus": "^2.10.4",
-    "mime": "^4.0.7",
+    "@tailwindcss/vite": "^4.1.14",
+    "@vueuse/core": "^13.9.0",
+    "axios": "1.12.0",
+    "dexie": "^4.2.1",
+    "element-plus": "2.11.3",
+    "mime": "^4.1.0",
     "tailwind-merge": "^3.3.1",
-    "vue": "^3.5.17"
+    "vue": "^3.5.22"
   },
   "devDependencies": {
-    "@iconify/json": "^2.2.359",
+    "@iconify/json": "^2.2.395",
     "@iconify/tailwind4": "^1.0.6",
-    "@types/node": "^22.16.4",
-    "@vitejs/plugin-vue": "^5.2.4",
-    "@vue/tsconfig": "^0.7.0",
-    "openapi-typescript": "^7.8.0",
-    "tailwindcss": "^4.1.11",
-    "typescript": "~5.8.3",
-    "vite": "^6.3.5",
+    "@types/node": "^24.7.2",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/tsconfig": "^0.8.1",
+    "openapi-typescript": "^7.10.0",
+    "tailwindcss": "^4.1.14",
+    "typescript": "~5.9.3",
+    "vite": "7.1.5",
     "vite-plugin-singlefile": "^2.3.0",
-    "vite-plugin-vue-devtools": "^7.7.7",
-    "vue-tsc": "^2.2.12"
+    "vite-plugin-vue-devtools": "^8.0.2",
+    "vue-tsc": "^3.1.1"
   }
 }

@@ -30,7 +30,7 @@ const createNavState = () => {
         Object.keys(init)
             .sort((a, b) => a.localeCompare(b))
             .reduce((acc, key) => {
-                acc[key] = init[key].sort((a, b) => methods.indexOf(a.method) - methods.indexOf(b.method) || a.id.localeCompare(b.id));
+                acc[key] = init[key]!.sort((a, b) => methods.indexOf(a.method) - methods.indexOf(b.method) || a.id.localeCompare(b.id));
                 return acc;
             }, {
                 'Favorites': distinct([...appConfig.favorites, ...navState.fav_endpoints])

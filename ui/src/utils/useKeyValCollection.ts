@@ -37,7 +37,7 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
     const getValue = (key: string) => {
         const index = findIndexByKey(key);
         if (index !== -1) {
-            return keyVals[index].value;
+            return keyVals[index]!.value;
         }
         return "";
     };
@@ -51,7 +51,7 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
     const upsert = (key: string, value: string) => {
         const index = findIndexByKey(key);
         if (index !== -1) {
-            keyVals[index].value = value;
+            keyVals[index]!.value = value;
         } else {
             keyVals.push({id: uniqueId(), key, value});
         }

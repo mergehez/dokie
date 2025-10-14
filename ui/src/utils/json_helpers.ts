@@ -1,4 +1,3 @@
-
 type JsonCObject = {
     [key: string]: JsonCValue
 }
@@ -11,8 +10,10 @@ type JsonCValue =
     | CommentedValue
     | JsonCObject
     | JsonCValue[];
+
 export class CommentedValue {
-    constructor(public value: any, public comment: string) {}
+    constructor(public value: any, public comment: string) {
+    }
 }
 
 export const JSONC = {
@@ -44,14 +45,14 @@ function serializeJsonC(json: JsonCObject, indent = 0): string {
             return `${indentStr}"${key}": [\n` + objStrs.join(',\n') + `\n${indentStr}],`;
         }
 
-        if(obj instanceof CommentedValue) {
+        if (obj instanceof CommentedValue) {
             return `${indentStr}"${key}": ${JSON.stringify(obj.value)}, // ${obj.comment}`;
         }
         return `${indentStr}"${key}": {\n${serializeJsonC(obj as JsonCObject, indent + tabSize)}\n${indentStr}},`;
     });
 
-    if(lines.length == 0) return '';
-    lines[lines.length-1] = lines[lines.length-1].slice(0, -1);
+    if (lines.length == 0) return '';
+    lines[lines.length - 1] = lines[lines.length - 1]!.slice(0, -1);
     if (indent === 0) {
         return `{\n${lines.join('\n')}\n}`;
     } else {
