@@ -2,6 +2,12 @@
 
 # Dokie
 
+Laravel:
+<a href="https://packagist.org/packages/mergehez/dokie"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/mergehez/dokie"></a>
+<a href="https://packagist.org/packages/mergehez/dokie"><img alt="Latest Version" src="https://img.shields.io/packagist/v/mergehez/dokie"></a>
+<a href="https://packagist.org/packages/mergehez/dokie"><img alt="License" src="https://img.shields.io/packagist/l/mergehez/dokie"></a>
+
+ASP.NET Core:
 [![NuGet](https://img.shields.io/nuget/v/Dokie?style=flat-square&color=blue)](https://www.nuget.org/packages/Dokie)
 [![NuGet](https://img.shields.io/nuget/dt/Dokie?style=flat-square&color=blue)](https://www.nuget.org/packages/Dokie)
 [![License](https://img.shields.io/github/license/mergehez/dokie?style=flat-square&color=blue)](https://github.com/mergehez/dokie/blob/main/LICENSE)
@@ -11,73 +17,13 @@ A replacement for libraries like [Swagger UI](https://swagger.io/tools/swagger-u
 
 See the demo at: [https://dokie.mergesoft.dev/dokie](https://dokie.mergesoft.dev/dokie).
 
-Currently, it only has a NuGet package for ASP.NET Core applications, but it is planned to be extended to other platforms in the future. If you are interested in a specific platform, please open an issue or pull request.
+Currently, it only has packages for ASP.NET Core and Laravel, but it is planned to be extended to other platforms in the future. If you are interested in a specific platform, please open an issue or pull request.
 
 ## Installation
 
-1. Using Package Manager:
-    ```
-    Install-Package Dokie
-    ```
-2. Using .NET CLI:
-    ```
-    dotnet add package Dokie
-    ```
-3. Using NuGet Package Manager: search for `Dokie`
-
-## Usage
-
-To use Dokie in your ASP.NET Core application, you'll have to use OpenAPI to document your API endpoints. Dokie will automatically generate the UI based on the OpenAPI specification.
-
-After installing the package, you can set it up in your `Program.cs` file as follows:
-
-```csharp
-using Microsoft.OpenApi;
-using Dokie;
-
-var builder = WebApplication.CreateBuilder(args);
-
-var services = builder.Services;
-
-services.AddOpenApi("v1", options =>
-{
-    options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_0;
-    options.AddDokie();
-});
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseDokie("v1", new DokieOptions
-    {
-        Title = "Dokie",
-        HostnameOptions = ["https://prod-site.com"],
-        PredefinedVariables = new Dictionary<string, string>
-        {
-            { "username", _secrets.Username },
-            { "password", _secrets.Password },
-        },
-        PredefinedHeaders = new Dictionary<string, string>
-        {
-            { "x-api-key", "" },
-            { "Content-Type", "application/json" },
-        },
-        Postscripts = new Dictionary<string, string>
-        {
-            { "GET /api/login", "envs.headers['x-api-key'] = response.data.value.ticket;" },
-        },
-        PredefinedFavoriteEndpoints =
-        [
-            "GET /api/login"
-        ]
-    });
-}
-
-app.Run();
-```
-
-After setting up the above code, you can access the Dokie UI at `/dokie` in your browser.
+- for ASP.NET Core applications visit: [packages/aspnetcore/README.md](./packages/aspnetcore/README.md)
+- for Laravel applications visit: [packages/laravel/README.md](./packages/laravel/README.md)
+- for other platforms, please open an issue or pull request.
 
 ## Features
 
