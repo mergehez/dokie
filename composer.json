@@ -1,0 +1,25 @@
+{
+  "version": "0.0.8",
+  "name": "mergehez/dokie",
+  "description": "An API Documentation tool for your APIs (Dokie for Laravel)",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "mergehez"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Dokie\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Dokie\\DokieServiceProvider"
+      ]
+    }
+  }
+}
+
