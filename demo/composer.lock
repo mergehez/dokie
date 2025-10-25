@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6b282c001919a52c986712e17070aa76",
+    "content-hash": "3a34cc0101a0a1db1e0e72279b4b83f1",
     "packages": [
         {
             "name": "brick/math",
@@ -2259,11 +2259,11 @@
         },
         {
             "name": "mergehez/dokie",
-            "version": "dev-main",
+            "version": "0.0.8",
             "dist": {
                 "type": "path",
-                "url": "../laravel",
-                "reference": "77447b54323a90553f36b637806d7f6e381fbc6b"
+                "url": "../packages/laravel",
+                "reference": "2feb23f2597daed1d71eda4c41aa5f44fbd2c658"
             },
             "type": "library",
             "extra": {

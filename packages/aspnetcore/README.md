@@ -106,5 +106,5 @@ Feel free to contribute to the project by creating issues or pull requests.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 Feel free to use, modify, and distribute this code as per the terms of the license.

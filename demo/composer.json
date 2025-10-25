@@ -82,7 +82,7 @@
   "repositories": [
     {
       "type": "path",
-      "url": "../laravel",
+      "url": "../packages/laravel",
       "options": {
         "symlink": true
       }
