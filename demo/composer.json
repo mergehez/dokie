@@ -14,7 +14,8 @@
     "laravel/framework": "^v11.45.1",
     "laravel/sanctum": "^4.0",
     "laravel/tinker": "^2.10.1",
-    "tartanlegrand/laravel-openapi": "^2.1"
+    "tartanlegrand/laravel-openapi": "^2.1",
+    "mergehez/dokie": "@dev"
   },
   "require-dev": {
     "fakerphp/faker": "^1.23",
@@ -77,5 +78,14 @@
     }
   },
   "minimum-stability": "stable",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../laravel",
+      "options": {
+        "symlink": true
+      }
+    }
+  ]
 }

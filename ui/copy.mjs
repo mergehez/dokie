@@ -1,6 +1,10 @@
 import * as fs from "node:fs";
 
-['../aspnetcore/wwwroot/dokie.html', '../demo/public/dokie.html'].forEach(file => {
+[
+    '../aspnetcore/wwwroot/dokie.html',
+    '../demo/public/dokie.html',
+    '../laravel/resources/assets/dokie.html',
+].forEach(file => {
     try {
         fs.rmSync(file, {force: true});
         fs.cpSync('./dist/index.html', file, {force: true});
