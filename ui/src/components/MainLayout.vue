@@ -1,69 +1,99 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import EndpointsSidebar from './EndpointsSidebar.vue'
 import EnvironmentsWindow from './EnvironmentsWindow.vue'
 import Icon from "@/components/ui/Icon.vue";
 import ArgButton from "@/components/ui/ArgButton.vue";
 import {useGlobalEnvs} from "@/utils/useGlobalEnvs.ts";
 import Splitter from "@/components/ui/Splitter.vue";
+import EndpointTabs from "@/components/EndpointTabs.vue";
+import EndpointTreeView from "@/components/EndpointTreeView.vue";
+import EndpointView from "@/components/EndpointView.vue";
+import {useNavState} from "@/utils/useNavState.ts";
 
+const navState = useNavState();
 const globalKeyVals = useGlobalEnvs()
 
-const storageValue = ref(localStorage.getItem('sidebar-open') === '1');
-const isOpen = computed({
-    get: () => storageValue.value,
-    set: (val: boolean) => {
-        storageValue.value = val;
-        localStorage.setItem('sidebar-open', val ? '1' : '0');
+const useLocStorage = (key: string, defaultValue: string) => {
+    const storedValue = localStorage.getItem(key);
+    const data = ref(storedValue ?? defaultValue);
+
+    return computed({
+        get: () => data.value,
+        set: (val: string) => {
+            data.value = val;
+            localStorage.setItem(key, val);
+        }
+    })
+};
+
+const isLeftSidebarOpen = useLocStorage('left-sidebar-open', '1');
+const isRightSidebarOpen = useLocStorage('right-sidebar-open', '');
+
+const toggle = (what: 'left' | 'right') => {
+    if (what === 'left') {
+        isLeftSidebarOpen.value = isLeftSidebarOpen.value === '1' ? '' : '1';
+    } else {
+        isRightSidebarOpen.value = isRightSidebarOpen.value === '1' ? '' : '1';
     }
-})
-const toggleCollapse = () => {
-    isOpen.value = !isOpen.value
-}
+};
 </script>
 
 <template>
-    <div class="bg-x1 text-black dark:text-gray-100 overflow-y-auto flex flex-col w-screen h-screen">
+    <div class="bg-x0 text-black dark:text-gray-100 overflow-y-auto flex flex-col w-screen h-screen">
         <div class="flex items-center  px-2 py-1 gap-2">
+            <ArgButton icon-only @click="toggle('left')" severity="raised" class="rounded-full">
+                <Icon icon="icon-[tabler--layout-sidebar] text-2xl"/>
+            </ArgButton>
             <img src="/src/assets/logo.svg" alt="" class="w-7 h-7">
             <h1 class="mr-auto font-bold  text-2xl flex gap-2 items-center">
                 <span style="color: #88D127">Dokie</span>
             </h1>
 
             <span>Current basepath:</span>
-            <span class="font-medium bg-x4 py-0.5 px-2 rounded-md cursor-pointer" @click="toggleCollapse">
+            <span class="font-medium bg-x4 py-0.5 px-2 rounded-md cursor-pointer" @click="toggle('right')">
                 {{ globalKeyVals.hostname || 'No hostname set' }}
             </span>
-            <ArgButton icon-only @click="toggleCollapse" severity="raised" class="rounded-full">
+            <ArgButton icon-only @click="toggle('right')" severity="raised" class="rounded-full">
                 <Icon icon="icon-[tabler--layout-sidebar-right] text-2xl"/>
-                <!--<Icon v-else icon="icon-[mdi&#45;&#45;chevron-up] text-2xl"/>-->
             </ArgButton>
         </div>
 
-        <Splitter class="w-full border-none" local-storage-key="sidebar-mainlayout-splitter" :default-width="70" :right-hidden="!isOpen">
+        <Splitter
+            class=" border-x-0"
+            local-storage-key="sidebar-mainlayout-splitter"
+            :default-width="70"
+            :right-hidden="!isRightSidebarOpen"
+        >
             <template #left>
-                <EndpointsSidebar/>
+                <div class="flex flex-1 overflow-y-auto">
+                    <Splitter
+                        class=" border-x-0"
+                        local-storage-key="endpoints-sidebar-splitter"
+                        :default-width="30"
+                        :left-hidden="!isLeftSidebarOpen"
+                    >
+                        <template #left>
+                            <h2 class="text-lg font-bold py-2 px-2 text-gray-900 dark:text-white">API Endpoints</h2>
+                            <EndpointTreeView/>
+                        </template>
+                        <template #right>
+                            <!-- Content Area -->
+                            <div class="flex-1 flex flex-col  overflow-y-auto h-full w-full">
+                                <EndpointTabs/>
+                                <EndpointView v-if="navState.activeEndpoint" :endpoint="navState.activeEndpoint" :key="navState.activeEndpoint.id"/>
+                                <div v-else class="text-center text-gray-500 dark:text-gray-400 mt-10">
+                                    Select an endpoint from the tree view to see its details
+                                </div>
+                            </div>
+                        </template>
+                    </Splitter>
+                </div>
             </template>
             <template #right>
-                <div class=" space-y-4 bg-x0 p-2 mb-2 h-full">
+                <div class=" space-y-4 p-2 mb-2 h-full">
                     <EnvironmentsWindow/>
                 </div>
             </template>
         </Splitter>
-        <!--<div v-else class="flex flex-1">-->
-
-        <!--    <EndpointsSidebar/>-->
-
-        <!--    <div class="bg-x2">-->
-        <!--        <transition enter-active-class="transition ease-out duration-200"-->
-        <!--                    enter-from-class="transform opacity-0 -translate-x-1" enter-to-class="transform opacity-100 translate-x-0"-->
-        <!--                    leave-active-class="transition ease-in duration-150" leave-from-class="transform opacity-100 translate-x-0"-->
-        <!--                    leave-to-class="transform opacity-0 -translate-x-1">-->
-        <!--            <div v-show="isOpen" class=" space-y-4 bg-x1/60  p-4 mb-2">-->
-        <!--                <EnvironmentsWindow/>-->
-        <!--            </div>-->
-        <!--        </transition>-->
-        <!--    </div>-->
-        <!--</div>-->
     </div>
 </template>

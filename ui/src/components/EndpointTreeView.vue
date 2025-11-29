@@ -8,7 +8,7 @@ const sidebar = useNavState();
 </script>
 
 <template>
-    <div class="space-y-2 flex-1 overflow-y-auto bg-x0">
+    <div class="space-y-2 flex-1 overflow-y-auto ">
         <ElScrollbar view-class="w-full h-full">
             <div v-for="(endpoints, tag) in sidebar.groupedEndpoints" :key="tag" class="group">
                 <div @click="sidebar.toggleGroup(tag)"
