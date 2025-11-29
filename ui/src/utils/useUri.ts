@@ -26,7 +26,10 @@ export const useUri = (url: string) => {
             if (Object.keys(params).length > 0) {
                 url += '?' + Object.entries(params).map(([k, v]) => `${k}=${v}`).join('&');
             }
-            return [`${protocol}://${hostname}`.replace('///', '//'), url];
+            return [
+                `${protocol}://${hostname}`.replace('///', '//'),
+                url
+            ];
         }
     }
 }
