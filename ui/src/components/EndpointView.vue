@@ -66,11 +66,11 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
                 />
                 <div v-else-if="endpoint.axiosError"
                      class="flex-1 flex flex-col border border-red-200 dark:border-red-700 rounded p-4 text-sm text-red-500 dark:text-red-400 overflow-y-auto">
-            <pre
-                class=""
-            >Axios Error:<br/><br/>{{
-                    JSON.stringify(endpoint.axiosError, null, 2)
-                }}</pre>
+                    <pre
+                        class=""
+                    >CLIENT ERROR <br/>This error is not from the API. <br/>Check DevTools for more info! <br/><br/>{{
+                            JSON.stringify(endpoint.axiosError, null, 2)
+                        }}</pre>
                 </div>
                 <div v-else
                      class="border border-x4 rounded p-4 text-sm text-gray-500 dark:text-gray-400">
