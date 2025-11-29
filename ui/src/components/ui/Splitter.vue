@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import {onUnmounted, ref} from 'vue';
 import {twMerge} from "tailwind-merge";
+import {useSplitterData} from "@/utils/useSplitterData.ts";
 
 const props = defineProps<{
     localStorageKey?: string;
     defaultWidth?: number;
+    class?: string;
     leftClass?: string;
     rightClass?: string;
+    draggerInvisible?: boolean;
+    leftHidden?: boolean;
+    rightHidden?: boolean;
 }>()
 
-const leftPanelWidth = defineModel<number>({
-    default: (p) => {
-        return p.localStorageKey && typeof p.localStorageKey === 'string'
-            ? parseFloat(localStorage.getItem(p.localStorageKey) || p.defaultWidth?.toString() || '50')
-            : (p.defaultWidth || 50);
-    }
-});
+const splitterData = useSplitterData(props.localStorageKey || '', props.defaultWidth?.toString() || '50');
 const isDragging = ref<boolean>(false);
 const splitterContainer = ref<HTMLElement | null>(null);
 
@@ -40,7 +39,7 @@ const onResize = (event: MouseEvent) => {
     if (newLeftWidth < minWidth) newLeftWidth = minWidth;
     if (newLeftWidth > maxWidth) newLeftWidth = maxWidth;
 
-    leftPanelWidth.value = newLeftWidth;
+    splitterData.width = newLeftWidth;
     if (props.localStorageKey) {
         localStorage.setItem(props.localStorageKey, newLeftWidth.toString());
     }
@@ -64,12 +63,13 @@ onUnmounted(() => {
 
 <template>
     <div
-        class="flex w-full h-full overflow-hidden border border-x4"
+        :class="twMerge('flex w-full h-full overflow-hidden border border-x4', props.class)"
         ref="splitterContainer"
     >
         <div
+            v-if="!leftHidden"
             :class="twMerge('h-full overflow-auto flex flex-col relative gap-1', props.leftClass)"
-            :style="{ width: leftPanelWidth + '%' }"
+            :style="{ width: (rightHidden ? 100 : splitterData.width) + '%' }"
         >
             <slot name="left">
                 <div class="p-4">
@@ -78,13 +78,16 @@ onUnmounted(() => {
             </slot>
         </div>
         <div
+            v-if="!leftHidden && !rightHidden"
             class="w-1 h-full bg-x2 hover:bg-x6 cursor-col-resize flex-shrink-0"
+            :class="{ 'opacity-0 hover:opacity-100' : draggerInvisible }"
             @mousedown="startResize"
             title="Drag to resize"
         ></div>
         <div
+            v-if="!rightHidden"
             :class="twMerge('h-full overflow-auto flex flex-col relative gap-1', props.rightClass)"
-            :style="{ width: (100 - leftPanelWidth) + '%' }"
+            :style="{ width: (100 - (leftHidden ? 0 : splitterData.width)) + '%' }"
         >
             <slot name="right">
                 <div class="p-4">
