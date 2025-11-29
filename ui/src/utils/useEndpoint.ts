@@ -1,4 +1,4 @@
-import {reactive, ref} from "vue";
+import {computed, reactive, ref} from "vue";
 import {defineStore, uniqueId} from "@/utils/utils";
 import type {OpenApiEndpoint, OpenAPIV3, ParameterObject, SchemaObject} from "./types";
 import {type ApiCall, type KeyVal, useDb} from "@/utils/useDb.ts";
@@ -105,6 +105,8 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
 
     const axiosError = ref<AxiosError>();
     const isLoading = ref(false);
+    const recentlyFailed = ref(false);
+    const recentlySucceeded = ref(false);
     return reactive({
         id: id,
         path: opts.path,
@@ -122,6 +124,28 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
             await _allKeyVals.updateDb();
         },
         isLoading: isLoading,
+        recentlySucceeded: computed({
+            get: () => recentlySucceeded.value,
+            set: (val: boolean) => {
+                recentlySucceeded.value = val;
+                if (val) {
+                    setTimeout(() => {
+                        recentlySucceeded.value = false;
+                    }, 2000);
+                }
+            }
+        }),
+        recentlyFailed: computed({
+            get: () => recentlyFailed.value,
+            set: (val: boolean) => {
+                recentlyFailed.value = val;
+                if (val) {
+                    setTimeout(() => {
+                        recentlyFailed.value = false;
+                    }, 2000);
+                }
+            }
+        }),
         axiosError: axiosError,
         generateDefaultBody: generateDefaultBody,
         updateCurrentUrl: updateCurrentUrl,
