@@ -40,7 +40,7 @@ const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'appli
                         <div class="flex items-center">
                             <div class="text-sm font-medium">Route Parameters</div>
                         </div>
-                        <EnvDataTable :kv-collection="endpoint.routeKeyVals"
+                        <EnvDataTable code="routeKeyVals" :kv-collection="endpoint.routeKeyVals"
                                       :on-change="endpoint.updateCurrentUrl" autocomplete/>
                         <hr class="border-x4"/>
                     </div>
@@ -55,7 +55,7 @@ const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'appli
                                 Add
                             </button>
                         </div>
-                        <EnvDataTable :kv-collection="endpoint.queryKeyVals"
+                        <EnvDataTable code="queryKeyVals" :kv-collection="endpoint.queryKeyVals"
                                       :on-change="endpoint.updateCurrentUrl" autocomplete/>
                     </div>
                 </div>
@@ -69,7 +69,7 @@ const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'appli
                             Add Header
                         </button>
                     </div>
-                    <EnvDataTable :kv-collection="endpoint.headerKeyVals"
+                    <EnvDataTable code="headerKeyVals" :kv-collection="endpoint.headerKeyVals"
                                   :on-change="endpoint.updateCurrentUrl" autocomplete/>
                 </div>
 

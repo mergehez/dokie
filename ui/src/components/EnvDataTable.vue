@@ -3,41 +3,54 @@ import type {KeyVal} from '@/utils/useDb.ts';
 import ArgInput from "@/components/ui/ArgInput.vue";
 import AutocompleteText from "@/components/ui/AutocompleteText.vue";
 import type {KeyValCollection} from "@/utils/useKeyValCollection.ts";
+import Splitter from "@/components/ui/Splitter.vue";
 
-defineProps<{
+const props = defineProps<{
+    code: string // for local-storage-key
     kvCollection: KeyValCollection,
     onChange: (kv: KeyVal) => any,
     skip?: (kv: KeyVal) => boolean,
     autocomplete?: boolean,
 }>()
+
+const localStorageKey = `env-data-table-splitter-${props.code}`;
 </script>
 
 <template>
-    <div class="space-y-1 grid items-center" style="grid-template-columns: auto auto 1fr auto">
+    <div class="space-y-1 grid " style="grid-template-columns: auto 1fr auto">
         <template v-for="(p) in kvCollection.keyVals" :key="p.id">
             <template v-if="!skip || !skip(p)">
-                <span v-if="p.required" class="icon icon-[gg--asterisk] -ml-4"> </span>
+                <span v-if="p.required" class="inline-block py-1 -ml-4">
+                    <span class="icon icon-[gg--asterisk]"> </span>
+                </span>
                 <i v-else></i>
-                <ArgInput
-                    v-model="p.key"
-                    @update:model-value="() => onChange(p)"
-                    placeholder="Key"
-                />
-                <AutocompleteText
-                    v-if="autocomplete"
-                    :model-value="p.value?.toString()"
-                    @update:modelValue="v => p.value = v || ''"
-                />
-                <ArgInput
-                    v-else
-                    :model-value="p.value?.toString()"
-                    @update:modelValue="v => p.value = v"
-                    @update:model-value="() => onChange(p)"
-                    placeholder="Value"
-                />
+                <Splitter class="w-auto h-auto border-none" :local-storage-key="localStorageKey" dragger-invisible>
+                    <template #left>
+                        <ArgInput
+                            v-model="p.key"
+                            @update:model-value="() => onChange(p)"
+                            placeholder="Key"
+                        />
+                    </template>
+                    <template #right>
+                        <AutocompleteText
+                            v-if="autocomplete"
+                            :model-value="p.value?.toString()"
+                            @update:modelValue="v => p.value = v || ''"
+                        />
+                        <ArgInput
+                            v-else
+                            :model-value="p.value?.toString()"
+                            @update:modelValue="v => p.value = v"
+                            @update:model-value="() => onChange(p)"
+                            placeholder="Value"
+                            autosize
+                        />
+                    </template>
+                </Splitter>
                 <span
                     @click="() => kvCollection.remove(p)"
-                    class="p-1 text-surface-600 hover:text-surface-200 cursor-pointer transition-colors"
+                    class="px-1 py-2 text-surface-600 hover:text-surface-200 cursor-pointer transition-colors"
                     v-if="!p.locked"
                 >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
