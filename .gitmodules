@@ -1,0 +1,3 @@
+[submodule "packages/laravel"]
+	path = packages/laravel
+	url = https://github.com/mergehez/dokie-laravel.git
