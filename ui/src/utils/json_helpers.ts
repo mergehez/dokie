@@ -1,3 +1,5 @@
+import stripJsonComments from "strip-json-comments";
+
 type JsonCObject = {
     [key: string]: JsonCValue
 }
@@ -18,7 +20,7 @@ export class CommentedValue {
 
 export const JSONC = {
     stringify: serializeJsonC,
-    parse: deserializeJsonC
+    parse: (strWithComments: string) => JSON.parse(stripJsonComments(strWithComments))
 }
 
 function serializeJsonC(json: JsonCObject, indent = 0): string {
@@ -58,11 +60,4 @@ function serializeJsonC(json: JsonCObject, indent = 0): string {
     } else {
         return lines.join('\n');
     }
-}
-
-function deserializeJsonC(jsonc: string): any {
-    // remove comments using regex, check for // and that it's not inside a string
-    // php version: $json = preg_replace("/[\n\r]\s*\/\/.*/", "", $json_origen);
-    const noComments = jsonc.replace(/[^\n\r]\/\/.*/g, '');
-    return JSON.parse(noComments);
 }
