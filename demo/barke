@@ -1,7 +1,7 @@
 // noinspection SpellCheckingInspection
+
 import * as fs from 'fs';
-// @ts-ignore
-import * as b from '@mergehez/barke/ts';
+import * as b from '@mergehez/barke';
 
 const env = b.parseEnv();
 const allConfigs = {
@@ -56,6 +56,7 @@ async function start() {
     const executer = b.useExecuter(allConfigs.base)
     const server = await executer.sshConnect(allConfigs.ssh)
     const laravel = executer.useLaravelHelpers();
+
     await server.exec({
         command: 'sudo chown -R www:www ./storage',
         on_error: 'print'
@@ -81,9 +82,6 @@ async function start() {
         ignorePatterns: allConfigs.newFiles.ignorePatterns,
         dirsWithManyFiles: allConfigs.newFiles.dirsWithManyFiles,
         ignoreFn: (path, stat) => {
-            if (path.includes('scramble')) {
-                console.log(path)
-            }
             return !path.includes('/') && !stat.isDirectory() && path !== 'composer.json' && path !== 'artisan';
         },
     })
