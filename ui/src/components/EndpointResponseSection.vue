@@ -1,14 +1,14 @@
 <script setup lang="ts">
 
 import MonacoEditor from "@/components/MonacoEditor.vue";
-import type {ApiCall} from "@/utils/useDb.ts";
+import type {ApiResponse} from "@/utils/useDb.ts";
 import {ref} from "vue";
 import ArgButton from "@/components/ui/ArgButton.vue";
 import mime from 'mime';
 import TabButton from "@/components/TabButton.vue";
 
 const props = defineProps<{
-    response: Exclude<ApiCall['response'], undefined>
+    response: ApiResponse
 }>()
 
 const canCopy = 'navigator' in window && 'clipboard' in navigator;

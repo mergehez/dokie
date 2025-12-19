@@ -1,5 +1,6 @@
 import Dexie, {type EntityTable} from 'dexie';
 import {useDebounceFn} from "@vueuse/core";
+import {uniqueId} from "@/utils/utils.ts";
 
 export type EndpointId = string;
 
@@ -10,12 +11,15 @@ export type KeyVal = {
     desc?: string;
     required?: boolean;
     locked?: boolean;
+    type?: 'file' | 'text'; // used for form-data
+    fileName?: string; // used for form-data
 };
 
 export type EndpointKeyVals = {
     query: KeyVal[];
     header: KeyVal[];
     route: KeyVal[];
+    formData: KeyVal[];
 }
 type IdbKeyVal = {
     id?: number;
@@ -26,36 +30,39 @@ type IdbKeyVal = {
     }
 }
 
-export interface ApiCall {
-    request: {
-        method: string
-        url: string
-        headers: Record<string, string>
-        body: string
-        postscript: string
-    }
-    response?: {
-        duration: number // in milliseconds
-        isSuccess: boolean
-        isRedirect: boolean
-        body: string
-        bodyArrayBuffer: ArrayBuffer
-        bodyStr: string
-        status: number
-        statusText: string
-        size: number // in bytes
-        isJson: boolean
-        headers: [string, any][]
-        contentType: string
-        ext: string // common extension for the content type, e.g. 'json', 'html', 'xml', etc.
-        // cookies: Record<string, string>
-    }
+export type ApiResponse = {
+    duration: number // in milliseconds
+    isSuccess: boolean
+    isRedirect: boolean
+    body: string
+    bodyArrayBuffer: ArrayBuffer
+    bodyStr: string
+    status: number
+    statusText: string
+    size: number // in bytes
+    isJson: boolean
+    headers: [string, any][]
+    contentType: string
+    ext: string // common extension for the content type, e.g. 'json', 'html', 'xml', etc.
+    // cookies: Record<string, string>
+}
+
+export type ApiRequest = {
+    method: string
+    url: string
+    headers: Record<string, string>
+    body: string
+    bodyType: 'json' | 'form-data' | 'text' | 'xml' | 'html'
+    postscript: string
 }
 
 export type IdbRequestHistory = {
     id: number;
     date: Date;
-    request: ApiCall;
+    request: {
+        request: ApiRequest;
+        response?: ApiResponse;
+    };
 }
 
 export type IdbNavState = {
@@ -135,6 +142,7 @@ export function useDb() {
                 res.header ??= [];
                 res.query ??= [];
                 res.route ??= [];
+                res.formData ??= [{id: uniqueId(), key: '', value: ''}];
                 res.body ??= '';
 
                 return res;

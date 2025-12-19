@@ -9,7 +9,7 @@ import {useNavState} from "@/utils/useNavState.ts";
 
 export async function sendRequest(e: Endpoint) {
     const globalKeyVals = useGlobalEnvs();
-    const currApiCall = e.apiCall;
+    // const currApiCall = e.apiCall;
     const startTime = performance.now();
     let success = false;
 
@@ -28,7 +28,7 @@ export async function sendRequest(e: Endpoint) {
         let hostname = globalKeyVals.hostname ?? '';
         if (hostname.endsWith('/'))
             hostname = hostname.substring(0, hostname.length - 1);
-        const uri = useUri(hostname + applyEnvsToString(currApiCall.request.url));
+        const uri = useUri(hostname + applyEnvsToString(e.request.url));
         for (const {key, value, required} of Object.values(e.queryKeyVals.keyVals)) {
             if (key && value) {
                 uri.params[key] = applyEnvsToString(value);
@@ -47,9 +47,21 @@ export async function sendRequest(e: Endpoint) {
         return applyEnvsToString(uri.toString().join(''));
     }
 
+    function getContentTypeForBody() {
+        return e.request.bodyType == 'xml'
+            ? 'application/xml'
+            : e.request.bodyType == 'html'
+                ? 'text/html'
+                : e.request.bodyType == 'form-data'
+                    ? 'multipart/form-data'
+                    : e.request.bodyType == 'json'
+                        ? 'application/json'
+                        : undefined;
+    }
+
     function prepareHeaders() {
-        return {
-            'content-type': 'application/json',
+        console.log(e.request.bodyType)
+        const res = {
             'accept': '*/*',
             'cache-control': 'no-cache',
             'access-control-expose-headers': '*',
@@ -59,7 +71,71 @@ export async function sendRequest(e: Endpoint) {
                 }
                 return acc;
             }, {} as Record<string, string>)
-        };
+        } as Record<string, string>;
+
+        const contentType = getContentTypeForBody();
+        if (contentType) {
+            res['content-type'] = contentType;
+        }
+
+        return res;
+    }
+
+    function prepareBody(headers: ReturnType<typeof prepareHeaders>) {
+        if (e.request.method === 'GET') {
+            return undefined;
+        }
+
+        const contentType = headers['content-type'];
+        if (!contentType)
+            return applyEnvsToString(e.request.body);
+
+        if (contentType.includes('form-data')) {
+            const body = new FormData();
+            const keyVals = e.formData.keyVals.filter(t => t.key && t.value);
+            for (const {key, value, type} of e.formData.keyVals) {
+                if (!key || !value) continue;
+
+                if (type == 'file' && value!.startsWith('data:')) {
+                    const base64Index = value!.indexOf(';base64,');
+                    if (base64Index !== -1) {
+                        const mimeType = value!.substring(5, base64Index);
+                        const base64Data = value!.substring(base64Index + 8);
+                        const byteCharacters = atob(base64Data);
+                        const byteNumbers = new Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = new Blob([byteArray], {type: mimeType});
+                        const fileName = keyVals.find(t => t.key === key)?.fileName || 'file';
+                        body.append(key, blob, fileName);
+                        continue;
+                    }
+                }
+                body.append(key, applyEnvsToString(value!));
+            }
+            delete headers['content-type']; // Let browser set the correct boundary
+            return body;
+        }
+
+        let body = e.request.body;
+        const isContentJson = contentType == 'application/json';
+        // Handle JSONC body
+        if (isContentJson && body && (body.includes('//') || body.includes('/*'))) {
+            body = JSON.stringify(JSONC.parse(body), null, 2);
+        }
+        if (body) {
+            body = applyEnvsToString(body);
+        }
+        if (isContentJson && body) {
+            try {
+                body = JSON.parse(body);
+            } catch (err) {
+                throw new AxiosError('Invalid JSON body: ' + (err as Error).message);
+            }
+        }
+        return body;
     }
 
     function prepareRequest() {
@@ -67,27 +143,14 @@ export async function sendRequest(e: Endpoint) {
         console.log('url: ' + url);
         const headers = prepareHeaders();
 
-        let body = currApiCall.request?.body;
-        const isContentJson = headers['content-type'] == 'application/json';
-
-        // Handle JSONC body
-        if (isContentJson && body && body.includes('//')) {
-            body = JSON.stringify(JSONC.parse(body), null, 2);
-        }
-
-        if (body) {
-            body = applyEnvsToString(body);
-        }
-
         const config: AxiosRequestConfig = {
             responseType: 'arraybuffer',
-            method: currApiCall.request.method,
+            method: e.request.method,
             url: url,
             headers: headers,
-            data: isContentJson && body
-                ? JSON.parse(body)
-                : (currApiCall.request.method === 'GET' ? undefined : isContentJson ? {} : body),
+            data: prepareBody(headers),
         };
+        console.log('Prepared request config:', config);
         return config
     }
 
@@ -117,10 +180,10 @@ export async function sendRequest(e: Endpoint) {
             dataStr = JSON.stringify(data, null, 2);
         }
 
-        currApiCall.request.headers = JSON.parse(JSON.stringify(res.config.headers))
+        e.request.headers = JSON.parse(JSON.stringify(res.config.headers))
 
         const cType = res.headers?.['Content-Type'] || res.headers?.['content-type'] || '';
-        currApiCall.response = {
+        e.response = {
             duration: performance.now() - startTime,
             isRedirect: res.status >= 300 && res.status < 400,
             isSuccess: res.status >= 200 && res.status < 300,
@@ -136,7 +199,7 @@ export async function sendRequest(e: Endpoint) {
             ext: mime.getExtension(cType) || (cType == 'application/problem+json' ? 'json' : ''),
         };
 
-        runPostscript(currApiCall.request.postscript, {
+        runPostscript(e.request.postscript, {
             ...res,
             data: dataObj,
         });
@@ -158,8 +221,8 @@ export async function sendRequest(e: Endpoint) {
 
                 throw t;
             }).finally(() => {
-                e.all.body = currApiCall.request.body
-                e.all.postscript = currApiCall.request.postscript
+                e.all.body = e.request.body
+                e.all.postscript = e.request.postscript
                 e.updateIndexedDb();
             })
 

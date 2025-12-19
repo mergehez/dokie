@@ -1,7 +1,7 @@
 import {computed, reactive, ref} from "vue";
 import {defineStore, uniqueId} from "@/utils/utils";
 import type {OpenApiEndpoint, OpenAPIV3, ParameterObject, SchemaObject} from "./types";
-import {type ApiCall, type KeyVal, useDb} from "@/utils/useDb.ts";
+import {type ApiRequest, type ApiResponse, type KeyVal, useDb} from "@/utils/useDb.ts";
 import {AxiosError} from "axios";
 import {useUri} from "@/utils/useUri.ts";
 import {JSONC} from "@/utils/json_helpers.ts";
@@ -22,24 +22,25 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     const _all = reactive(_allKeyVals.getEndpoint(id))
 
     const config = useAppConfig()
-    const apiCall = reactive<ApiCall>({
-        request: {
-            method: opts.method,
-            url: opts.path,
-            body: _all.body || config.bodies[id] || '',
-            headers: Object.fromEntries(_all.header.map(t => [t.key, t.value || ''])),
-            postscript: _all.postscript ?? config.postscripts[id]!,
-        },
+    const response = ref<ApiResponse>();
+    const request = reactive<ApiRequest>({
+        method: opts.method,
+        url: opts.path,
+        body: _all.body || config.bodies[id] || '',
+        bodyType: 'json',
+        // formData: useKeyValCollection([{id: uniqueId(), key: '', value: ''}]),
+        headers: Object.fromEntries(_all.header.map(t => [t.key, t.value || ''])),
+        postscript: _all.postscript ?? config.postscripts[id]!,
     });
 
     function updateCurrentUrl() {
-        const uri = useUri(apiCall.request.url);
+        const uri = useUri(request.url);
         Object.values(_all.query).forEach(({key, value}) => {
             if (key && value) {
                 uri.params[key] = value;
             }
         });
-        apiCall.request.url = uri.toString()[1]!;
+        request.url = uri.toString()[1]!;
     }
 
     updateCurrentUrl();
@@ -55,8 +56,8 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     }
 
     setTimeout(() => {
-        if (!apiCall.request.body)
-            apiCall.request.body = JSONC.stringify(generateDefaultBody().unparse(false));
+        if (!request.body)
+            request.body = JSONC.stringify(generateDefaultBody().unparse(false));
     }, 200);
 
     const activeRequestTab = ref<'params' | 'body' | 'headers' | 'postscript'>('params');
@@ -98,9 +99,11 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
             }
         }
     }
+
     const queryKeyVals = useKeyValCollection(_all.query);
     const headerKeyVals = useKeyValCollection(_all.header);
     const routeKeyVals = useKeyValCollection(_all.route);
+    const formData = useKeyValCollection(_all.formData);
     // const bodyKeyVals = useKeyValCollection(_all.body);
 
     const axiosError = ref<AxiosError>();
@@ -109,15 +112,17 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     const recentlySucceeded = ref(false);
     return reactive({
         id: id,
-        path: opts.path,
-        hash: btoa(`${opts.path}${opts.method}`),
-        method: opts.method,
+        path: computed(() => opts.path),
+        hash: computed(() => btoa(`${opts.path}${opts.method}`)),
+        method: computed(() => opts.method),
         ...opts.openApiEndpoint,
         all: _all,
         queryKeyVals: queryKeyVals,
         headerKeyVals: headerKeyVals,
         routeKeyVals: routeKeyVals,
-        apiCall: apiCall,
+        formData: formData,
+        request: request,
+        response: response,
         activeRequestTab: activeRequestTab,
         updateIndexedDb: async () => {
             await _allKeyVals.upsert(id, _all);

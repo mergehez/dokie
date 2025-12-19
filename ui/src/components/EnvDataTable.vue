@@ -14,6 +14,26 @@ const props = defineProps<{
 }>()
 
 const localStorageKey = `env-data-table-splitter-${props.code}`;
+
+function onFileChange(p: KeyVal, e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0] || null;
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            p.value = reader.result as string;
+            p.fileName = file.name;
+            props.onChange(p);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function clickFileInput(p: KeyVal) {
+    const input = document.getElementById(`file-input-${p.id}`) as HTMLInputElement;
+    if (input) {
+        input.click();
+    }
+}
 </script>
 
 <template>
@@ -33,19 +53,40 @@ const localStorageKey = `env-data-table-splitter-${props.code}`;
                         />
                     </template>
                     <template #right>
-                        <AutocompleteText
-                            v-if="autocomplete"
-                            :model-value="p.value?.toString()"
-                            @update:modelValue="v => p.value = v || ''"
-                        />
-                        <ArgInput
-                            v-else
-                            :model-value="p.value?.toString()"
-                            @update:modelValue="v => p.value = v"
-                            @update:model-value="() => onChange(p)"
-                            placeholder="Value"
-                            autosize
-                        />
+                        <div class="flex-1 flex gap-1 items-stretch">
+                            <slot name="center" :item="p"></slot>
+                            <template v-if="p.type == 'file'">
+                                <ArgInput
+                                    :model-value="p.fileName || ''"
+                                    readonly
+                                    @click="clickFileInput(p)"
+                                    class="*:*:cursor-pointer!"
+                                />
+                                <!--<label-->
+                                <!--    :for="`file-input-${p.id}`"-->
+                                <!--    class="border flex-1"-->
+                                <!--&gt;</label>-->
+                                <input
+                                    :id="`file-input-${p.id}`"
+                                    type="file"
+                                    @change="e => onFileChange(p, e)"
+                                    class="file-input file-input-bordered w-full max-w-xs hidden"
+                                />
+                            </template>
+                            <AutocompleteText
+                                v-else-if="autocomplete"
+                                :model-value="p.value?.toString()"
+                                @update:modelValue="v => p.value = v || ''"
+                            />
+                            <ArgInput
+                                v-else
+                                :model-value="p.value?.toString()"
+                                @update:modelValue="v => p.value = v"
+                                @update:model-value="() => onChange(p)"
+                                placeholder="Value"
+                                autosize
+                            />
+                        </div>
                     </template>
                 </Splitter>
                 <span

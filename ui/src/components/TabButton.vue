@@ -2,7 +2,7 @@
 const modelValue = defineModel<T>({required: true})
 const props = defineProps<{
     tab: T,
-    text: string,
+    text?: string,
 }>()
 </script>
 
@@ -15,6 +15,6 @@ const props = defineProps<{
             'text-gray-600 dark:text-gray-400': modelValue !== tab
         }"
     >
-        {{ text }}
+        <slot>{{ text }}</slot>
     </button>
 </template>

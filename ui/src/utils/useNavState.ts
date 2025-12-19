@@ -61,8 +61,6 @@ const createNavState = () => {
         db.navState.updateDb();
     }, {deep: true});
     watch(selectedEndpoints, (nv) => {
-        // if(!navState.selected_endpoints.some(t => !nv.some(x => x.id == t)) && !nv.some(t => !navState.selected_endpoints.includes(t.id)))
-        //     return;
         navState.selected_endpoints = nv.map(t => t.id);
         db.navState.updateDb();
     }, {deep: true});
@@ -97,7 +95,7 @@ const createNavState = () => {
 
     const selectEndpoint = (endpoint: Endpoint) => {
         // console.log('select', endpoint)
-        endpoint.apiCall.request.body ||= JSONC.stringify(endpoint.generateDefaultBody().unparse(false));
+        endpoint.request.body ||= JSONC.stringify(endpoint.generateDefaultBody().unparse(false));
         activeEndpoint.value = endpoint
         if (!selectedEndpoints.value.some(t => t.id == endpoint.id)) {
             selectedEndpoints.value.push(endpoint)

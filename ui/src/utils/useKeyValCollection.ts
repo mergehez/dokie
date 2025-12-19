@@ -1,5 +1,6 @@
 import {uniqueId} from "@/utils/utils.ts";
 import type {KeyVal} from "@/utils/useDb.ts";
+import {reactive} from "vue";
 
 
 export type KeyValCollection = ReturnType<typeof useKeyValCollection>;
@@ -15,6 +16,7 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
     }
 
     function addNew(key: string = "", value: string = "") {
+        console.log("KeyValCollection: addNew", key, value);
         const newVal = {
             id: uniqueId(),
             key: key ?? "",
@@ -70,7 +72,7 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
         return [...keyVals, ...other];
     }
 
-    return {
+    return reactive({
         get: get,
         getValue: getValue,
         // getAny: getAny,
@@ -81,5 +83,5 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
         merge: merge,
         keyVals: keyVals,
         findIndexByKey: findIndexByKey,
-    }
+    })
 }

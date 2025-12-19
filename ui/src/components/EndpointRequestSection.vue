@@ -2,7 +2,7 @@
 
 import {defaultPostscript} from "@/utils/usePostscript.ts";
 import MonacoEditor from "@/components/MonacoEditor.vue";
-import {ElScrollbar} from "element-plus";
+import {ElOption, ElRadio, ElRadioGroup, ElScrollbar, ElSelect} from "element-plus";
 import EnvDataTable from "@/components/EnvDataTable.vue";
 import type {Endpoint} from "@/utils/useEndpoint.ts";
 import {computed} from "vue";
@@ -13,7 +13,7 @@ const props = defineProps<{
     endpoint: Endpoint
 }>()
 
-const req = computed(() => props.endpoint.apiCall.request);
+const req = computed(() => props.endpoint.request);
 
 function getHeader(name: string): string | undefined {
     return Object.entries(req.value.headers).find(t => t[0].toLowerCase() === name.toLowerCase())?.[1];
@@ -27,7 +27,7 @@ const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'appli
         <div class="flex border-b border-x4">
             <TabButton v-model="endpoint.activeRequestTab" tab="params" text="Params"/>
             <TabButton v-model="endpoint.activeRequestTab" tab="headers" text="Headers"/>
-            <TabButton v-model="endpoint.activeRequestTab" tab="body" :text="`Body (${ext})`"/>
+            <TabButton v-model="endpoint.activeRequestTab" tab="body" text="Body"/>
             <TabButton v-model="endpoint.activeRequestTab" tab="postscript" text="Postscript"/>
         </div>
 
@@ -75,17 +75,59 @@ const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'appli
 
                 <!-- Body Tab -->
                 <div v-if="endpoint.activeRequestTab === 'body'" class="space-y-2 h-full">
-                    <MonacoEditor
-                        v-model="props.endpoint.apiCall.request.body"
-                        :language="ext"
-                    />
+                    <div class="flex items-center space-x-4 px-4 py-1.5 bg-x1 border-b border-x4">
+                        <div class="text-xs font-medium">Body Type:</div>
+                        <ElRadioGroup v-model="endpoint.request.bodyType" size="small">
+                            <ElRadio
+                                v-for="item in ['json', 'xml', 'text', 'html', 'form-data'] as const"
+                                :key="item"
+                                :value="item"
+                                class="mr-4!"
+                            >{{ item }}
+                            </ElRadio>
+                        </ElRadioGroup>
+                    </div>
+                    <template v-if="endpoint.request.bodyType == 'form-data'">
+                        <div class="px-2 grid gap-1">
+                            <div class="flex justify-between items-center px-0.5">
+                                <div class="text-sm font-medium">Form Data</div>
+                                <button @click="() => endpoint.formData.addNew()"
+                                        class="px-2 py-0.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                                    Add
+                                </button>
+                            </div>
+                            <EnvDataTable
+                                code="bodyFD"
+                                :kv-collection="endpoint.formData"
+                                :on-change="endpoint.updateCurrentUrl"
+                                autocomplete
+                            >
+                                <template #center="{item}">
+                                    <ElSelect
+                                        :model-value="item.type || 'text'"
+                                        @change="v => item.type = v"
+                                        style="width: 100px; height:100%;"
+                                    >
+                                        <ElOption label="Text" value="text"/>
+                                        <ElOption label="File" value="file"/>
+                                    </ElSelect>
+                                </template>
+                            </EnvDataTable>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <MonacoEditor
+                            v-model="endpoint.request.body"
+                            :language="endpoint.request.bodyType"
+                        />
+                    </template>
                 </div>
 
                 <!-- postscript Tab -->
                 <div v-if="endpoint.activeRequestTab === 'postscript'" class="space-y-2 h-full">
                     <MonacoEditor
-                        :model-value="props.endpoint.apiCall.request.postscript ?? defaultPostscript(props.endpoint)"
-                        @update:modelValue="v => props.endpoint.apiCall.request.postscript = v ?? ''"
+                        :model-value="endpoint.request.postscript ?? defaultPostscript(props.endpoint)"
+                        @update:modelValue="v => endpoint.request.postscript = v ?? ''"
                         language="typescript"
                     />
                 </div>
@@ -94,6 +136,12 @@ const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'appli
     </div>
 </template>
 
-<style scoped>
+<style>
+.el-radio {
+    --el-radio-input-border: 1px solid #888 !important;
+}
 
+.el-radio__label {
+    padding-left: 0.3rem;
+}
 </style>

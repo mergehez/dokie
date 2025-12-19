@@ -26,9 +26,9 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
                 <!-- Request Controls -->
                 <div class="flex gap-2 items-center">
                     <div>
-                        <ElSelect v-model="endpoint.apiCall.request.method">
+                        <ElSelect v-model="endpoint.request.method">
                             <template #prefix>
-                                <HttpMethod :method="endpoint.apiCall.request.method"/>
+                                <HttpMethod :method="endpoint.request.method"/>
                             </template>
                             <ElOption v-for="ws in httpMethods" :key="ws" :label="ws" :value="ws">
                                 <HttpMethod :method="ws" full-name/>
@@ -38,7 +38,7 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 
                     <div class="flex-1 relative">
                         <AutocompleteText
-                            v-model="endpoint.apiCall.request.url"
+                            v-model="endpoint.request.url"
                             class="w-full"
                             input-style="width: 100%;"
                             placeholder="URL"/>
@@ -61,8 +61,8 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
             <template #bottom>
                 <!-- Response Section -->
                 <EndpointResponseSection
-                    v-if="props.endpoint.apiCall?.response"
-                    :response="props.endpoint.apiCall.response"
+                    v-if="endpoint.response"
+                    :response="endpoint.response"
                 />
                 <div v-else-if="endpoint.axiosError"
                      class="flex-1 flex flex-col border border-red-200 dark:border-red-700 rounded p-4 text-sm text-red-500 dark:text-red-400 overflow-y-auto">

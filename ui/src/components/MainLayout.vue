@@ -77,7 +77,16 @@ const query = ref('');
                         :left-hidden="!isLeftSidebarOpen"
                     >
                         <template #left>
-                            <h2 class="text-lg font-bold py-2 px-2 text-gray-900 dark:text-white">API Endpoints</h2>
+                            <div class="flex justify-between">
+                                <h2 class="flex-1 text-lg font-bold py-2 px-2 text-gray-900 dark:text-white">Endpoints</h2>
+                                <ArgInput
+                                    v-model="query"
+                                    placeholder="Search"
+                                    class="w-20! my-2 mr-2"
+                                    :prefix-icon="Search"
+                                    size="small"
+                                />
+                            </div>
                             <EndpointTreeView :query="query"/>
                         </template>
                         <template #right>
