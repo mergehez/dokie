@@ -13,7 +13,7 @@ Route::get('/user', function (Request $request) {
 
 
 Route::post('/login', [UserController::class, 'login']);
-Route::middleware(['api_key'])->group(function () {
+Route::middleware(['api_key', 'cors-allow'])->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/users/{id}/change-password', [UserController::class, 'changePassword']);
     Route::apiResource('users', UserController::class);
