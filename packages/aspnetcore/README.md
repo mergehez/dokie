@@ -95,10 +95,9 @@ After setting up the above code, you can access the Dokie UI at `/dokie` in your
 > - Current hostname
 > - Endpoint specific: Path/Query parameters, Headers and Postscript
 
-## Screenshots
+## Screenshot
 
 ![Screenshot 1](https://github.com/mergehez/dokie/blob/main/ui/src/assets/screenshot1.png?raw=true)
-![Screenshot 2](https://github.com/mergehez/dokie/blob/main/ui/src/assets/screenshot2.png?raw=true)
 
 ## Contributing
 

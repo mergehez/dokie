@@ -43,10 +43,9 @@ Currently, it only has packages for ASP.NET Core and Laravel, but it is planned 
 > - Current hostname
 > - Endpoint specific: Path/Query parameters, Headers and Postscript
 
-## Screenshots
+## Screenshot
 
 ![Screenshot 1](./ui/src/assets/screenshot1.png)
-![Screenshot 2](./ui/src/assets/screenshot2.png)
 
 ## Contributing
 
