@@ -9,6 +9,8 @@ import EndpointTabs from "@/components/EndpointTabs.vue";
 import EndpointTreeView from "@/components/EndpointTreeView.vue";
 import EndpointView from "@/components/EndpointView.vue";
 import {useNavState} from "@/utils/useNavState.ts";
+import ArgInput from "@/components/ui/ArgInput.vue";
+import {Search} from '@element-plus/icons-vue'
 
 const navState = useNavState();
 const globalKeyVals = useGlobalEnvs()
@@ -36,6 +38,8 @@ const toggle = (what: 'left' | 'right') => {
         isRightSidebarOpen.value = isRightSidebarOpen.value === '1' ? '' : '1';
     }
 };
+
+const query = ref('');
 </script>
 
 <template>
@@ -74,7 +78,7 @@ const toggle = (what: 'left' | 'right') => {
                     >
                         <template #left>
                             <h2 class="text-lg font-bold py-2 px-2 text-gray-900 dark:text-white">API Endpoints</h2>
-                            <EndpointTreeView/>
+                            <EndpointTreeView :query="query"/>
                         </template>
                         <template #right>
                             <!-- Content Area -->
