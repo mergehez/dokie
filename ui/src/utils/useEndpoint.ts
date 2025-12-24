@@ -128,7 +128,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
             await _allKeyVals.upsert(id, _all);
             await _allKeyVals.updateDb();
         },
-        isLoading: isLoading,
+        isSending: isLoading,
         recentlySucceeded: computed({
             get: () => recentlySucceeded.value,
             set: (val: boolean) => {

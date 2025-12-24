@@ -33,7 +33,7 @@ const sidebar = useNavState();
                             <HttpMethod :method="endpoint.method"/>
                             <span class="font-mono truncate">{{ endpoint.path.replace('/api/', '/') }}</span>
                             <span class="ml-auto inline-flex items-center" @click.prevent.stop="sendRequest(endpoint)">
-                                <i v-if="endpoint.isLoading" class="icon icon-[mingcute--loading-fill] animate-spin text-green-500 text-base"></i>
+                                <i v-if="endpoint.isSending" class="icon icon-[mingcute--loading-fill] animate-spin text-green-500 text-base"></i>
                                 <i v-else-if="endpoint.recentlyFailed" class="icon icon-[icon-park-solid--error] text-red-500 text-base"></i>
                                 <i v-else-if="endpoint.recentlySucceeded" class="icon icon-[mdi--check-circle] text-green-500 text-base"></i>
                                 <i v-else class="icon icon-[mdi--play] text-green-500 text-base"></i>

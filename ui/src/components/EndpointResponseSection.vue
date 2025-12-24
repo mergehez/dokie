@@ -6,8 +6,10 @@ import {ref} from "vue";
 import ArgButton from "@/components/ui/ArgButton.vue";
 import mime from 'mime';
 import TabButton from "@/components/TabButton.vue";
+import type {Endpoint} from "@/utils/useEndpoint.ts";
 
 const props = defineProps<{
+    endpoint: Endpoint,
     response: ApiResponse
 }>()
 
@@ -173,6 +175,10 @@ const activeTab = ref<'body' | 'preview' | 'headers'>('body');
                     </template>
                 </div>
             </div>
+        </div>
+
+        <div v-if="endpoint.isSending" class="bg-x1/60 absolute inset-0 grid place-items-center">
+            <i class="icon icon-[mingcute--loading-fill] animate-spin  text-5xl"></i>
         </div>
     </div>
 </template>

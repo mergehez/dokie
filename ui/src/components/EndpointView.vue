@@ -44,8 +44,8 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
                             placeholder="URL"/>
                     </div>
 
-                    <ArgButton severity="primary" small @click="sendRequest(endpoint)" :loading="endpoint.isLoading" class="gap-2">
-                        <i v-if="!endpoint.isLoading" class="icon icon-[mdi--send]"></i>
+                    <ArgButton severity="primary" small @click="sendRequest(endpoint)" :loading="endpoint.isSending" class="gap-2">
+                        <i v-if="!endpoint.isSending" class="icon icon-[mdi--send]"></i>
                         <span>Send</span>
                     </ArgButton>
                 </div>
@@ -62,6 +62,7 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
                 <!-- Response Section -->
                 <EndpointResponseSection
                     v-if="endpoint.response"
+                    :endpoint="endpoint"
                     :response="endpoint.response"
                 />
                 <div v-else-if="endpoint.axiosError"

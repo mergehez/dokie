@@ -208,8 +208,10 @@ export async function sendRequest(e: Endpoint) {
     }
 
 
-    e.isLoading = true;
+    e.isSending = true;
     try {
+        // wait fpr 0.5 seconds
+        await new Promise(resolve => setTimeout(resolve, 2500));
         const config = prepareRequest();
 
         const res = await axios.request(config)
@@ -238,6 +240,6 @@ export async function sendRequest(e: Endpoint) {
             const sidebar = useNavState();
             sidebar.selectEndpoint(e);
         }
-        e.isLoading = false;
+        e.isSending = false;
     }
 }
