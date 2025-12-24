@@ -2,7 +2,7 @@
 
 import MonacoEditor from "@/components/MonacoEditor.vue";
 import type {ApiResponse} from "@/utils/useDb.ts";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import ArgButton from "@/components/ui/ArgButton.vue";
 import mime from 'mime';
 import TabButton from "@/components/TabButton.vue";
@@ -70,10 +70,31 @@ function downloadResponse() {
 
 const activeTab = ref<'body' | 'preview' | 'headers'>('body');
 
+const statusCodeNames: Record<number, string> = {
+    200: 'OK',
+    201: 'Created',
+    202: 'Accepted',
+    204: 'No Content',
+    301: 'Moved Permanently',
+    302: 'Found',
+    304: 'Not Modified',
+    400: 'Bad Request',
+    401: 'Unauthorized',
+    403: 'Forbidden',
+    404: 'Not Found',
+    409: 'Conflict',
+    422: 'Unprocessable Entity',
+    428: 'Too Many Requests',
+    429: 'Too Many Requests',
+    500: 'Internal Server Error',
+};
+const statusText = computed(() => {
+    return props.response.statusText || statusCodeNames[props.response.status] || '';
+})
 </script>
 
 <template>
-    <div class="flex-1 flex flex-col border  border-x4 rounded overflow-hidden">
+    <div class="flex-1 flex flex-col border  border-x4 rounded overflow-hidden relative">
         <div
             class="p-2 border-b border-x4 flex justify-between items-center">
             <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Response</h3>
@@ -85,7 +106,7 @@ const activeTab = ref<'body' | 'preview' | 'headers'>('body');
                             'text-yellow-600': response.isRedirect,
                             'text-red-600': !response.isSuccess && !response.isRedirect
                         }">
-                            {{ response.status }} {{ response.statusText }}
+                            {{ response.status }} {{ statusText }}
                         </span>
                 </div>
                 <div class="flex items-center gap-2">
