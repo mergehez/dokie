@@ -31,8 +31,20 @@ const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'appli
             <TabButton v-model="endpoint.activeRequestTab" tab="postscript" text="Postscript"/>
         </div>
 
-        <div class="py-1 flex-1 overflow-y-auto">
-            <ElScrollbar class="h-full w-full overflow-y-auto" view-class="h-full">
+        <div class="py-1 flex-1 overflow-y-auto flex flex-col">
+            <div v-if="endpoint.activeRequestTab === 'body'" class="flex items-center space-x-4 px-4 py-1.5 bg-x1 border-b border-x4">
+                <div class="text-xs font-medium">Body Type:</div>
+                <ElRadioGroup v-model="endpoint.request.bodyType" size="small">
+                    <ElRadio
+                        v-for="item in ['json', 'xml', 'text', 'html', 'form-data'] as const"
+                        :key="item"
+                        :value="item"
+                        class="mr-4!"
+                    >{{ item }}
+                    </ElRadio>
+                </ElRadioGroup>
+            </div>
+            <ElScrollbar class="flex-1 w-full overflow-y-auto" view-class="h-full">
                 <!-- Params Tab -->
                 <div v-if="endpoint.activeRequestTab === 'params'" class="space-y-6 p-4 h-full">
                     <!-- Route Parameters Section -->
@@ -75,18 +87,6 @@ const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'appli
 
                 <!-- Body Tab -->
                 <div v-if="endpoint.activeRequestTab === 'body'" class="space-y-2 h-full">
-                    <div class="flex items-center space-x-4 px-4 py-1.5 bg-x1 border-b border-x4">
-                        <div class="text-xs font-medium">Body Type:</div>
-                        <ElRadioGroup v-model="endpoint.request.bodyType" size="small">
-                            <ElRadio
-                                v-for="item in ['json', 'xml', 'text', 'html', 'form-data'] as const"
-                                :key="item"
-                                :value="item"
-                                class="mr-4!"
-                            >{{ item }}
-                            </ElRadio>
-                        </ElRadioGroup>
-                    </div>
                     <template v-if="endpoint.request.bodyType == 'form-data'">
                         <div class="px-2 grid gap-1">
                             <div class="flex justify-between items-center px-0.5">
