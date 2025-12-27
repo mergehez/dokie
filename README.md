@@ -22,7 +22,7 @@ Currently, it only has packages for ASP.NET Core and Laravel, but it is planned 
 ## Installation
 
 - for ASP.NET Core applications visit: [packages/aspnetcore/README.md](./packages/aspnetcore/README.md)
-- for Laravel applications visit: [packages/laravel/README.md](https://github.com/mergehez/dokie-laravel)
+- for Laravel applications visit: [github.com/mergehez/dokie-laravel](https://github.com/mergehez/dokie-laravel)
 - for other platforms, please open an issue or pull request.
 
 ## Features
