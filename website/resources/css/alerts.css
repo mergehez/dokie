@@ -1,0 +1,77 @@
+@utility alert {
+    border-width: 1px;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--alert-color);
+    background-color: var(--alert-bg);
+    border-color: var(--alert-border);
+    .dark & {
+        color: var(--alert-bg);
+        background-color: var(--alert-color);
+        border-color: var(--alert-border-dark);
+    }
+}
+
+@utility alert-primary {
+    --alert-bg: var(--color-indigo-200);
+    --alert-color: var(--color-indigo-800);
+    --alert-border: var(--color-indigo-300);
+    --alert-border-dark: var(--color-indigo-600);
+}
+
+@utility alert-success {
+    --alert-bg: #d1e7dd;
+    --alert-color: var(--color-green-800);
+    --alert-border: #badbcc;
+    --alert-border-dark: var(--color-green-700);
+}
+
+@utility alert-danger {
+    --alert-bg: var(--color-red-100);
+    --alert-color: var(--color-red-900);
+    --alert-border: var(--color-red-200);
+    --alert-border-dark: var(--color-red-700);
+}
+
+@utility alert-warning {
+    --alert-bg: #fff5c9;
+    --alert-color: #382b00;
+    --alert-border: #ffe77e;
+    --alert-border-dark: #563f00;
+}
+
+@utility alert-info {
+    --alert-bg: var(--color-blue-100);
+    --alert-color: var(--color-blue-800);
+    --alert-border: var(--color-blue-200);
+    --alert-border-dark: var(--color-blue-600);
+}
+
+@utility alert-light {
+    --alert-bg: var(--color-gray-100);
+    --alert-color: var(--color-gray-800);
+    --alert-border: var(--color-gray-200);
+    --alert-border-dark: var(--color-gray-700);
+}
+
+@utility alert-lighter {
+    --alert-bg: color-mix(in oklab, var(--color-gray-100) 60%, transparent);
+    --alert-color: color-mix(in oklab, var(--color-gray-800) 60%, transparent);
+    --alert-border: color-mix(in oklab, var(--color-gray-200) 70%, transparent);
+    --alert-border-dark: color-mix(in oklab, var(--color-gray-700) 50%, transparent);
+}
+
+@utility alert-transparent {
+    --alert-bg: var(--color-gray-50);
+    --alert-color: color-mix(in oklab, var(--color-gray-900) 80%, transparent);
+    --alert-border: var(--color-gray-200);
+    --alert-border-dark: var(--color-gray-800);
+}
+
+@utility alert-dark {
+    --alert-bg: var(--color-gray-300);
+    --alert-color: var(--color-gray-600);
+    --alert-border: var(--color-gray-400);
+    --alert-border-dark: var(--color-gray-500);
+}
+
