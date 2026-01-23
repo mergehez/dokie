@@ -1,6 +1,7 @@
 import Dexie, {type EntityTable} from 'dexie';
 import {useDebounceFn} from "@vueuse/core";
 import {uniqueId} from "@/utils/utils.ts";
+import type {CustomEndpointDef} from "@/utils/useEndpoint.ts";
 
 export type EndpointId = string;
 
@@ -70,6 +71,7 @@ export type IdbNavState = {
     expanded_tags: EndpointId[];
     fav_endpoints: EndpointId[];
     selected_endpoints: EndpointId[];
+    custom_endpoints: CustomEndpointDef[];
     active_endpoint: EndpointId;
     sidebar_width: number; // percentage
     request_part_height: number; // percentage
@@ -124,15 +126,16 @@ export function useDb() {
             } satisfies GlobalKeyVals
 
             _requestHistory = await _db.requestHistory.toArray();
-            _navState = JSON.parse((await _db.navState.toArray()).find(t => t.id == 1)?.value ?? JSON.stringify({
-                id: 1,
-                expanded_tags: ['Favorites'],
-                selected_endpoints: [],
-                fav_endpoints: [],
-                active_endpoint: '',
-                sidebar_width: 31,
-                request_part_height: 50,
-            }));
+            _navState = JSON.parse((await _db.navState.toArray()).find(t => t.id == 1)?.value ?? JSON.stringify({}));
+
+            _navState.id ??= 1;
+            _navState.expanded_tags ??= ['Favorites'];
+            _navState.selected_endpoints ??= [];
+            _navState.custom_endpoints ??= [];
+            _navState.fav_endpoints ??= [];
+            _navState.active_endpoint ??= '';
+            _navState.sidebar_width ??= 31;
+            _navState.request_part_height ??= 50;
 
         },
         keyVals: {

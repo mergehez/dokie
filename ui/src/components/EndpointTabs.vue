@@ -43,7 +43,7 @@ const onMouseDown = (event: MouseEvent, endpoint: Endpoint) => {
                 @auxclick.prevent="ev => onAuxClick(ev, e)"
             >
                 <HttpMethod :method="e.method" class="text-xs tracking-tighter pointer-events-none select-none"/>
-                <span class="select-none pointer-events-none">{{ e.path.replace('/api/', '') }}</span>
+                <span class="select-none pointer-events-none">{{ e.name.replace('/api/', '') }}</span>
 
                 <span
                     @click.stop="sidebar.unselectEndpoint(e)"

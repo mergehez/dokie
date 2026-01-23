@@ -3,7 +3,7 @@ import {type Endpoint} from '@/utils/useEndpoint.ts'
 import HttpMethod from "@/components/HttpMethod.vue";
 import SplitterVertical from "@/components/ui/SplitterVertical.vue";
 import ArgButton from "@/components/ui/ArgButton.vue";
-import {ElOption, ElSelect} from "element-plus";
+import {ElInput, ElOption, ElSelect} from "element-plus";
 import AutocompleteText from "@/components/ui/AutocompleteText.vue";
 import {sendRequest} from "@/utils/sendRequest.ts";
 import EndpointRequestSection from "@/components/EndpointRequestSection.vue";
@@ -27,6 +27,11 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
         >
             <template #top>
                 <!-- Request Controls -->
+                <div v-if="endpoint.isCustom" class="w-full flex gap-2 items-center">
+                    <ElInput v-model="endpoint.name" class="">
+                        <template #prepend>Name</template>
+                    </ElInput>
+                </div>
                 <div class="flex gap-2 items-center">
                     <div>
                         <ElSelect v-model="endpoint.request.method">
@@ -40,6 +45,11 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
                     </div>
 
                     <div class="flex-1 relative">
+                        <!--<AutocompleteText-->
+                        <!--    v-model="endpoint.request.url"-->
+                        <!--    class="w-full"-->
+                        <!--    input-style="width: 100%;"-->
+                        <!--    placeholder="URL"/>-->
                         <AutocompleteText
                             v-model="endpoint.request.url"
                             class="w-full"
@@ -88,5 +98,9 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 <style>
 .vjs-carets {
     transform: translateY(-40%);
+}
+
+.el-input-group__prepend {
+    padding: 0 5px;
 }
 </style>

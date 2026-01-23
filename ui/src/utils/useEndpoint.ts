@@ -1,4 +1,4 @@
-import {computed, reactive, ref} from "vue";
+import {computed, reactive, ref, watch} from "vue";
 import {defineStore, uniqueId} from "@/utils/utils";
 import type {OpenApiEndpoint, OpenAPIV3, ParameterObject, SchemaObject} from "./types";
 import {type ApiRequest, type ApiResponse, type KeyVal, useDb} from "@/utils/useDb.ts";
@@ -13,8 +13,20 @@ import {useKeyValCollection} from "@/utils/useKeyValCollection.ts";
 type Part = 'query' | 'header' | 'route';
 
 export type Endpoint = ReturnType<typeof _createEndpoint>;
+export type CustomEndpointDef = {
+    id: string,
+    name: string,
+    method: string,
+    path: string,
+}
 type UseEndpointOpts = {
-    path: string, method: string, openApiEndpoint: OpenApiEndpoint, addDefaults?: boolean, spec?: OpenAPIV3
+    isCustom?: boolean,
+    name?: string,
+    path: string,
+    method: string,
+    openApiEndpoint: OpenApiEndpoint,
+    addDefaults?: boolean,
+    spec?: OpenAPIV3
 }
 
 function _createEndpoint(id: string, opts: UseEndpointOpts) {
@@ -28,10 +40,20 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
         url: opts.path,
         body: _all.body || config.bodies[id] || '',
         bodyType: 'json',
-        // formData: useKeyValCollection([{id: uniqueId(), key: '', value: ''}]),
         headers: Object.fromEntries(_all.header.map(t => [t.key, t.value || ''])),
         postscript: _all.postscript ?? config.postscripts[id]!,
     });
+
+    const path = ref(opts.path);
+    const method = ref(opts.method);
+    if (opts.isCustom) {
+        watch(() => request.url, (nv) => {
+            path.value = nv;
+        })
+        watch(() => request.method, (nv) => {
+            method.value = nv;
+        })
+    }
 
     function updateCurrentUrl() {
         const uri = useUri(request.url);
@@ -49,7 +71,6 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     function generateDefaultBody() {
         if (opts.spec && opts.openApiEndpoint.requestBody && 'content' in opts.openApiEndpoint.requestBody)
             requestDefaultBody ??= generateDefaultBodyFromSchema(opts.spec, opts.openApiEndpoint.requestBody);
-
         else
             requestDefaultBody ??= Parsed.emptyObject();
         return requestDefaultBody;
@@ -111,11 +132,13 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     const recentlyFailed = ref(false);
     const recentlySucceeded = ref(false);
     return reactive({
-        id: id,
-        path: computed(() => opts.path),
-        hash: computed(() => btoa(`${opts.path}${opts.method}`)),
-        method: computed(() => opts.method),
         ...opts.openApiEndpoint,
+        id: id,
+        isCustom: opts.isCustom,
+        name: opts.name ?? opts.path,
+        path: path,
+        hash: computed(() => btoa(id)),
+        method: method,
         all: _all,
         queryKeyVals: queryKeyVals,
         headerKeyVals: headerKeyVals,
@@ -160,4 +183,14 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
 export function useEndpoint(opts: UseEndpointOpts): Endpoint {
     const id = `${opts.method} ${opts.path}`;
     return defineStore(id, () => _createEndpoint(id, opts))();
+}
+
+export function useCustomEndpoint(e: CustomEndpointDef, spec: UseEndpointOpts['spec']): Endpoint {
+    return defineStore(e.id, () => _createEndpoint(e.id, {
+        addDefaults: false,
+        openApiEndpoint: {},
+        spec: spec,
+        isCustom: true,
+        ...e
+    }))();
 }

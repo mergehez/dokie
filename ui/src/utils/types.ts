@@ -7,43 +7,43 @@ export type OpenAPIV3 = {
     security?: SecurityRequirementObject[];
     tags?: TagObject[];
     externalDocs?: ExternalDocumentationObject;
-  };
-  
-  export type InfoObject = {
+};
+
+export type InfoObject = {
     title: string;
     description?: string;
     termsOfService?: string;
     contact?: ContactObject;
     license?: LicenseObject;
     version: string;
-  };
-  
-  export type ContactObject = {
+};
+
+export type ContactObject = {
     name?: string;
     url?: string;
     email?: string;
-  };
-  
-  export type LicenseObject = {
+};
+
+export type LicenseObject = {
     name: string;
     url?: string;
-  };
-  
-  export type ServerObject = {
+};
+
+export type ServerObject = {
     url: string;
     description?: string;
     variables?: Record<string, ServerVariableObject>;
-  };
-  
-  export type ServerVariableObject = {
+};
+
+export type ServerVariableObject = {
     enum?: string[];
     default: string;
     description?: string;
-  };
-  
-  export type OpenApiPathsObject = Record<string, OpenApiPathItemObject>;
-  
-  export type OpenApiPathItemObject = {
+};
+
+export type OpenApiPathsObject = Record<string, OpenApiPathItemObject>;
+
+export type OpenApiPathItemObject = {
     $ref?: string;
     summary?: string;
     description?: string;
@@ -57,9 +57,9 @@ export type OpenAPIV3 = {
     trace?: OpenApiEndpoint;
     servers?: ServerObject[];
     parameters?: (ParameterObject | ReferenceObject)[];
-  };
-  
-  export type OpenApiEndpoint = {
+};
+
+export type OpenApiEndpoint = {
     tags?: string[];
     summary?: string;
     description?: string;
@@ -67,19 +67,19 @@ export type OpenAPIV3 = {
     operationId?: string;
     parameters?: (ParameterObject | ReferenceObject)[];
     requestBody?: RequestBodyObject | ReferenceObject;
-    responses: ResponsesObject;
+    responses?: ResponsesObject;
     callbacks?: Record<string, CallbackObject | ReferenceObject>;
     deprecated?: boolean;
     security?: SecurityRequirementObject[];
     servers?: ServerObject[];
-  };
-  
-  export type ExternalDocumentationObject = {
+};
+
+export type ExternalDocumentationObject = {
     description?: string;
     url: string;
-  };
-  
-  export type ParameterObject = {
+};
+
+export type ParameterObject = {
     name: string;
     in: 'query' | 'header' | 'path' | 'cookie';
     description?: string;
@@ -93,71 +93,71 @@ export type OpenAPIV3 = {
     example?: any;
     examples?: Record<string, ExampleObject | ReferenceObject>;
     content?: ContentObject;
-  };
-  
-  export type RequestBodyObject = {
+};
+
+export type RequestBodyObject = {
     description?: string;
     content: ContentObject;
     required?: boolean;
-  };
-  
-  export type ContentObject = Record<string, MediaTypeObject>;
-  
-  export type MediaTypeObject = {
+};
+
+export type ContentObject = Record<string, MediaTypeObject>;
+
+export type MediaTypeObject = {
     schema?: SchemaObject | ReferenceObject;
     example?: any;
     examples?: Record<string, ExampleObject | ReferenceObject>;
     encoding?: Record<string, EncodingObject>;
-  };
-  
-  export type EncodingObject = {
+};
+
+export type EncodingObject = {
     contentType?: string;
     headers?: Record<string, HeaderObject | ReferenceObject>;
     style?: string;
     explode?: boolean;
     allowReserved?: boolean;
-  };
-  
-  export type ResponsesObject = Record<string, ResponseObject | ReferenceObject>;
-  
-  export type ResponseObject = {
+};
+
+export type ResponsesObject = Record<string, ResponseObject | ReferenceObject>;
+
+export type ResponseObject = {
     description: string;
     headers?: Record<string, HeaderObject | ReferenceObject>;
     content?: ContentObject;
     links?: Record<string, LinkObject | ReferenceObject>;
-  };
-  
-  export type CallbackObject = Record<string, OpenApiPathItemObject>;
-  
-  export type ExampleObject = {
+};
+
+export type CallbackObject = Record<string, OpenApiPathItemObject>;
+
+export type ExampleObject = {
     summary?: string;
     description?: string;
     value?: any;
     externalValue?: string;
-  };
-  
-  export type LinkObject = {
+};
+
+export type LinkObject = {
     operationRef?: string;
     operationId?: string;
     parameters?: Record<string, any>;
     requestBody?: any;
     description?: string;
     server?: ServerObject;
-  };
-  
-  export type HeaderObject = Omit<ParameterObject, 'name' | 'in'>;
-  
-  export type TagObject = {
+};
+
+export type HeaderObject = Omit<ParameterObject, 'name' | 'in'>;
+
+export type TagObject = {
     name: string;
     description?: string;
     externalDocs?: ExternalDocumentationObject;
-  };
-  
-  export type ReferenceObject = {
+};
+
+export type ReferenceObject = {
     $ref: string;
-  };
-  
-  export type SchemaObject = {
+};
+
+export type SchemaObject = {
     title?: string;
     multipleOf?: number;
     maximum?: number;
@@ -193,24 +193,24 @@ export type OpenAPIV3 = {
     externalDocs?: ExternalDocumentationObject;
     example?: any;
     deprecated?: boolean;
-  };
-  
-  export type DiscriminatorObject = {
+};
+
+export type DiscriminatorObject = {
     propertyName: string;
     mapping?: Record<string, string>;
-  };
-  
-  export type XMLObject = {
+};
+
+export type XMLObject = {
     name?: string;
     namespace?: string;
     prefix?: string;
     attribute?: boolean;
     wrapped?: boolean;
-  };
-  
-  export type SecurityRequirementObject = Record<string, string[]>;
-  
-  export type ComponentsObject = {
+};
+
+export type SecurityRequirementObject = Record<string, string[]>;
+
+export type ComponentsObject = {
     schemas?: Record<string, SchemaObject | ReferenceObject>;
     responses?: Record<string, ResponseObject | ReferenceObject>;
     parameters?: Record<string, ParameterObject | ReferenceObject>;
@@ -220,9 +220,9 @@ export type OpenAPIV3 = {
     securitySchemes?: Record<string, SecuritySchemeObject | ReferenceObject>;
     links?: Record<string, LinkObject | ReferenceObject>;
     callbacks?: Record<string, CallbackObject | ReferenceObject>;
-  };
-  
-  export type SecuritySchemeObject = {
+};
+
+export type SecuritySchemeObject = {
     type: 'apiKey' | 'http' | 'oauth2' | 'openIdConnect';
     description?: string;
     name?: string;
@@ -231,18 +231,18 @@ export type OpenAPIV3 = {
     bearerFormat?: string;
     flows?: OAuthFlowsObject;
     openIdConnectUrl?: string;
-  };
-  
-  export type OAuthFlowsObject = {
+};
+
+export type OAuthFlowsObject = {
     implicit?: OAuthFlowObject;
     password?: OAuthFlowObject;
     clientCredentials?: OAuthFlowObject;
     authorizationCode?: OAuthFlowObject;
-  };
-  
-  export type OAuthFlowObject = {
+};
+
+export type OAuthFlowObject = {
     authorizationUrl?: string;
     tokenUrl?: string;
     refreshUrl?: string;
     scopes: Record<string, string>;
-  };
+};

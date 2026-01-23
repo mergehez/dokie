@@ -28,7 +28,9 @@ export async function sendRequest(e: Endpoint) {
         let hostname = globalKeyVals.hostname ?? '';
         if (hostname.endsWith('/'))
             hostname = hostname.substring(0, hostname.length - 1);
-        const uri = useUri(hostname + applyEnvsToString(e.request.url));
+        const url = applyEnvsToString(e.request.url);
+        const useHostname = !url.startsWith('http://') && !url.startsWith('https://');
+        const uri = useUri(useHostname ? hostname : '' + url);
         for (const {key, value, required} of Object.values(e.queryKeyVals.keyVals)) {
             if (key && value) {
                 uri.params[key] = applyEnvsToString(value);

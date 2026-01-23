@@ -5,6 +5,10 @@ let _spec: OpenAPIV3;
 
 export function useSpec(spec?: OpenAPIV3) {
     _spec ??= spec!;
+
+    // const db = useDb();
+    // db.
+
     return {
         spec: _spec,
         allEndpoints: Object.entries(_spec.paths ?? []).flatMap(([path, methods]) => {
