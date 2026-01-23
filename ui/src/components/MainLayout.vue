@@ -62,18 +62,26 @@ const query = ref('');
             </ArgButton>
         </div>
 
+        <!--splitting main area and environments sidebar-->
         <Splitter
+            base-side="right"
+            default-width="200px"
+            min-width="300px"
+            max-width="40%"
             class=" border-x-0"
             local-storage-key="sidebar-mainlayout-splitter"
-            :default-width="70"
             :right-hidden="!isRightSidebarOpen"
         >
             <template #left>
                 <div class="flex flex-1 overflow-y-auto">
+                    <!-- splitting left sidebar and main content area-->
                     <Splitter
+                        base-side="left"
+                        default-width="200px"
+                        min-width="240px"
+                        max-width="50%"
                         class=" border-x-0"
                         local-storage-key="endpoints-sidebar-splitter"
-                        :default-width="30"
                         :left-hidden="!isLeftSidebarOpen"
                     >
                         <template #left>

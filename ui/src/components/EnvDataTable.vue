@@ -44,7 +44,13 @@ function clickFileInput(p: KeyVal) {
                     <span class="icon icon-[gg--asterisk]"> </span>
                 </span>
                 <i v-else></i>
-                <Splitter class="w-auto h-auto border-none" :local-storage-key="localStorageKey" dragger-invisible>
+                <Splitter
+                    base-side="left"
+                    default-width="50%"
+                    class="w-auto h-auto border-none"
+                    :local-storage-key="localStorageKey"
+                    dragger-invisible
+                >
                     <template #left>
                         <ArgInput
                             v-model="p.key"

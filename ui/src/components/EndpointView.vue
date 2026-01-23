@@ -19,7 +19,10 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 <template>
     <div class="flex-1 flex flex-col p-4  rounded-lg shadow overflow-y-auto bg-x0">
         <SplitterVertical
-            :default-height="30"
+            base-panel="top"
+            default-height="30%"
+            min-height="200px"
+            max-height="calc(100% - 200px)"
             local-storage-key="endpoint-view-splitter"
         >
             <template #top>
