@@ -56,8 +56,8 @@ const isFocused = ref(false);
         :input-style="inputStyle"
         class="bg-x1/50"
         :class="{
-            '*:max-h-[300px]': isFocused,
-            '*:max-h-[100px]': !isFocused
+            '*:max-h-75': isFocused,
+            '*:max-h-25': !isFocused
         }"
         :placeholder="placeholder"
         :autosize="autosize"

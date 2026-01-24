@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import {ElInput} from "element-plus";
+import {ref} from "vue";
 
 const modelValue = defineModel<string | undefined>({required: true})
 const props = defineProps<{
@@ -45,6 +46,7 @@ const props = defineProps<{
 //     uniqueKey.value = uniqueId();
 //     keyWhenFocused = uniqueKey.value
 // }
+const isFocused = ref(false);
 </script>
 
 <template>
@@ -53,9 +55,16 @@ const props = defineProps<{
         @update:model-value="v => modelValue = v"
         :input-style="inputStyle"
         class="bg-x1/50"
+        :class="{
+            '*:max-h-75': isFocused,
+            '*:max-h-25': !isFocused
+        }"
         :placeholder="placeholder"
         :autosize="autosize"
         :type="autosize ? 'textarea' : 'text'"
         resize="none"
+        @focus="isFocused = true"
+        @click="isFocused = true"
+        @blur="isFocused = false"
     />
 </template>
