@@ -119,12 +119,12 @@ const createNavState = () => {
 
     function addCustomEndpoint() {
         const id = uniqueId();
-        let newName = 'New Custom Endpoint';
+        let newName = 'Custom Endpoint';
         for (let i = 0; ; i++) {
             if (!customEndpoints.value.find(t => t.name === newName)) {
                 break;
             }
-            newName = `New Custom Endpoint ${i + 2}`;
+            newName = `Custom Endpoint ${i + 2}`;
         }
         const ne = useCustomEndpoint({
             id: id,
@@ -145,9 +145,6 @@ const createNavState = () => {
     }
 
     function deleteCustomEndpoint(endpoint: Endpoint) {
-        if (!confirm(`Are you sure you want to delete the custom endpoint "${endpoint.name}"? This action cannot be undone.`)) {
-            return;
-        }
         const i = customEndpoints.value.findIndex(t => t.id == endpoint.id);
         if (i >= 0) {
             customEndpoints.value.splice(i, 1);
