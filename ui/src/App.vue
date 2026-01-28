@@ -18,7 +18,7 @@ function init() {
         .then(async (res) => {
             console.log(res)
             const contentType = res.headers["content-type"] || res.headers["Content-Type"];
-            if (contentType !== 'application/json') {
+            if (!contentType.includes('application/json')) {
                 throw new Error(`Expected 'application/json' from the api but got '${contentType}'`);
             }
 
