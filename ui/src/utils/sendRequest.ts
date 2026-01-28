@@ -8,9 +8,8 @@ import mime from "mime";
 import {useNavState} from "@/utils/useNavState.ts";
 
 export async function sendRequest(e: Endpoint) {
+    console.log('Sending request for endpoint:', e);
     const globalKeyVals = useGlobalEnvs();
-    // const currApiCall = e.apiCall;
-    const startTime = performance.now();
     let success = false;
 
     function applyEnvsToString(str: string) {
@@ -30,7 +29,7 @@ export async function sendRequest(e: Endpoint) {
             hostname = hostname.substring(0, hostname.length - 1);
         const url = applyEnvsToString(e.request.url);
         const useHostname = !url.startsWith('http://') && !url.startsWith('https://');
-        const uri = useUri(useHostname ? hostname : '' + url);
+        const uri = useUri((useHostname ? hostname : '') + url);
         for (const {key, value, required} of Object.values(e.queryKeyVals.keyVals)) {
             if (key && value) {
                 uri.params[key] = applyEnvsToString(value);
@@ -62,7 +61,6 @@ export async function sendRequest(e: Endpoint) {
     }
 
     function prepareHeaders() {
-        console.log(e.request.bodyType)
         const res = {
             'accept': '*/*',
             'cache-control': 'no-cache',
@@ -151,12 +149,14 @@ export async function sendRequest(e: Endpoint) {
             url: url,
             headers: headers,
             data: prepareBody(headers),
+
         };
         console.log('Prepared request config:', config);
         return config
     }
 
-    function handleResponse(res: AxiosResponse) {
+    function handleResponse(res: AxiosResponse, startTime: number) {
+        const duration = performance.now() - startTime;
         let dataStr = res.data instanceof ArrayBuffer
             ? new TextDecoder().decode(res.data)
             : typeof res.data == 'object' || !res.data
@@ -186,7 +186,7 @@ export async function sendRequest(e: Endpoint) {
 
         const cType = res.headers?.['Content-Type'] || res.headers?.['content-type'] || '';
         e.response = {
-            duration: performance.now() - startTime,
+            duration: duration,
             isRedirect: res.status >= 300 && res.status < 400,
             isSuccess: res.status >= 200 && res.status < 300,
             bodyArrayBuffer: res.data, // arraybuffer
@@ -212,15 +212,17 @@ export async function sendRequest(e: Endpoint) {
 
     e.isSending = true;
     try {
-        // wait fpr 0.5 seconds
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        // wait 0.1 second to show the loading state
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         const config = prepareRequest();
 
+        const startTime = performance.now();
         const res = await axios.request(config)
-            .then(handleResponse)
+            .then(r => handleResponse(r, startTime))
             .catch((t: AxiosError) => {
                 if (t.response) {
-                    return handleResponse(t.response);
+                    return handleResponse(t.response, startTime);
                 }
 
                 throw t;
