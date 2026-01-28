@@ -3,7 +3,7 @@ import {defineStore} from "@/utils/utils.ts";
 
 const debugConfig = {
     "currentHostname": location.host,
-    "openApiJsonUrl": "http://dokie.test/openapi",
+    "openApiJsonUrl": "http://localhost:3000/api/openapi.json",
     // "openApiJsonUrl": "https://localhost:35125/openapi/internal.json",
     "hostnames": [],
     "variables": {
