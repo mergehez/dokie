@@ -97,11 +97,11 @@ const statusText = computed(() => {
     <div class="flex-1 flex flex-col border  border-x4 rounded overflow-hidden relative">
         <div
             class="p-2 border-b border-x4 flex justify-between items-center">
-            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Response</h3>
-            <div class="flex items-center gap-4 text-sm">
+            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 pr-2">Response</h3>
+            <div class="flex items-center gap-1 lg:gap-2 xl:gap-3 2xl:gap-4 text-sm">
                 <div class="flex items-center gap-2">
                     <span class="text-gray-500 dark:text-gray-400">Status:</span>
-                    <span :class="{
+                    <span class="line-clamp-1" :class="{
                             'text-green-600': response.isSuccess,
                             'text-yellow-600': response.isRedirect,
                             'text-red-600': !response.isSuccess && !response.isRedirect
@@ -115,7 +115,7 @@ const statusText = computed(() => {
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-gray-500 dark:text-gray-400">Size:</span>
-                    <span>{{ sizeToString(response.size) }}</span>
+                    <span class="whitespace-nowrap">{{ sizeToString(response.size) }}</span>
                 </div>
             </div>
         </div>

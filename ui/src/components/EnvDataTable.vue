@@ -107,7 +107,7 @@ function clickFileInput(p: KeyVal) {
                         </svg>
                     </span>
                 <i v-else></i>
-                <div v-if="p.desc" class="text-xs opacity-70 pl-1 -mt-1 col-span-4">{{ p.desc }}</div>
+                <div v-if="p.desc" class="text-xs opacity-70 pl-1 -mt-1 col-span-full">{{ p.desc }}</div>
             </template>
         </template>
     </div>
