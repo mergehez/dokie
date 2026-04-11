@@ -194,10 +194,12 @@ export async function sendRequest(e: Endpoint) {
             ext: mime.getExtension(cType) || (cType == 'application/problem+json' ? 'json' : ''),
         };
 
-        runPostscript(e.request.postscript, {
-            ...res,
-            data: dataObj,
-        });
+        if (res.status >= 200 && res.status < 300) {
+            runPostscript(e.request.postscript, {
+                ...res,
+                data: dataObj,
+            });
+        }
 
         return res;
     }
