@@ -46,9 +46,11 @@
         "hono"
     ],
     "scripts": {
-        "build": "vp check --fix && tsdown"
+        "build": "vp check --fix && tsdown",
+        "test": "bun test"
     },
     "devDependencies": {
+        "@types/bun": "^1.3.12",
         "@types/node": "^25.6.0",
         "tsdown": "^0.21.7",
         "typescript": "^6.0.2"

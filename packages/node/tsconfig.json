@@ -10,7 +10,7 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "verbatimModuleSyntax": true,
-        "types": ["node"]
+        "types": ["node", "bun"]
     },
 
     "include": ["src/*.ts", "tsdown.config.ts"]
