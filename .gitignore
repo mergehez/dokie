@@ -7,3 +7,5 @@ notes.md
 node_modules
 dist
 dokie.html
+*/aspnetcore/bin
+*/aspnetcore/obj

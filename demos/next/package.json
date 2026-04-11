@@ -1,0 +1,22 @@
+{
+    "name": "dokie-next-demo",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "next dev --port 3011",
+        "build": "next build",
+        "start": "next start --port 3011"
+    },
+    "dependencies": {
+        "@mergehez/dokie-node": "file:../../packages/node",
+        "next": "^15.0.0",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^6.0.2",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@types/node": "^25.6.0"
+    }
+}

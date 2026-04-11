@@ -1,0 +1,17 @@
+{
+    "name": "dokie-nuxt-demo",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "nuxt dev --port 3012",
+        "build": "nuxt build",
+        "preview": "nuxt preview --port 3012"
+    },
+    "dependencies": {
+        "@mergehez/dokie-node": "file:../../packages/node",
+        "nuxt": "^4.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^6.0.2"
+    }
+}
