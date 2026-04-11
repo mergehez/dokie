@@ -1,11 +1,19 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+#if NET10_0_OR_GREATER
+using System.Text.Json.Nodes;
+#endif
 using Dokie.Attributes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OpenApi;
+#if NET10_0_OR_GREATER
+using Microsoft.OpenApi;
+#endif
+#if !NET10_0_OR_GREATER
 using Microsoft.OpenApi.Any;
+#endif
 
 namespace Dokie;
 
@@ -46,7 +54,21 @@ public static class Extensions
                     continue;
                 var x = a.Parameters?.FirstOrDefault(t => t.Name == pd.Name);
                 if (x is not null)
+                {
+#if NET10_0_OR_GREATER
+                    switch (x)
+                    {
+                        case OpenApiParameter parameter:
+                            parameter.Example = JsonValue.Create(exAttr.Value);
+                            break;
+                        case OpenApiParameterReference parameterReference when parameterReference.RecursiveTarget is not null:
+                            parameterReference.RecursiveTarget.Example = JsonValue.Create(exAttr.Value);
+                            break;
+                    }
+#else
                     x.Example = new OpenApiString(exAttr.Value);
+#endif
+                }
             }
 
             return Task.CompletedTask;
@@ -55,7 +77,7 @@ public static class Extensions
 
     public static void UseDokie(this WebApplication app, string documentName, DokieOptions? options = null)
     {
-        app.MapGet("/dokie", (IHttpContextAccessor httpContextAccessor) =>
+        app.MapGet("/dokie", (HttpContext httpContext) =>
         {
             const string resourceName = "Dokie.wwwroot.dokie.html";
             var assembly = typeof(Extensions).GetTypeInfo().Assembly;
@@ -67,7 +89,7 @@ public static class Extensions
             var html = reader.ReadToEnd();
 
             var opts = options ?? new DokieOptions();
-            var r = httpContextAccessor.HttpContext?.Request;
+            var r = httpContext.Request;
             var currentHostname = "";
             if (r is not null)
                 currentHostname = r.Scheme + "://" + r.Host;

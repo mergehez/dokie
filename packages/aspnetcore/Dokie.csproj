@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
         <PackageId>Dokie</PackageId>
-        <Version>0.1.1</Version>
+        <Version>0.1.2</Version>
         <LangVersion>preview</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -16,6 +16,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>OpenAPI;API;API Client;API Documentation;Asp.NetCore;Middleware;C#;.Net</PackageTags>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -31,7 +32,11 @@
         <None Include="./LICENSE" Pack="true" PackagePath="" />
     </ItemGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
     </ItemGroup>
 </Project>
