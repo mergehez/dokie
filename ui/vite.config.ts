@@ -1,20 +1,17 @@
-import {defineConfig} from 'vite'
-import vue from '@vitejs/plugin-vue'
-import tailwindcss from '@tailwindcss/vite'
-import path from 'node:path'
-import vueDevTools from 'vite-plugin-vue-devtools'
-import {viteSingleFile} from "vite-plugin-singlefile";
+import { defineConfig } from 'vite-plus';
+import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
+import path from 'node:path';
+import vueDevTools from 'vite-plugin-vue-devtools';
+import { viteSingleFile } from 'vite-plugin-singlefile';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
     server: {
         port: 8082,
     },
-    plugins: [
-        tailwindcss(),
-        viteSingleFile(),
-        vue(),
-        vueDevTools(),
-    ],
+    plugins: [tailwindcss(), viteSingleFile(), vue(), vueDevTools()],
     css: {
         postcss: {
             // plugins: [tailwind(), autoprefixer()],
@@ -27,5 +24,5 @@ export default defineConfig({
     },
     build: {
         minify: true,
-    }
-})
+    },
+});

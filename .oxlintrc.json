@@ -1,0 +1,20 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "plugins": [
+        "import",
+        "typescript",
+        "vue",
+        "unicorn",
+        "oxc",
+        "promise"
+    ],
+    "rules": {
+        "no-unused-vars": "off",
+        "no-empty-file": "off"
+    },
+    "ignorePatterns": [
+        "**/dist/*.*",
+        "**/node_modules/**/*.*",
+        "dokie.html"
+    ]
+}

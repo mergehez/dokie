@@ -1,0 +1,15 @@
+{
+    "$schema": "./node_modules/oxfmt/configuration_schema.json",
+    "semi": true,
+    "singleQuote": true,
+    "printWidth": 180,
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "singleAttributePerLine": false,
+    "sortPackageJson": false,
+    "ignorePatterns": [
+        "**/dist/*.*",
+        "dokie.html",
+        "builder.html"
+    ]
+}
