@@ -2,7 +2,7 @@
 import { postscriptMonaco } from '@/utils/usePostscript.ts';
 import { type MonacoEditor, VueMonacoEditor } from '@guolao/vue-monaco-editor';
 import { ElDialog } from 'element-plus';
-import * as monacoEditor from 'monaco-editor';
+import type { editor } from 'monaco-editor';
 import { ref } from 'vue';
 
 const modelValue = defineModel<string>();
@@ -32,7 +32,7 @@ function beforeMount(monaco: MonacoEditor) {
     if (!monaco.editor.getModel(uri)) monaco.editor.createModel(postscriptDeclaration, 'typescript', uri);
 }
 
-function onMount(editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: MonacoEditor) {
+function onMount(editor: editor.IStandaloneCodeEditor, monaco: MonacoEditor) {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
         allowComments: true,
@@ -95,7 +95,7 @@ function onMount(editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: Mona
         <ElDialog align-center modal title="Open File" style="width: 25rem" :model-value="urlToOpen?.length == 4" @close="urlToOpen = undefined">
             <template v-if="urlToOpen?.length == 4">
                 <div class="text-sm w-full font-bold opacity-80">File:</div>
-                <div class="text-sm w-full break-words">{{ urlToOpen[0] }}</div>
+                <div class="text-sm w-full wrap-break-word">{{ urlToOpen[0] }}</div>
 
                 <div class="flex gap-2 mt-4">
                     <a :href="urlToOpen[1]" class="p-button p-button-sm">In Rider</a>
