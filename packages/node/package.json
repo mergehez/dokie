@@ -1,0 +1,61 @@
+{
+    "name": "@mergehez/dokie-node",
+    "version": "0.0.12",
+    "description": "A Node.js package for serving the Dokie API documentation UI across generic servers, Express, Fastify, and Hono.",
+    "license": "MIT",
+    "author": "mergehez",
+    "type": "module",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.mts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "files": [
+        "dist",
+        "assets",
+        "README.md",
+        "LICENSE"
+    ],
+    "sideEffects": false,
+    "engines": {
+        "node": ">=18"
+    },
+    "homepage": "https://github.com/mergehez/dokie/tree/main/packages/node",
+    "bugs": {
+        "url": "https://github.com/mergehez/dokie/issues"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "keywords": [
+        "openapi",
+        "swagger",
+        "api",
+        "documentation",
+        "dokie",
+        "openapi-ui",
+        "node",
+        "http",
+        "express",
+        "fastify",
+        "hono"
+    ],
+    "scripts": {
+        "build": "vp check --fix && tsdown"
+    },
+    "devDependencies": {
+        "@types/node": "^25.6.0",
+        "tsdown": "^0.21.7",
+        "typescript": "^6.0.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mergehez/dokie.git",
+        "directory": "packages/node"
+    }
+}

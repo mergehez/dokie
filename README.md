@@ -12,17 +12,23 @@ ASP.NET Core:
 [![NuGet](https://img.shields.io/nuget/dt/Dokie?style=flat-square&color=blue)](https://www.nuget.org/packages/Dokie)
 [![License](https://img.shields.io/github/license/mergehez/dokie?style=flat-square&color=blue)](https://github.com/mergehez/dokie/blob/main/LICENSE)
 
+Node.js:
+[![npm](https://img.shields.io/npm/v/%40mergehez%2Fdokie-node?style=flat-square&color=blue)](https://www.npmjs.com/package/@mergehez/dokie-node)
+[![npm](https://img.shields.io/npm/dm/%40mergehez%2Fdokie-node?style=flat-square&color=blue)](https://www.npmjs.com/package/@mergehez/dokie-node)
+[![License](https://img.shields.io/github/license/mergehez/dokie?style=flat-square&color=blue)](https://github.com/mergehez/dokie/blob/main/LICENSE)
+
 An API client and documentation UI, inspired by [Postman](https://www.postman.com/).
 A replacement for libraries like [Swagger UI](https://swagger.io/tools/swagger-ui) and [Scalar](https://scalar.com/).
 
 See the demo at: [https://dokie.mergesoft.dev/dokie](https://dokie.mergesoft.dev/dokie).
 
-Currently, it only has packages for ASP.NET Core and Laravel, but it is planned to be extended to other platforms in the future. If you are interested in a specific platform, please open an issue or pull request.
+Currently, it has packages for ASP.NET Core, Laravel, and Node.js. The Node.js package includes generic server helpers plus Express, Fastify, and Hono adapters. If you are interested in another platform, please open an issue or pull request.
 
 ## Installation
 
 - for ASP.NET Core applications visit: [packages/aspnetcore/README.md](./packages/aspnetcore/README.md)
 - for Laravel applications visit: [github.com/mergehez/dokie-laravel](https://github.com/mergehez/dokie-laravel)
+- for Node.js applications visit: [packages/node/README.md](./packages/node/README.md)
 - for other platforms, please open an issue or pull request.
 
 ## Features
@@ -37,6 +43,7 @@ Currently, it only has packages for ASP.NET Core and Laravel, but it is planned 
 - **Endpoint Configuration**: Easily add path/query parameters, headers and body to requests. You can use environment variables just like in Postman.
 
 > Note that changes are stored in your local machine and not shared with other people using the same project. Following information is stored in the browser's indexedDB:
+>
 > - Environment variables
 > - Global headers
 > - Favorite endpoints
