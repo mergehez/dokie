@@ -89,6 +89,7 @@ After setting up the above code, you can access the Dokie UI at `/dokie` in your
 - **Endpoint Configuration**: Easily add path/query parameters, headers and body to requests. You can use environment variables just like in Postman.
 
 > Note that changes are stored in your local machine and not shared with other people using the same project. Following information is stored in the browser's indexedDB:
+>
 > - Environment variables
 > - Global headers
 > - Favorite endpoints

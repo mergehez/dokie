@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <PackageId>Dokie</PackageId>
-        <Version>0.0.12</Version>
+        <Version>0.1.0</Version>
         <LangVersion>preview</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -19,19 +19,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="wwwroot\dokie.html" CopyToOutputDirectory="PreserveNewest"/>
+        <EmbeddedResource Include="wwwroot\dokie.html" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="./README.md" Pack="true" PackagePath=""/>
-        <None Include="./LICENSE" Pack="true" PackagePath=""/>
+        <None Include="./README.md" Pack="true" PackagePath="" />
+        <None Include="./LICENSE" Pack="true" PackagePath="" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
     </ItemGroup>
 </Project>
