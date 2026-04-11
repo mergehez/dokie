@@ -67,27 +67,24 @@ public static class Extensions
             var html = reader.ReadToEnd();
 
             var opts = options ?? new DokieOptions();
-            const string toReplace = "<script>/*inject-area*/</script>";
             var r = httpContextAccessor.HttpContext?.Request;
             var currentHostname = "";
             if (r is not null)
                 currentHostname = r.Scheme + "://" + r.Host;
 
             var finalHtml = html.Replace(
-                toReplace,
+                "/*dokie-inject-area*/",
                 $$"""
-                      <script>
-                          window.dokie = {
-                              currentHostname: "{{currentHostname}}",
-                              openApiJsonUrl: "{{currentHostname}}/openapi/{{documentName}}.json",
-                              hostnames: {{Serialize(opts.HostnameOptions ?? [], opts)}},
-                              variables: {{Serialize(opts.PredefinedVariables ?? [], opts)}},
-                              headers: {{Serialize(opts.PredefinedHeaders ?? [], opts)}},
-                              postscripts: {{Serialize(opts.PredefinedPostscripts ?? [], opts)}},
-                              bodies: {{Serialize(opts.PredefinedBodies ?? [], opts)}},
-                              favorites: {{Serialize(opts.PredefinedFavoriteEndpoints ?? [], opts)}},
-                          };
-                      </script>
+                    window.dokie = {
+                        currentHostname: "{{currentHostname}}",
+                        openApiJsonUrl: "{{currentHostname}}/openapi/{{documentName}}.json",
+                        hostnames: {{Serialize(opts.HostnameOptions ?? [], opts)}},
+                        variables: {{Serialize(opts.PredefinedVariables ?? [], opts)}},
+                        headers: {{Serialize(opts.PredefinedHeaders ?? [], opts)}},
+                        postscripts: {{Serialize(opts.PredefinedPostscripts ?? [], opts)}},
+                        bodies: {{Serialize(opts.PredefinedBodies ?? [], opts)}},
+                        favorites: {{Serialize(opts.PredefinedFavoriteEndpoints ?? [], opts)}},
+                    };
                   """
             );
 
