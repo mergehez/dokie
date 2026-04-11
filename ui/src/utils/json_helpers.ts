@@ -1,27 +1,22 @@
-import stripJsonComments from "strip-json-comments";
+import stripJsonComments from 'strip-json-comments';
 
 type JsonCObject = {
-    [key: string]: JsonCValue
-}
+    [key: string]: JsonCValue;
+};
 
-type JsonCValue =
-    | string
-    | number
-    | boolean
-    | null
-    | CommentedValue
-    | JsonCObject
-    | JsonCValue[];
+type JsonCValue = string | number | boolean | null | CommentedValue | JsonCObject | JsonCValue[];
 
 export class CommentedValue {
-    constructor(public value: any, public comment: string) {
-    }
+    constructor(
+        public value: any,
+        public comment: string
+    ) {}
 }
 
 export const JSONC = {
     stringify: serializeJsonC,
-    parse: (strWithComments: string) => JSON.parse(stripJsonComments(strWithComments))
-}
+    parse: (strWithComments: string) => JSON.parse(stripJsonComments(strWithComments)),
+};
 
 function serializeJsonC(json: JsonCObject, indent = 0): string {
     // if(indent == 0)
@@ -41,8 +36,11 @@ function serializeJsonC(json: JsonCObject, indent = 0): string {
         if (Array.isArray(value)) {
             const objStrs = [];
             for (const arrItem of value) {
-                const objStr = serializeJsonC(arrItem as JsonCObject, 0).split('\n').map(l => `${' '.repeat(tabSize)}${indentStr}${l}`).join('\n');
-                objStrs.push(objStr)
+                const objStr = serializeJsonC(arrItem as JsonCObject, 0)
+                    .split('\n')
+                    .map((l) => `${' '.repeat(tabSize)}${indentStr}${l}`)
+                    .join('\n');
+                objStrs.push(objStr);
             }
             return `${indentStr}"${key}": [\n` + objStrs.join(',\n') + `\n${indentStr}],`;
         }

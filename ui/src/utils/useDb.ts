@@ -1,12 +1,12 @@
-import Dexie, {type EntityTable} from 'dexie';
-import {useDebounceFn} from "@vueuse/core";
-import {uniqueId} from "@/utils/utils.ts";
-import type {CustomEndpointDef} from "@/utils/useEndpoint.ts";
+import Dexie, { type EntityTable } from 'dexie';
+import { useDebounceFn } from '@vueuse/core';
+import { uniqueId } from '@/utils/utils.ts';
+import type { CustomEndpointDef } from '@/utils/useEndpoint.ts';
 
 export type EndpointId = string;
 
 export type KeyVal = {
-    readonly id: string
+    readonly id: string;
     key: string;
     value?: string;
     desc?: string;
@@ -21,41 +21,41 @@ export type EndpointKeyVals = {
     header: KeyVal[];
     route: KeyVal[];
     formData: KeyVal[];
-}
+};
 type IdbKeyVal = {
     id?: number;
     e_id: EndpointId;
     value: EndpointKeyVals & {
         body: string;
         postscript?: string;
-    }
-}
+    };
+};
 
 export type ApiResponse = {
-    duration: number // in milliseconds
-    isSuccess: boolean
-    isRedirect: boolean
-    body: string
-    bodyArrayBuffer: ArrayBuffer
-    bodyStr: string
-    status: number
-    statusText: string
-    size: number // in bytes
-    isJson: boolean
-    headers: [string, any][]
-    contentType: string
-    ext: string // common extension for the content type, e.g. 'json', 'html', 'xml', etc.
+    duration: number; // in milliseconds
+    isSuccess: boolean;
+    isRedirect: boolean;
+    body: string;
+    bodyArrayBuffer: ArrayBuffer;
+    bodyStr: string;
+    status: number;
+    statusText: string;
+    size: number; // in bytes
+    isJson: boolean;
+    headers: [string, any][];
+    contentType: string;
+    ext: string; // common extension for the content type, e.g. 'json', 'html', 'xml', etc.
     // cookies: Record<string, string>
-}
+};
 
 export type ApiRequest = {
-    method: string
-    url: string
-    headers: Record<string, string>
-    body: string
-    bodyType: 'json' | 'form-data' | 'text' | 'xml' | 'html'
-    postscript: string
-}
+    method: string;
+    url: string;
+    headers: Record<string, string>;
+    body: string;
+    bodyType: 'json' | 'form-data' | 'text' | 'xml' | 'html';
+    postscript: string;
+};
 
 export type IdbRequestHistory = {
     id: number;
@@ -64,7 +64,7 @@ export type IdbRequestHistory = {
         request: ApiRequest;
         response?: ApiResponse;
     };
-}
+};
 
 export type IdbNavState = {
     id: number;
@@ -75,27 +75,32 @@ export type IdbNavState = {
     active_endpoint: EndpointId;
     sidebar_width: number; // percentage
     request_part_height: number; // percentage
-}
+};
 
 export type GlobalKeyVals = {
     headers: KeyVal[];
     variables: KeyVal[];
     hostnames: string[];
     hostname: string;
-}
-
+};
 
 let _db: Dexie & {
-    keyVals: EntityTable<Required<IdbKeyVal>, 'id'>,
-    globalKeyVals: EntityTable<{
-        id: number;
-        value: GlobalKeyVals;
-    }, 'id'>,
-    requestHistory: EntityTable<IdbRequestHistory, 'id'>,
-    navState: EntityTable<{
-        id: number;
-        value: string;
-    }, 'id'>
+    keyVals: EntityTable<Required<IdbKeyVal>, 'id'>;
+    globalKeyVals: EntityTable<
+        {
+            id: number;
+            value: GlobalKeyVals;
+        },
+        'id'
+    >;
+    requestHistory: EntityTable<IdbRequestHistory, 'id'>;
+    navState: EntityTable<
+        {
+            id: number;
+            value: string;
+        },
+        'id'
+    >;
 };
 let _keyVals: IdbKeyVal[];
 let _globalKeyVals: GlobalKeyVals;
@@ -112,21 +117,23 @@ export function useDb() {
                 keyVals: '++id, &e_id, value', // Primary key and indexed props
                 globalKeyVals: '++id, value',
                 requestHistory: '++id, date, request',
-                navState: '++id, value'
+                navState: '++id, value',
             });
-            _keyVals = (await _db.keyVals.toArray()).map(e => ({
+            _keyVals = (await _db.keyVals.toArray()).map((e) => ({
                 ...e,
                 // value: JSON.parse(e.value) as Record<Part, KeyVal[]>
             }));
-            _globalKeyVals = (await _db.globalKeyVals.toArray())[0]?.value ?? {
-                headers: [],
-                variables: [],
-                hostnames: [],
-                hostname: '',
-            } satisfies GlobalKeyVals
+            _globalKeyVals =
+                (await _db.globalKeyVals.toArray())[0]?.value ??
+                ({
+                    headers: [],
+                    variables: [],
+                    hostnames: [],
+                    hostname: '',
+                } satisfies GlobalKeyVals);
 
             _requestHistory = await _db.requestHistory.toArray();
-            _navState = JSON.parse((await _db.navState.toArray()).find(t => t.id == 1)?.value ?? JSON.stringify({}));
+            _navState = JSON.parse((await _db.navState.toArray()).find((t) => t.id == 1)?.value ?? JSON.stringify({}));
 
             _navState.id ??= 1;
             _navState.expanded_tags ??= ['Favorites'];
@@ -136,25 +143,24 @@ export function useDb() {
             _navState.active_endpoint ??= '';
             _navState.sidebar_width ??= 31;
             _navState.request_part_height ??= 50;
-
         },
         keyVals: {
             value: _keyVals,
             getEndpoint: (e_id: EndpointId) => {
-                const res = _keyVals.find(t => t.e_id == e_id)?.value ?? {} as IdbKeyVal['value'];
+                const res = _keyVals.find((t) => t.e_id == e_id)?.value ?? ({} as IdbKeyVal['value']);
                 res.header ??= [];
                 res.query ??= [];
                 res.route ??= [];
-                res.formData ??= [{id: uniqueId(), key: '', value: ''}];
+                res.formData ??= [{ id: uniqueId(), key: '', value: '' }];
                 res.body ??= '';
 
                 return res;
             },
             upsert: async (e_id: EndpointId, value: IdbKeyVal['value']) => {
-                const i = _keyVals.findIndex(t => t.e_id == e_id);
+                const i = _keyVals.findIndex((t) => t.e_id == e_id);
                 const newIdbKv = {
                     e_id: e_id,
-                    value: JSON.parse(JSON.stringify(value))
+                    value: JSON.parse(JSON.stringify(value)),
                 } satisfies IdbKeyVal;
                 if (i === -1) {
                     _keyVals.push(newIdbKv);
@@ -164,18 +170,18 @@ export function useDb() {
             },
             updateDb: useDebounceFn(async () => {
                 for (const kv of _keyVals) {
-                    const json = JSON.parse(JSON.stringify(kv.value));//JSON.stringify(kv.value);
-                    const existing = await _db.keyVals.filter(e => e.e_id == kv.e_id).first()
+                    const json = JSON.parse(JSON.stringify(kv.value)); //JSON.stringify(kv.value);
+                    const existing = await _db.keyVals.filter((e) => e.e_id == kv.e_id).first();
                     if (existing) {
                         await _db.keyVals.update(existing.id, {
                             e_id: kv.e_id,
-                            value: json
+                            value: json,
                         });
                         console.log('updated keyval: ' + kv.e_id);
                     } else {
                         kv.id = await _db.keyVals.add({
                             e_id: kv.e_id,
-                            value: json
+                            value: json,
                         });
                         console.log('added keyval: ' + kv.e_id);
                     }
@@ -204,7 +210,7 @@ export function useDb() {
         requestHistory: {
             value: _requestHistory,
             updateDb: useDebounceFn(async () => {
-                _db.requestHistory.bulkPut(_requestHistory).then(() => console.log('updated request history'))
+                _db.requestHistory.bulkPut(_requestHistory).then(() => console.log('updated request history'));
             }, 500),
         },
         navState: {
@@ -216,7 +222,7 @@ export function useDb() {
                     await _db.navState.add({
                         id: 1,
                         value: json,
-                    })
+                    });
                     console.log('created nav state');
                 } else {
                     await _db.navState.update(1, {

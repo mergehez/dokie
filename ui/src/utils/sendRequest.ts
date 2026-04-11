@@ -1,11 +1,11 @@
-import {useUri} from "@/utils/useUri.ts";
-import {JSONC} from "@/utils/json_helpers.ts";
-import axios, {AxiosError, type AxiosRequestConfig, type AxiosResponse} from "axios";
-import {runPostscript} from "@/utils/usePostscript.ts";
-import {type Endpoint} from "@/utils/useEndpoint.ts";
-import {useGlobalEnvs} from "./useGlobalEnvs";
-import mime from "mime";
-import {useNavState} from "@/utils/useNavState.ts";
+import { JSONC } from '@/utils/json_helpers.ts';
+import { type Endpoint } from '@/utils/useEndpoint.ts';
+import { useNavState } from '@/utils/useNavState.ts';
+import { runPostscript } from '@/utils/usePostscript.ts';
+import { useUri } from '@/utils/useUri.ts';
+import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import mime from 'mime';
+import { useGlobalEnvs } from './useGlobalEnvs';
 
 export async function sendRequest(e: Endpoint) {
     console.log('Sending request for endpoint:', e);
@@ -15,9 +15,9 @@ export async function sendRequest(e: Endpoint) {
     function applyEnvsToString(str: string) {
         const allGlobalKeyVals = globalKeyVals.headers.merge(globalKeyVals.variables);
         str = str?.toString() || '';
-        str = str.replace(/{{([A-z0-9_-]+)}}/g, (match, p1) => allGlobalKeyVals.find(t => t.key == p1)?.value || match);
+        str = str.replace(/{{([A-z0-9_-]+)}}/g, (match, p1) => allGlobalKeyVals.find((t) => t.key == p1)?.value || match);
         str = str.replace(/{([A-z0-9_-]+)}/g, (match, p1) => {
-            return e.routeKeyVals.getValue(p1) || match
+            return e.routeKeyVals.getValue(p1) || match;
         });
 
         return str;
@@ -25,12 +25,11 @@ export async function sendRequest(e: Endpoint) {
 
     function prepareUrl() {
         let hostname = globalKeyVals.hostname ?? '';
-        if (hostname.endsWith('/'))
-            hostname = hostname.substring(0, hostname.length - 1);
+        if (hostname.endsWith('/')) hostname = hostname.substring(0, hostname.length - 1);
         const url = applyEnvsToString(e.request.url);
         const useHostname = !url.startsWith('http://') && !url.startsWith('https://');
         const uri = useUri((useHostname ? hostname : '') + url);
-        for (const {key, value, required} of Object.values(e.queryKeyVals.keyVals)) {
+        for (const { key, value, required } of Object.values(e.queryKeyVals.keyVals)) {
             if (key && value) {
                 uri.params[key] = applyEnvsToString(value);
             }
@@ -39,7 +38,7 @@ export async function sendRequest(e: Endpoint) {
             }
         }
 
-        for (const {key, value, required} of Object.values(e.routeKeyVals.keyVals)) {
+        for (const { key, value, required } of Object.values(e.routeKeyVals.keyVals)) {
             if (key && required && !value) {
                 throw new AxiosError(`Missing required route parameter: ${key}`);
             }
@@ -52,25 +51,28 @@ export async function sendRequest(e: Endpoint) {
         return e.request.bodyType == 'xml'
             ? 'application/xml'
             : e.request.bodyType == 'html'
-                ? 'text/html'
-                : e.request.bodyType == 'form-data'
-                    ? 'multipart/form-data'
-                    : e.request.bodyType == 'json'
-                        ? 'application/json'
-                        : undefined;
+              ? 'text/html'
+              : e.request.bodyType == 'form-data'
+                ? 'multipart/form-data'
+                : e.request.bodyType == 'json'
+                  ? 'application/json'
+                  : undefined;
     }
 
     function prepareHeaders() {
         const res = {
-            'accept': '*/*',
+            accept: '*/*',
             'cache-control': 'no-cache',
             'access-control-expose-headers': '*',
-            ...globalKeyVals.headers.merge(e.headerKeyVals).reduce((acc, {key, value}) => {
-                if (key && value) {
-                    acc[key.toLowerCase()] = applyEnvsToString(value);
-                }
-                return acc;
-            }, {} as Record<string, string>)
+            ...globalKeyVals.headers.merge(e.headerKeyVals).reduce(
+                (acc, { key, value }) => {
+                    if (key && value) {
+                        acc[key.toLowerCase()] = applyEnvsToString(value);
+                    }
+                    return acc;
+                },
+                {} as Record<string, string>
+            ),
         } as Record<string, string>;
 
         const contentType = getContentTypeForBody();
@@ -87,13 +89,12 @@ export async function sendRequest(e: Endpoint) {
         }
 
         const contentType = headers['content-type'];
-        if (!contentType)
-            return applyEnvsToString(e.request.body);
+        if (!contentType) return applyEnvsToString(e.request.body);
 
         if (contentType.includes('form-data')) {
             const body = new FormData();
-            const keyVals = e.formData.keyVals.filter(t => t.key && t.value);
-            for (const {key, value, type} of e.formData.keyVals) {
+            const keyVals = e.formData.keyVals.filter((t) => t.key && t.value);
+            for (const { key, value, type } of e.formData.keyVals) {
                 if (!key || !value) continue;
 
                 if (type == 'file' && value!.startsWith('data:')) {
@@ -102,13 +103,9 @@ export async function sendRequest(e: Endpoint) {
                         const mimeType = value!.substring(5, base64Index);
                         const base64Data = value!.substring(base64Index + 8);
                         const byteCharacters = atob(base64Data);
-                        const byteNumbers = new Array(byteCharacters.length);
-                        for (let i = 0; i < byteCharacters.length; i++) {
-                            byteNumbers[i] = byteCharacters.charCodeAt(i);
-                        }
-                        const byteArray = new Uint8Array(byteNumbers);
-                        const blob = new Blob([byteArray], {type: mimeType});
-                        const fileName = keyVals.find(t => t.key === key)?.fileName || 'file';
+                        const byteArray = new Uint8Array(Array.from({ length: byteCharacters.length }, (_, i) => byteCharacters.charCodeAt(i)));
+                        const blob = new Blob([byteArray], { type: mimeType });
+                        const fileName = keyVals.find((t) => t.key === key)?.fileName || 'file';
                         body.append(key, blob, fileName);
                         continue;
                     }
@@ -149,40 +146,36 @@ export async function sendRequest(e: Endpoint) {
             url: url,
             headers: headers,
             data: prepareBody(headers),
-
         };
         console.log('Prepared request config:', config);
-        return config
+        return config;
     }
 
     function handleResponse(res: AxiosResponse, startTime: number) {
         const duration = performance.now() - startTime;
-        let dataStr = res.data instanceof ArrayBuffer
-            ? new TextDecoder().decode(res.data)
-            : typeof res.data == 'object' || !res.data
-                ? JSON.stringify(res.data || {failedRequestInfo: res}, null, 2)
-                : (res.data || res.statusText).toString();
+        let dataStr =
+            res.data instanceof ArrayBuffer
+                ? new TextDecoder().decode(res.data)
+                : typeof res.data == 'object' || !res.data
+                  ? JSON.stringify(res.data || { failedRequestInfo: res }, null, 2)
+                  : (res.data || res.statusText).toString();
 
         let dataObj = {} as any;
         try {
-            if (res.data instanceof ArrayBuffer)
-                dataObj = JSON.parse(dataStr);
-            else if (typeof res.data === 'object')
-                dataObj = res.data;
-        } catch (_) {
-        }
+            if (res.data instanceof ArrayBuffer) dataObj = JSON.parse(dataStr);
+            else if (typeof res.data === 'object') dataObj = res.data;
+        } catch (_) {}
 
         const size = dataStr.length;
         const contentType = res.headers?.['content-type'];
-        const isJson = contentType?.includes('application/json') ||
-            contentType?.includes('application/problem+json');
+        const isJson = contentType?.includes('application/json') || contentType?.includes('application/problem+json');
 
         if (isJson) {
             const data = JSON.parse(dataStr);
             dataStr = JSON.stringify(data, null, 2);
         }
 
-        e.request.headers = JSON.parse(JSON.stringify(res.config.headers))
+        e.request.headers = JSON.parse(JSON.stringify(res.config.headers));
 
         const cType = res.headers?.['Content-Type'] || res.headers?.['content-type'] || '';
         e.response = {
@@ -209,28 +202,29 @@ export async function sendRequest(e: Endpoint) {
         return res;
     }
 
-
     e.isSending = true;
     try {
         // wait 0.1 second to show the loading state
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         const config = prepareRequest();
 
         const startTime = performance.now();
-        const res = await axios.request(config)
-            .then(r => handleResponse(r, startTime))
+        const res = await axios
+            .request(config)
+            .then((r) => handleResponse(r, startTime))
             .catch((t: AxiosError) => {
                 if (t.response) {
                     return handleResponse(t.response, startTime);
                 }
 
                 throw t;
-            }).finally(() => {
-                e.all.body = e.request.body
-                e.all.postscript = e.request.postscript
-                e.updateIndexedDb();
             })
+            .finally(() => {
+                e.all.body = e.request.body;
+                e.all.postscript = e.request.postscript;
+                e.updateIndexedDb();
+            });
 
         success = res.status >= 200 && res.status < 300;
     } catch (err) {

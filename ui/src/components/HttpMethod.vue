@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-
 const props = defineProps<{
-    method: string,
-    fullName?: boolean
-}>()
+    method: string;
+    fullName?: boolean;
+}>();
 
 const m = computed(() => {
-    return props.method.toUpperCase()
-})
+    return props.method.toUpperCase();
+});
 </script>
 
 <template>
     <span
-    class="font-bold"
+        class="font-bold"
         :class="{
             'text-green-400': m === 'GET',
             'text-yellow-400': m === 'POST',

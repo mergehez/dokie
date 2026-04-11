@@ -1,37 +1,35 @@
-import {reactive} from "vue";
-import {defineStore} from "@/utils/utils.ts";
+import { reactive } from 'vue';
+import { defineStore } from '@/utils/utils.ts';
 
 const debugConfig = {
-    "currentHostname": location.host,
-    "openApiJsonUrl": "http://localhost:3000/api/openapi.json",
+    currentHostname: location.host,
+    openApiJsonUrl: 'http://localhost:3000/api/openapi.json',
     // "openApiJsonUrl": "https://localhost:35125/openapi/internal.json",
-    "hostnames": [],
-    "variables": {
-        "username": "mazlum",
-        "password": "my-password"
+    hostnames: [],
+    variables: {
+        username: 'mazlum',
+        password: 'my-password',
     },
-    "headers": {
-        "x-api-key": "test-api-key",
-        "Content-Type": "application/json"
+    headers: {
+        'x-api-key': 'test-api-key',
+        'Content-Type': 'application/json',
     },
-    "postscripts": {
-        "GET /api/login": "envs.headers['x-api-key'] = response.data.value.ticket;",
+    postscripts: {
+        'GET /api/login': "envs.headers['x-api-key'] = response.data.value.ticket;",
     },
-    "bodies": {
-        "GET /api/login": `{
+    bodies: {
+        'GET /api/login': `{
                 "email": "{{email}}",
                 "password": "{{password}}"
             }`,
     },
-    "favorites": [
-        "GET /api/login",
-    ]
+    favorites: ['GET /api/login'],
 } as const satisfies typeof window.dokie;
 
 function _useAppConfig() {
     const config: typeof window.dokie = window.dokie ?? debugConfig;
 
-    config.currentHostname ||= location.host
+    config.currentHostname ||= location.host;
     config.openApiJsonUrl ||= config.currentHostname + '/openapi/v1.json';
     config.postscripts ??= {};
     config.bodies ??= {};
@@ -40,7 +38,7 @@ function _useAppConfig() {
     config.headers ??= {};
     config.favorites ??= [];
 
-    return reactive(config)
+    return reactive(config);
 }
 
 export type AppConfig = ReturnType<typeof _useAppConfig>;

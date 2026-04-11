@@ -1,5 +1,5 @@
-import type {OpenAPIV3} from "@/utils/types.ts";
-import {type Endpoint, useEndpoint} from "@/utils/useEndpoint.ts";
+import type { OpenAPIV3 } from '@/utils/types.ts';
+import { type Endpoint, useEndpoint } from '@/utils/useEndpoint.ts';
 
 let _spec: OpenAPIV3;
 
@@ -18,9 +18,9 @@ export function useSpec(spec?: OpenAPIV3) {
                     method: method.toUpperCase(),
                     openApiEndpoint: details,
                     addDefaults: true,
-                    spec
+                    spec,
                 });
-            })
+            });
         }) satisfies Endpoint[],
     };
 }

@@ -1,26 +1,25 @@
-import {uniqueId} from "@/utils/utils.ts";
-import type {KeyVal} from "@/utils/useDb.ts";
-import {reactive} from "vue";
-
+import { uniqueId } from '@/utils/utils.ts';
+import type { KeyVal } from '@/utils/useDb.ts';
+import { reactive } from 'vue';
 
 export type KeyValCollection = ReturnType<typeof useKeyValCollection>;
 
 export function useKeyValCollection(keyVals: KeyVal[]) {
     function remove(p: KeyVal) {
-        const i = keyVals.findIndex(kv => kv.id === p.id);
+        const i = keyVals.findIndex((kv) => kv.id === p.id);
         if (i !== -1) {
             keyVals.splice(i, 1);
         } else {
-            console.warn("KeyValCollection: remove called with non-existing key", p);
+            console.warn('KeyValCollection: remove called with non-existing key', p);
         }
     }
 
-    function addNew(key: string = "", value: string = "") {
-        console.log("KeyValCollection: addNew", key, value);
+    function addNew(key: string = '', value: string = '') {
+        console.log('KeyValCollection: addNew', key, value);
         const newVal = {
             id: uniqueId(),
-            key: key ?? "",
-            value: value ?? "",
+            key: key ?? '',
+            value: value ?? '',
         };
         keyVals.push(newVal);
     }
@@ -41,12 +40,11 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
         if (index !== -1) {
             return keyVals[index]!.value;
         }
-        return "";
+        return '';
     };
     const getAny = (key: string) => {
         const a = keyVals.find((kv) => kv.key === key);
-        if (a)
-            return a.value;
+        if (a) return a.value;
         return undefined;
     };
 
@@ -55,13 +53,13 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
         if (index !== -1) {
             keyVals[index]!.value = value;
         } else {
-            keyVals.push({id: uniqueId(), key, value});
+            keyVals.push({ id: uniqueId(), key, value });
         }
     };
 
     const insertIfNotExists = (key: string, value: string, locked?: boolean, required?: boolean) => {
-        if (!keyVals.some(t => t.key === key)) {
-            keyVals.push({id: uniqueId(), key, value, locked, required});
+        if (!keyVals.some((t) => t.key === key)) {
+            keyVals.push({ id: uniqueId(), key, value, locked, required });
         }
     };
 
@@ -70,7 +68,7 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
             other = other.keyVals;
         }
         return [...keyVals, ...other];
-    }
+    };
 
     return reactive({
         get: get,
@@ -83,5 +81,5 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
         merge: merge,
         keyVals: keyVals,
         findIndexByKey: findIndexByKey,
-    })
+    });
 }

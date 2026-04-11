@@ -1,11 +1,11 @@
 @layer theme, base, components, utilities;
 
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/preflight.css" layer(base);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
 
 @plugin "../../tailwind-iconify4" {
-    forceBrackets: false
+    forcebrackets: false;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));

@@ -1,44 +1,49 @@
 <script setup lang="ts">
-
-import {computed, onMounted, onUnmounted, ref, type UnwrapRef, watch} from "vue";
-import type {Endpoint} from "@/utils/useEndpoint.ts";
+import { computed, onMounted, onUnmounted, ref, type UnwrapRef, watch } from 'vue';
+import type { Endpoint } from '@/utils/useEndpoint.ts';
 
 type T = Endpoint;
 const props = defineProps<{
-    items: T[],
-    onChange?: (items: T[]) => void
-}>()
+    items: T[];
+    onChange?: (items: T[]) => void;
+}>();
 
 const requiredClass = 'drag-item';
 const dragOverClass = 'drag-tabs-over';
 const draggedClass = 'drag-tabs-dragged';
 
 type Item = {
-    index: number,
-    data: T | UnwrapRef<T>,
-    dom: HTMLElement | undefined
-}
-const items2 = ref(props.items.map((t, i) => {
-    return {
-        index: i,
-        data: t,
-        dom: undefined as HTMLElement | undefined
-    }
-}));
-
-watch(() => props.items, (newItems) => {
-    items2.value = newItems.map((t, i) => {
+    index: number;
+    data: T | UnwrapRef<T>;
+    dom: HTMLElement | undefined;
+};
+const items2 = ref(
+    props.items.map((t, i) => {
         return {
             index: i,
             data: t,
-            dom: undefined as HTMLElement | undefined
-        }
-    });
-    setTimeout(() => {
-        removeListeners();
-        init();
-    }, 200);
-}, {deep: true});
+            dom: undefined as HTMLElement | undefined,
+        };
+    })
+);
+
+watch(
+    () => props.items,
+    (newItems) => {
+        items2.value = newItems.map((t, i) => {
+            return {
+                index: i,
+                data: t,
+                dom: undefined as HTMLElement | undefined,
+            };
+        });
+        setTimeout(() => {
+            removeListeners();
+            init();
+        }, 200);
+    },
+    { deep: true }
+);
 
 const sortedItems = computed<Item[]>(() => items2.value.sort((a, b) => a.index - b.index));
 
@@ -78,7 +83,7 @@ function useTab(item: Item) {
     function onDrop(e: DragEvent) {
         removeClass(e.target, dragOverClass);
         // const sourceIndex = Number(e.dataTransfer?.getData('text/plain'));
-        const sourceIndex = draggingIndex.value
+        const sourceIndex = draggingIndex.value;
         if (!sourceIndex) {
             return console.log('sourceIndex not found');
         }
@@ -87,16 +92,15 @@ function useTab(item: Item) {
             return console.log('targetItem not found');
         }
 
-        const sourceItem = items2.value.find(t => t.index == sourceIndex);
+        const sourceItem = items2.value.find((t) => t.index == sourceIndex);
         if (!sourceItem) {
             return console.log('sourceItem not found. sourceIndex: ', sourceIndex);
         }
 
-        sourceItem.index = targetItem.index
+        sourceItem.index = targetItem.index;
         const srcWasAfterTarget = sourceIndex > targetItem.index;
         for (const curr of items2.value) {
-            if (curr.data.id == sourceItem.data.id)
-                continue;
+            if (curr.data.id == sourceItem.data.id) continue;
 
             if (srcWasAfterTarget && curr.index >= targetItem.index) {
                 curr.index++;
@@ -104,8 +108,7 @@ function useTab(item: Item) {
                 curr.index--;
             }
         }
-        if (props.onChange)
-            props.onChange(sortedItems.value.map(t => t.data));
+        if (props.onChange) props.onChange(sortedItems.value.map((t) => t.data));
     }
 
     const domx = item.dom!;
@@ -122,8 +125,8 @@ function useTab(item: Item) {
             domx.removeEventListener('drop', onDrop);
             domx.removeEventListener('dragover', onDragOver);
             domx.removeEventListener('dragleave', onDragLeave);
-        }
-    }
+        },
+    };
 }
 
 const tabs = ref<ReturnType<typeof useTab>[]>([]);
@@ -134,44 +137,41 @@ function init() {
     const tabEls = wrapper.querySelectorAll(`.${requiredClass}`);
     tabEls.forEach((tabEl) => {
         const hash = tabEl.id;
-        const item = items2.value.find(t => t.data.hash == hash);
-        if (item)
-            item!.dom = tabEl as HTMLElement;
+        const item = items2.value.find((t) => t.data.hash == hash);
+        if (item) item!.dom = tabEl as HTMLElement;
     });
 
     items2.value.forEach((item) => {
         const tab = useTab(item);
         tabs.value.push(tab);
     });
-
 }
 
 onMounted(() => {
     init();
-})
+});
 
 function removeListeners() {
-    tabs.value.forEach(tab => tab.removeListeners());
+    tabs.value.forEach((tab) => tab.removeListeners());
 }
 
 onUnmounted(() => {
-    tabs.value.forEach(tab => tab.removeListeners());
-})
+    tabs.value.forEach((tab) => tab.removeListeners());
+});
 
 defineExpose({
     init,
-    removeListeners
-})
+    removeListeners,
+});
 </script>
 
 <template>
     <TransitionGroup name="drag-tabs" tag="div" id="tagsWrapper">
         <template v-for="(e, i) in sortedItems" :key="e.data.id">
-            <slot name="tab" :requiredClass="requiredClass" :item="e.data" :i="i"/>
+            <slot name="tab" :requiredClass="requiredClass" :item="e.data" :i="i" />
         </template>
     </TransitionGroup>
 </template>
-
 
 <style>
 .drag-tabs-move,

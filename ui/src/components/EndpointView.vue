@@ -1,30 +1,24 @@
 <script setup lang="ts">
-import {type Endpoint} from '@/utils/useEndpoint.ts'
-import HttpMethod from "@/components/HttpMethod.vue";
-import SplitterVertical from "@/components/ui/SplitterVertical.vue";
-import ArgButton from "@/components/ui/ArgButton.vue";
-import {ElInput, ElOption, ElSelect} from "element-plus";
-import AutocompleteText from "@/components/ui/AutocompleteText.vue";
-import {sendRequest} from "@/utils/sendRequest.ts";
-import EndpointRequestSection from "@/components/EndpointRequestSection.vue";
-import EndpointResponseSection from "@/components/EndpointResponseSection.vue";
+import { type Endpoint } from '@/utils/useEndpoint.ts';
+import HttpMethod from '@/components/HttpMethod.vue';
+import SplitterVertical from '@/components/ui/SplitterVertical.vue';
+import ArgButton from '@/components/ui/ArgButton.vue';
+import { ElInput, ElOption, ElSelect } from 'element-plus';
+import AutocompleteText from '@/components/ui/AutocompleteText.vue';
+import { sendRequest } from '@/utils/sendRequest.ts';
+import EndpointRequestSection from '@/components/EndpointRequestSection.vue';
+import EndpointResponseSection from '@/components/EndpointResponseSection.vue';
 
 const props = defineProps<{
-    endpoint: Endpoint
-}>()
+    endpoint: Endpoint;
+}>();
 
-const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 </script>
 
 <template>
-    <div class="flex-1 flex flex-col p-4  rounded-lg shadow overflow-y-auto bg-x0">
-        <SplitterVertical
-            base-panel="top"
-            default-height="30%"
-            min-height="200px"
-            max-height="calc(100% - 200px)"
-            local-storage-key="endpoint-view-splitter"
-        >
+    <div class="flex-1 flex flex-col p-4 rounded-lg shadow overflow-y-auto bg-x0">
+        <SplitterVertical base-panel="top" default-height="30%" min-height="200px" max-height="calc(100% - 200px)" local-storage-key="endpoint-view-splitter">
             <template #top>
                 <!-- Request Controls -->
                 <div v-if="endpoint.isCustom" class="w-full flex gap-2 items-center">
@@ -36,10 +30,10 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
                     <div>
                         <ElSelect v-model="endpoint.request.method">
                             <template #prefix>
-                                <HttpMethod :method="endpoint.request.method"/>
+                                <HttpMethod :method="endpoint.request.method" />
                             </template>
                             <ElOption v-for="ws in httpMethods" :key="ws" :label="ws" :value="ws">
-                                <HttpMethod :method="ws" full-name/>
+                                <HttpMethod :method="ws" full-name />
                             </ElOption>
                         </ElSelect>
                     </div>
@@ -50,11 +44,7 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
                         <!--    class="w-full"-->
                         <!--    input-style="width: 100%;"-->
                         <!--    placeholder="URL"/>-->
-                        <AutocompleteText
-                            v-model="endpoint.request.url"
-                            class="w-full"
-                            input-style="width: 100%;"
-                            placeholder="URL"/>
+                        <AutocompleteText v-model="endpoint.request.url" class="w-full" input-style="width: 100%;" placeholder="URL" />
                     </div>
 
                     <ArgButton severity="primary" small @click="sendRequest(endpoint)" :loading="endpoint.isSending" class="gap-2">
@@ -69,27 +59,20 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
                 </div>
 
                 <!-- Request Configuration Tabs -->
-                <EndpointRequestSection :endpoint="endpoint"/>
+                <EndpointRequestSection :endpoint="endpoint" />
             </template>
             <template #bottom>
                 <!-- Response Section -->
-                <EndpointResponseSection
-                    v-if="endpoint.response"
-                    :endpoint="endpoint"
-                    :response="endpoint.response"
-                />
-                <div v-else-if="endpoint.axiosError"
-                     class="flex-1 flex flex-col border border-red-200 dark:border-red-700 rounded p-4 text-sm text-red-500 dark:text-red-400 overflow-y-auto">
-                    <pre
-                        class=""
-                    >CLIENT ERROR <br/>This error is not from the API. <br/>Check DevTools for more info! <br/><br/>{{
+                <EndpointResponseSection v-if="endpoint.response" :endpoint="endpoint" :response="endpoint.response" />
+                <div
+                    v-else-if="endpoint.axiosError"
+                    class="flex-1 flex flex-col border border-red-200 dark:border-red-700 rounded p-4 text-sm text-red-500 dark:text-red-400 overflow-y-auto"
+                >
+                    <pre class="">CLIENT ERROR <br/>This error is not from the API. <br/>Check DevTools for more info! <br/><br/>{{
                             JSON.stringify(endpoint.axiosError, null, 2)
                         }}</pre>
                 </div>
-                <div v-else
-                     class="border border-x4 rounded p-4 text-sm text-gray-500 dark:text-gray-400">
-                    No response yet
-                </div>
+                <div v-else class="border border-x4 rounded p-4 text-sm text-gray-500 dark:text-gray-400">No response yet</div>
             </template>
         </SplitterVertical>
     </div>

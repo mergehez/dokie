@@ -1,12 +1,12 @@
 import plugin from 'tailwindcss/plugin';
-import {getIconsCSSData} from '@iconify/utils/lib/css/icons';
-import {matchIconName} from '@iconify/utils/lib/icon/name';
-import {readFileSync} from 'node:fs';
-import {fileURLToPath} from 'node:url';
-import {generateItemCSSRules, getCommonCSSRules,} from '@iconify/utils/lib/css/common';
-import {defaultIconProps} from '@iconify/utils/lib/icon/defaults';
-import {parseIconSet} from '@iconify/utils/lib/icon-set/parse';
-import {calculateSize} from '@iconify/utils/lib/svg/size';
+import { getIconsCSSData } from '@iconify/utils/lib/css/icons';
+import { matchIconName } from '@iconify/utils/lib/icon/name';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { generateItemCSSRules, getCommonCSSRules } from '@iconify/utils/lib/css/common';
+import { defaultIconProps } from '@iconify/utils/lib/icon/defaults';
+import { parseIconSet } from '@iconify/utils/lib/icon-set/parse';
+import { calculateSize } from '@iconify/utils/lib/svg/size';
 
 /**
  * Get CSS rules for main plugin (components)
@@ -33,16 +33,20 @@ export function getCSSComponentsForPlugin(options) {
     const maskSelector = options.maskSelector ?? '.iconify';
     const backgroundSelector = options.backgroundSelector ?? '.iconify-color';
     if (maskSelector) {
-        rules[maskSelector] = adjustScale(getCommonCSSRules({
-            displayMode: 'mask',
-            varName,
-        }));
+        rules[maskSelector] = adjustScale(
+            getCommonCSSRules({
+                displayMode: 'mask',
+                varName,
+            })
+        );
     }
     if (backgroundSelector) {
-        rules[backgroundSelector] = adjustScale(getCommonCSSRules({
-            displayMode: 'background',
-            varName,
-        }));
+        rules[backgroundSelector] = adjustScale(
+            getCommonCSSRules({
+                displayMode: 'background',
+                varName,
+            })
+        );
     }
     return rules;
 }
@@ -108,19 +112,20 @@ export function getCSSRulesForPlugin(options) {
             // Customise icon
             const body = customise ? customise(data.body, name) : data.body;
             // Generate CSS
-            const iconRules = generateItemCSSRules({
-                ...defaultIconProps,
-                ...data,
-                body,
-            }, {
-                displayMode: 'mask', // not used because varName is set, but required
-                varName,
-                forceSquare: square,
-            });
+            const iconRules = generateItemCSSRules(
+                {
+                    ...defaultIconProps,
+                    ...data,
+                    body,
+                },
+                {
+                    displayMode: 'mask', // not used because varName is set, but required
+                    varName,
+                    forceSquare: square,
+                }
+            );
             // Generate selector
-            const selector = iconSelector
-                .replace('{prefix}', prefix)
-                .replace('{name}', name);
+            const selector = iconSelector.replace('{prefix}', prefix).replace('{name}', name);
             // Scale non-square icons
             if (!square && scale > 0 && scale !== 1 && iconRules.width) {
                 iconRules.width = calculateSize(iconRules.width, scale);
@@ -248,8 +253,7 @@ export function loadIconSet(source) {
  */
 export function getDynamicCSSRules(icon, options = {}) {
     const nameParts = icon.split(/--|:/);
-    if (icon.includes('&#45;'))
-        return {};
+    if (icon.includes('&#45;')) return {};
     if (nameParts.length !== 2) {
         throw new Error(`Invalid icon name: "${icon}"`);
     }
@@ -277,9 +281,7 @@ export function getDynamicCSSRules(icon, options = {}) {
     }
     return {
         // Common rules
-        ...(options.overrideOnly || !generated.common?.rules
-            ? {}
-            : generated.common.rules),
+        ...(options.overrideOnly || !generated.common?.rules ? {} : generated.common.rules),
         // Icon rules
         ...generated.css[0].rules,
     };
@@ -393,10 +395,9 @@ const exportedPlugin = plugin.withOptions((params) => {
             }
         }
     });
-    return ({matchComponents, addComponents, addUtilities}) => {
+    return ({ matchComponents, addComponents, addUtilities }) => {
         // Dynamic plugin
         const prefix = dynamicOptions.prefix ?? 'icon';
-
 
         if (prefix) {
             let values = undefined;
@@ -405,33 +406,32 @@ const exportedPlugin = plugin.withOptions((params) => {
 
                 const handler = {
                     get(target, prop, receiver) {
-                        if (!prop.includes('--'))
-                            return undefined;
-                        if (prop.startsWith('-'))
-                            prop = prop.substring(1);
-                        if (prop.startsWith('['))
-                            prop = prop.substring(1);
-                        if (prop.endsWith(']'))
-                            prop = prop.substring(0, prop.length - 1);
+                        if (!prop.includes('--')) return undefined;
+                        if (prop.startsWith('-')) prop = prop.substring(1);
+                        if (prop.startsWith('[')) prop = prop.substring(1);
+                        if (prop.endsWith(']')) prop = prop.substring(0, prop.length - 1);
                         return prop;
-                    }
+                    },
                 };
                 values = new Proxy(target, handler);
             }
 
-            matchComponents({
-                [prefix]: (icon) => {
-                    try {
-                        return getDynamicCSSRules(icon, dynamicOptions);
-                    } catch (err) {
-                        // Log error, but do not throw it
-                        console.warn(err.message);
-                        return {};
-                    }
+            matchComponents(
+                {
+                    [prefix]: (icon) => {
+                        try {
+                            return getDynamicCSSRules(icon, dynamicOptions);
+                        } catch (err) {
+                            // Log error, but do not throw it
+                            console.warn(err.message);
+                            return {};
+                        }
+                    },
                 },
-            }, {
-                values
-            });
+                {
+                    values,
+                }
+            );
         }
         // Preparsed options
         if (preparsedOptions.prefixes) {

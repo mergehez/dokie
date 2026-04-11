@@ -9,7 +9,7 @@ export const useUri = (url: string) => {
     const params = {} as Record<string, string>;
     if (path.includes('?')) {
         const [pathX, query] = path.split('?');
-        query!.split('&').forEach(q => {
+        query!.split('&').forEach((q) => {
             const [key, value] = q.split('=');
             params[key!]! = value!;
         });
@@ -22,14 +22,15 @@ export const useUri = (url: string) => {
         path,
         params,
         toString: () => {
-            let url = `/${path}`
+            let url = `/${path}`;
             if (Object.keys(params).length > 0) {
-                url += '?' + Object.entries(params).map(([k, v]) => `${k}=${v}`).join('&');
+                url +=
+                    '?' +
+                    Object.entries(params)
+                        .map(([k, v]) => `${k}=${v}`)
+                        .join('&');
             }
-            return [
-                `${protocol}://${hostname}`.replace('///', '//'),
-                url
-            ];
-        }
-    }
-}
+            return [`${protocol}://${hostname}`.replace('///', '//'), url];
+        },
+    };
+};

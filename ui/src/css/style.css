@@ -1,7 +1,7 @@
 @import './el.css';
 @import './tw.css';
 @import './button.css';
-@import "./scrollbar.css";
+@import './scrollbar.css';
 
 html {
     --clr-scheme: light;
@@ -15,14 +15,12 @@ html {
     color-scheme: var(--clr-scheme);
     background-color: var(--bg0);
     color: var(--clr-default);
-    font-family: 'Roboto', sans-serif
+    font-family: 'Roboto', sans-serif;
 }
 
-
 @layer base {
-
     button:not(:disabled),
-    [role="button"]:not(:disabled) {
+    [role='button']:not(:disabled) {
         cursor: pointer;
     }
 
@@ -39,7 +37,6 @@ html {
         -webkit-mask-size: 100% 100%;
         mask-size: 100% 100%;
     }
-
 
     .list-group-item {
         @apply w-full px-3 md:px-4 py-2 flex items-center focus-visible:outline-hidden focus-visible:bg-gray-50 dark:focus-visible:bg-gray-800;

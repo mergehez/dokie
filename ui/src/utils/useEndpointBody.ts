@@ -1,5 +1,5 @@
-import type {OpenAPIV3, ReferenceObject, RequestBodyObject, SchemaObject} from "@/utils/types.ts";
-import {CommentedValue} from "@/utils/json_helpers.ts";
+import type { OpenAPIV3, ReferenceObject, RequestBodyObject, SchemaObject } from '@/utils/types.ts';
+import { CommentedValue } from '@/utils/json_helpers.ts';
 
 export class ParsedObject {
     requiredProps: Record<string, Parsed> = {};
@@ -48,12 +48,11 @@ export class Parsed {
             const props = {
                 ...v.requiredProps,
                 ...(onlyRequired ? {} : v.optionalProps),
-            }
+            };
 
             const res = {} as Record<string, any>;
             Object.entries(props).forEach(([key, value]) => {
-                if (value.type == 'skip')
-                    return;
+                if (value.type == 'skip') return;
                 res[key] = value.unparse(onlyRequired);
             });
             return res;
@@ -67,24 +66,20 @@ export class Parsed {
     }
 }
 
-export function generateDefaultBodyFromSchema(
-    spec: OpenAPIV3,
-    requestBody: RequestBodyObject,
-    propsToSkip: string[] = []
-): Parsed {
+export function generateDefaultBodyFromSchema(spec: OpenAPIV3, requestBody: RequestBodyObject, propsToSkip: string[] = []): Parsed {
     if (!requestBody || !requestBody.content) {
-        return Parsed.emptyObject()
+        return Parsed.emptyObject();
     }
 
     // Find the first available content type (typically application/json)
     const contentTypes = Object.keys(requestBody.content);
     if (contentTypes.length === 0) {
-        return Parsed.emptyObject()
+        return Parsed.emptyObject();
     }
 
     const mediaTypeObject = requestBody.content[contentTypes[0]!];
     if (!mediaTypeObject || !mediaTypeObject.schema) {
-        return Parsed.emptyObject()
+        return Parsed.emptyObject();
     }
 
     if (propsToSkip.length == 0) {
@@ -104,7 +99,7 @@ export function generateDefaultBodyFromSchema(
             'deletedBy',
             'deletedById',
             'deletedAt',
-            'dateDeleted',
+            'dateDeleted'
         );
     }
 
@@ -137,14 +132,8 @@ function createDefaultFromSchema(
             const schemaName = refPath.replace('#/components/schemas/', '');
             if (spec.components?.schemas && schemaName in spec.components.schemas) {
                 const refSchema = spec.components.schemas[schemaName]!;
-                if ((refSchema as SchemaObject).readOnly)
-                    return Parsed.skip();
-                return createDefaultFromSchema(
-                    spec,
-                    refSchema,
-                    newVisitedRefs,
-                    propsToSkip
-                );
+                if ((refSchema as SchemaObject).readOnly) return Parsed.skip();
+                return createDefaultFromSchema(spec, refSchema, newVisitedRefs, propsToSkip);
             }
         }
         return Parsed.emptyObject();
@@ -156,20 +145,18 @@ function createDefaultFromSchema(
     }
 
     // Handle different types
-    const type = Array.isArray(schema.type) ? schema.type.filter(t => t != 'null' && t != 'undefined')[0] : schema.type;
+    const type = Array.isArray(schema.type) ? schema.type.filter((t) => t != 'null' && t != 'undefined')[0] : schema.type;
     switch (type) {
         case 'string':
-            if (schema.format == 'date-time')
-                return Parsed.primitive(new Date().toISOString(), schema.description);
+            if (schema.format == 'date-time') return Parsed.primitive(new Date().toISOString(), schema.description);
             return Parsed.primitive('', schema.description);
 
         case 'number':
         case 'integer':
-            if (schema.format == 'double')
-                return Parsed.primitive(0.1, schema.description);
+            if (schema.format == 'double') return Parsed.primitive(0.1, schema.description);
             if (schema.enum && schema.format == 'CustomEnum') {
-                let comment = schema.enum.map(t => t.join(':')).join(', ');
-                return Parsed.commentedValue(schema.enum[0][0], comment)
+                let comment = schema.enum.map((t) => t.join(':')).join(', ');
+                return Parsed.commentedValue(schema.enum[0][0], comment);
             }
             return Parsed.primitive(schema.minimum ?? 0, schema.description);
 
@@ -186,26 +173,18 @@ function createDefaultFromSchema(
             const res = new ParsedObject();
             if (schema.properties) {
                 Object.entries(schema.properties).forEach(([propName, propSchema]) => {
-                    if (propsToSkip.includes(propName))
-                        return
+                    if (propsToSkip.includes(propName)) return;
 
-                    const aa = createDefaultFromSchema(
-                        spec,
-                        propSchema,
-                        visitedRefs,
-                        propsToSkip
-                    );
+                    const aa = createDefaultFromSchema(spec, propSchema, visitedRefs, propsToSkip);
 
-                    if (propName == 'id')
-                        return res.optionalProps[propName] = aa;
+                    if (propName == 'id') return (res.optionalProps[propName] = aa);
 
                     let isRequired = false;
                     if (schema.required) {
                         isRequired = schema.required.includes(propName) || schema.required.includes(propName[0]!.toUpperCase() + propName.substring(1));
                     }
 
-                    if (isRequired)
-                        return res.requiredProps[propName] = aa
+                    if (isRequired) return (res.requiredProps[propName] = aa);
 
                     res.optionalProps[propName] = aa;
                 });

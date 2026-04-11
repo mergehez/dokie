@@ -1,34 +1,35 @@
 <script setup lang="ts">
-
-import MonacoEditor from "@/components/MonacoEditor.vue";
-import type {ApiResponse} from "@/utils/useDb.ts";
-import {computed, ref} from "vue";
-import ArgButton from "@/components/ui/ArgButton.vue";
+import MonacoEditor from '@/components/MonacoEditor.vue';
+import type { ApiResponse } from '@/utils/useDb.ts';
+import { computed, ref } from 'vue';
+import ArgButton from '@/components/ui/ArgButton.vue';
 import mime from 'mime';
-import TabButton from "@/components/TabButton.vue";
-import type {Endpoint} from "@/utils/useEndpoint.ts";
+import TabButton from '@/components/TabButton.vue';
+import type { Endpoint } from '@/utils/useEndpoint.ts';
 
 const props = defineProps<{
-    endpoint: Endpoint,
-    response: ApiResponse
-}>()
+    endpoint: Endpoint;
+    response: ApiResponse;
+}>();
 
 const canCopy = 'navigator' in window && 'clipboard' in navigator;
 const copied = ref<boolean>();
 
 function copyBody() {
-    navigator.clipboard.writeText(props.response.bodyStr ?? '')
+    navigator.clipboard
+        .writeText(props.response.bodyStr ?? '')
         .then(() => {
             copied.value = true;
         })
         .catch((err) => {
             copied.value = false;
             console.error('Failed to copy response body:', err);
-        }).finally(() => {
-        setTimeout(() => {
-            copied.value = undefined;
-        }, 2000);
-    });
+        })
+        .finally(() => {
+            setTimeout(() => {
+                copied.value = undefined;
+            }, 2000);
+        });
 }
 
 function canBeViewed(): boolean {
@@ -46,7 +47,7 @@ function sizeToString(size: number): string {
 
 function downloadResponse() {
     let ext = mime.getExtension(props.response.contentType) || 'txt'; // Use mime-types to get the extension
-    const ab = props.response.bodyArrayBuffer
+    const ab = props.response.bodyArrayBuffer;
 
     if (!ab) {
         console.error('No body data available for download');
@@ -55,7 +56,7 @@ function downloadResponse() {
     if (ext === 'xls' || ext === 'xlsx') {
         ext = 'xlsx'; // Ensure we use a consistent extension for Excel files
     }
-    const blob = new Blob([ab], {type: props.response.contentType});
+    const blob = new Blob([ab], { type: props.response.contentType });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
@@ -90,24 +91,26 @@ const statusCodeNames: Record<number, string> = {
 };
 const statusText = computed(() => {
     return props.response.statusText || statusCodeNames[props.response.status] || '';
-})
+});
 </script>
 
 <template>
-    <div class="flex-1 flex flex-col border  border-x4 rounded overflow-hidden relative">
-        <div
-            class="p-2 border-b border-x4 flex justify-between items-center">
+    <div class="flex-1 flex flex-col border border-x4 rounded overflow-hidden relative">
+        <div class="p-2 border-b border-x4 flex justify-between items-center">
             <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 pr-2">Response</h3>
             <div class="flex items-center gap-1 lg:gap-2 xl:gap-3 2xl:gap-4 text-sm">
                 <div class="flex items-center gap-2">
                     <span class="text-gray-500 dark:text-gray-400">Status:</span>
-                    <span class="line-clamp-1" :class="{
+                    <span
+                        class="line-clamp-1"
+                        :class="{
                             'text-green-600': response.isSuccess,
                             'text-yellow-600': response.isRedirect,
-                            'text-red-600': !response.isSuccess && !response.isRedirect
-                        }">
-                            {{ response.status }} {{ statusText }}
-                        </span>
+                            'text-red-600': !response.isSuccess && !response.isRedirect,
+                        }"
+                    >
+                        {{ response.status }} {{ statusText }}
+                    </span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-gray-500 dark:text-gray-400">Time:</span>
@@ -123,63 +126,50 @@ const statusText = computed(() => {
             <!-- Left side: Response content tabs -->
             <div class="flex-1 flex flex-col border-r border-x4 w-full">
                 <div class="flex border-b border-x4 items-center">
-                    <TabButton v-model="activeTab" tab="body" text="Body"/>
-                    <TabButton v-model="activeTab" tab="preview" text="Preview" v-if="canBeViewed()"/>
-                    <TabButton v-model="activeTab" tab="headers" text="Headers"/>
+                    <TabButton v-model="activeTab" tab="body" text="Body" />
+                    <TabButton v-model="activeTab" tab="preview" text="Preview" v-if="canBeViewed()" />
+                    <TabButton v-model="activeTab" tab="headers" text="Headers" />
 
                     <i class="flex-1"></i>
 
-                    <ArgButton
-                        severity="secondary"
-                        class="z-10 px-2 py-1 text-xs"
-                        @click="downloadResponse"
-                    >
+                    <ArgButton severity="secondary" class="z-10 px-2 py-1 text-xs" @click="downloadResponse">
                         <i class="icon icon-[mdi--content-save]"></i>
                         Download Response ({{ response.ext || 'txt' }})
                     </ArgButton>
                     <!-- copy button if body -->
                 </div>
-                <div class=" flex-1 relative">
+                <div class="flex-1 relative">
                     <MonacoEditor
-                        :model-value="response.bodyStr?.replace(/:line/g,':line:')"
+                        :model-value="response.bodyStr?.replace(/:line/g, ':line:')"
                         readonly
                         :language="response.ext || 'json'"
                         :class="activeTab === 'body' && canBeViewed() ? '' : ' invisible'"
                     />
-                    <div
-                        :class="activeTab === 'body' && !canBeViewed() ? '' : 'invisible'"
-                        class="inset-0 absolute space-y-2 p-4 flex flex-col items-center justify-center">
+                    <div :class="activeTab === 'body' && !canBeViewed() ? '' : 'invisible'" class="inset-0 absolute space-y-2 p-4 flex flex-col items-center justify-center">
                         <div class="text-center">
-                            <u><b>{{ response.ext || response.contentType }}</b></u> files cannot be displayed in the editor.
+                            <u
+                                ><b>{{ response.ext || response.contentType }}</b></u
+                            >
+                            files cannot be displayed in the editor.
                         </div>
 
-                        <ArgButton
-                            severity="secondary"
-                            class="z-10 px-2 py-1 text-xs"
-                            @click="downloadResponse"
-                        >
+                        <ArgButton severity="secondary" class="z-10 px-2 py-1 text-xs" @click="downloadResponse">
                             <i class="icon icon-[mdi--content-save]"></i>
                             Download Response ({{ sizeToString(response.size) }})
                         </ArgButton>
                     </div>
-                    <div class="inset-0 absolute space-y-2 p-4"
-                         :class="activeTab === 'headers' ? '' : 'invisible'">
-                        <div v-for="(v) in response.headers" :key="v[0]"
-                             class="flex">
+                    <div class="inset-0 absolute space-y-2 p-4" :class="activeTab === 'headers' ? '' : 'invisible'">
+                        <div v-for="v in response.headers" :key="v[0]" class="flex">
                             <span class="font-medium min-w-[200px]">{{ v[0] }}:</span>
                             <span class="text-gray-600 dark:text-gray-400">{{ v[1] }}</span>
                         </div>
                     </div>
-                    <div class="inset-0 absolute space-y-2 p-4 flex overflow-auto"
-                         :class="activeTab === 'preview' ? '' : 'invisible'">
-                        <iframe
-                            v-if="response.ext == 'html' || response.ext == 'htm'"
-                            :srcdoc="response.bodyStr"
-                            class="w-full h-full border border-x4 rounded overflow-hidden">
+                    <div class="inset-0 absolute space-y-2 p-4 flex overflow-auto" :class="activeTab === 'preview' ? '' : 'invisible'">
+                        <iframe v-if="response.ext == 'html' || response.ext == 'htm'" :srcdoc="response.bodyStr" class="w-full h-full border border-x4 rounded overflow-hidden">
                         </iframe>
                         <div v-else class="text-gray-500 dark:text-gray-400 h-full w-full flex items-center justify-center">
                             <span class="text-sm">
-                                Preview is only available for HTML responses. <br>
+                                Preview is only available for HTML responses. <br />
                                 But current response is: <strong>{{ response.contentType }}</strong>
                             </span>
                         </div>
@@ -199,7 +189,7 @@ const statusText = computed(() => {
         </div>
 
         <div v-if="endpoint.isSending" class="bg-x1/60 absolute inset-0 grid place-items-center">
-            <i class="icon icon-[mingcute--loading-fill] animate-spin  text-5xl"></i>
+            <i class="icon icon-[mingcute--loading-fill] animate-spin text-5xl"></i>
         </div>
     </div>
 </template>

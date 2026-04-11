@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import { ElInput } from 'element-plus';
+import { ref } from 'vue';
 
-import {ElInput} from "element-plus";
-import {ref} from "vue";
-
-const modelValue = defineModel<string | undefined>({required: true})
+const modelValue = defineModel<string | undefined>({ required: true });
 const props = defineProps<{
     placeholder?: string;
     inputStyle?: string;
     autosize?: boolean;
-}>()
+}>();
 
 // const autosize = ref<any>(props.autosize ? {minRows: 1, maxRows: 1} : false);
 // const uniqueKey = ref('aaa');
@@ -52,12 +51,12 @@ const isFocused = ref(false);
 <template>
     <ElInput
         :model-value="modelValue"
-        @update:model-value="v => modelValue = v"
+        @update:model-value="(v) => (modelValue = v)"
         :input-style="inputStyle"
         class="bg-x1/50"
         :class="{
             '*:max-h-75': isFocused,
-            '*:max-h-25': !isFocused
+            '*:max-h-25': !isFocused,
         }"
         :placeholder="placeholder"
         :autosize="autosize"

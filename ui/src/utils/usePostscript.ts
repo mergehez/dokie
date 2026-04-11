@@ -1,25 +1,27 @@
-import {type Endpoint} from "@/utils/useEndpoint.ts";
-import {useGlobalEnvs} from "./useGlobalEnvs";
-import type {AxiosResponse} from "axios";
-import axiosTypes from "../../node_modules/axios/index.d.ts?raw";
-import {useAppConfig} from "@/utils/useAppConfig.ts";
+import { type Endpoint } from '@/utils/useEndpoint.ts';
+import { useGlobalEnvs } from './useGlobalEnvs';
+import type { AxiosResponse } from 'axios';
+import axiosTypes from '../../node_modules/axios/index.d.ts?raw';
+import { useAppConfig } from '@/utils/useAppConfig.ts';
 
 export const postscriptMonaco = (withAxios = true) => {
     const globalKeyVals = useGlobalEnvs();
-    let headerKeys = globalKeyVals.headers.keyVals.map(t => "'" + t.key + "'").join(' | ');
-    headerKeys += headerKeys ? ' | (string & {})' : 'string'
-    let variableKeys = globalKeyVals.variables.keyVals.map(t => "'" + t.key + "'").join(' | ');
+    let headerKeys = globalKeyVals.headers.keyVals.map((t) => "'" + t.key + "'").join(' | ');
+    headerKeys += headerKeys ? ' | (string & {})' : 'string';
+    let variableKeys = globalKeyVals.variables.keyVals.map((t) => "'" + t.key + "'").join(' | ');
     variableKeys += variableKeys ? ' | (string & {})' : 'string';
-    return (withAxios ? axiosTypes.replace(/export /g, 'declare ') : '')
-        + `
+    return (
+        (withAxios ? axiosTypes.replace(/export /g, 'declare ') : '') +
+        `
 declare const envs: {
     headers: Record<${headerKeys}, string>,
     variables: Record<${variableKeys}, string>,
 };
 declare const response : AxiosResponse;
 declare const request : InternalAxiosRequestConfig;
-    `.trim();
-}
+    `.trim()
+    );
+};
 
 const config = useAppConfig();
 
@@ -43,8 +45,7 @@ declare const request : InternalAxiosRequestConfig;
 }
 
 export function runPostscript(script: string, response: AxiosResponse) {
-    if (!response)
-        return;
+    if (!response) return;
     if (script) {
         setTimeout(() => {
             try {
@@ -52,9 +53,9 @@ export function runPostscript(script: string, response: AxiosResponse) {
 
                 const globalKeyVals = useGlobalEnvs();
                 const envs = {
-                    headers: Object.fromEntries(globalKeyVals.headers.keyVals.map(t => [t.key, t.value])),
-                    variables: Object.fromEntries(globalKeyVals.variables.keyVals.map(t => [t.key, t.value])),
-                }
+                    headers: Object.fromEntries(globalKeyVals.headers.keyVals.map((t) => [t.key, t.value])),
+                    variables: Object.fromEntries(globalKeyVals.variables.keyVals.map((t) => [t.key, t.value])),
+                };
 
                 eval(script); // eslint-disable-line no-eval
 
