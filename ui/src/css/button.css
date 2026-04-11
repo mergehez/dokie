@@ -11,7 +11,7 @@
     @apply px-2 py-1 gap-1;
 }
 
-@utility btn.small-y {
+@utility small-y {
     @apply py-1;
 }
 
