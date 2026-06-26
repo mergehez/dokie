@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import MonacoEditor from '@/components/MonacoEditor.vue';
-import type { ApiResponse } from '@/utils/useDb.ts';
-import { computed, ref } from 'vue';
-import ArgButton from '@/components/ui/ArgButton.vue';
-import mime from 'mime';
 import TabButton from '@/components/TabButton.vue';
+import ArgButton from '@/components/ui/ArgButton.vue';
+import type { ApiResponse } from '@/utils/useDb.ts';
 import type { Endpoint } from '@/utils/useEndpoint.ts';
+import mime from 'mime';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
     endpoint: Endpoint;
@@ -92,6 +92,14 @@ const statusCodeNames: Record<number, string> = {
 const statusText = computed(() => {
     return props.response.statusText || statusCodeNames[props.response.status] || '';
 });
+
+const pdfPreviewUrl = computed(() => {
+    if (props.response.ext === 'pdf' && props.response.bodyArrayBuffer) {
+        const blob = new Blob([props.response.bodyArrayBuffer], { type: 'application/pdf' });
+        return URL.createObjectURL(blob);
+    }
+    return null;
+});
 </script>
 
 <template>
@@ -167,6 +175,12 @@ const statusText = computed(() => {
                     <div class="inset-0 absolute space-y-2 p-4 flex overflow-auto" :class="activeTab === 'preview' ? '' : 'invisible'">
                         <iframe v-if="response.ext == 'html' || response.ext == 'htm'" :srcdoc="response.bodyStr" class="w-full h-full border border-x4 rounded overflow-hidden">
                         </iframe>
+                        <template v-else-if="response.ext === 'pdf'">
+                            <iframe v-if="pdfPreviewUrl" :src="pdfPreviewUrl" class="w-full h-full border border-x4 rounded overflow-hidden"></iframe>
+                            <div v-else class="text-gray-500 dark:text-gray-400 h-full w-full flex items-center justify-center">
+                                <span class="text-sm"> PDF preview is not available. </span>
+                            </div>
+                        </template>
                         <div v-else class="text-gray-500 dark:text-gray-400 h-full w-full flex items-center justify-center">
                             <span class="text-sm">
                                 Preview is only available for HTML responses. <br />

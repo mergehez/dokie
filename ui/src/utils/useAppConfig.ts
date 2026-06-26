@@ -1,10 +1,10 @@
-import { reactive } from 'vue';
 import { defineStore } from '@/utils/utils.ts';
+import { reactive } from 'vue';
 
 const debugConfig = {
     currentHostname: location.host,
-    openApiJsonUrl: 'http://localhost:3000/api/openapi.json',
-    // "openApiJsonUrl": "https://localhost:35125/openapi/internal.json",
+    // openApiJsonUrl: 'http://localhost:3000/api/openapi.json',
+    openApiJsonUrl: 'https://localhost:35125/openapi/internal.json',
     hostnames: [],
     variables: {
         username: 'mazlum',
