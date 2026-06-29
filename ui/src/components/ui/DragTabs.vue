@@ -45,7 +45,7 @@ watch(
     { deep: true }
 );
 
-const sortedItems = computed<Item[]>(() => items2.value.sort((a, b) => a.index - b.index));
+const sortedItems = computed<Item[]>(() => items2.value.toSorted((a, b) => a.index - b.index));
 
 function addClass(el: any, className: string) {
     el.classList.add(className);

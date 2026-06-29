@@ -27,7 +27,7 @@ function _createGlobalEnvs() {
         all,
         () => {
             console.log('globalEnv changed');
-            globalKeyVals.updateDb();
+            void globalKeyVals.updateDb();
         },
         { deep: true }
     );

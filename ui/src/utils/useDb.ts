@@ -1,7 +1,7 @@
-import Dexie, { type EntityTable } from 'dexie';
-import { useDebounceFn } from '@vueuse/core';
-import { uniqueId } from '@/utils/utils.ts';
 import type { CustomEndpointDef } from '@/utils/useEndpoint.ts';
+import { uniqueId } from '@/utils/utils.ts';
+import { useDebounceFn } from '@vueuse/core';
+import Dexie, { type EntityTable } from 'dexie';
 
 export type EndpointId = string;
 
@@ -210,7 +210,7 @@ export function useDb() {
         requestHistory: {
             value: _requestHistory,
             updateDb: useDebounceFn(async () => {
-                _db.requestHistory.bulkPut(_requestHistory).then(() => console.log('updated request history'));
+                void _db.requestHistory.bulkPut(_requestHistory).then(() => console.log('updated request history'));
             }, 500),
         },
         navState: {

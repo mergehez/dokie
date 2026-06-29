@@ -146,7 +146,7 @@ export function runPostscript(script: string, response: AxiosResponse) {
                 for (const [key, value] of Object.entries(envs.headers)) {
                     globalKeyVals.headers.upsert(key, value ?? '');
                 }
-                globalKeyVals.updateIndexedDb();
+                void globalKeyVals.updateIndexedDb();
             } catch (e) {
                 console.error('Error running postscript:', e);
                 alert('Error running postscript. ' + (e as Error).message);

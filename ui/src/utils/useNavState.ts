@@ -83,7 +83,7 @@ const createNavState = () => {
         expandedGroups,
         (nv) => {
             navState.expanded_tags = [...nv];
-            db.navState.updateDb();
+            void db.navState.updateDb();
         },
         { deep: true }
     );
@@ -91,7 +91,7 @@ const createNavState = () => {
         favEndpoints,
         (nv) => {
             navState.fav_endpoints = [...nv];
-            db.navState.updateDb();
+            void db.navState.updateDb();
         },
         { deep: true }
     );
@@ -111,7 +111,7 @@ const createNavState = () => {
                 })
                 .filter((t) => t) as any[];
             console.log('updating custom endpoints in nav state', nv, customEndpoints);
-            db.navState.updateDb();
+            void db.navState.updateDb();
         },
         { deep: true }
     );
@@ -119,24 +119,24 @@ const createNavState = () => {
         selectedEndpoints,
         (nv) => {
             navState.selected_endpoints = nv.map((t) => t.id);
-            db.navState.updateDb();
+            void db.navState.updateDb();
         },
         { deep: true }
     );
     watch(activeEndpoint, (nv) => {
         if (nv?.id == navState.active_endpoint) return;
         navState.active_endpoint = nv?.id ?? '';
-        db.navState.updateDb();
+        void db.navState.updateDb();
     });
     watch(sidebarWidth, (nv) => {
         if (nv == navState.sidebar_width) return;
         navState.sidebar_width = nv;
-        db.navState.updateDb();
+        void db.navState.updateDb();
     });
     watch(requestPartHeight, (nv) => {
         if (nv == navState.request_part_height) return;
         navState.request_part_height = nv;
-        db.navState.updateDb();
+        void db.navState.updateDb();
     });
 
     const toggleGroup = (tag: string) => {

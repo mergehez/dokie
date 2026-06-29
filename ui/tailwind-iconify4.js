@@ -395,6 +395,7 @@ const exportedPlugin = plugin.withOptions((params) => {
             }
         }
     });
+    // oxlint-disable-next-line
     return ({ matchComponents, addComponents, addUtilities }) => {
         // Dynamic plugin
         const prefix = dynamicOptions.prefix ?? 'icon';

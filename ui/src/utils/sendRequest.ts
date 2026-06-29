@@ -225,7 +225,7 @@ export async function sendRequest(e: Endpoint) {
             .finally(() => {
                 e.all.body = e.request.body;
                 e.all.postscript = e.request.postscript;
-                e.updateIndexedDb();
+                void e.updateIndexedDb();
             });
 
         success = res.status >= 200 && res.status < 300;
