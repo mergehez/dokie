@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { defaultPostscript } from '@/utils/usePostscript.ts';
-import MonacoEditor from '@/components/MonacoEditor.vue';
-import { ElOption, ElRadio, ElRadioGroup, ElScrollbar, ElSelect } from 'element-plus';
+import AceEditor from '@/components/AceEditor.vue';
 import EnvDataTable from '@/components/EnvDataTable.vue';
-import type { Endpoint } from '@/utils/useEndpoint.ts';
-import { computed } from 'vue';
-import mime from 'mime';
 import TabButton from '@/components/TabButton.vue';
+import type { Endpoint } from '@/utils/useEndpoint.ts';
+import { defaultPostscript, getPostscriptTypings, jsonToTsType, responseBodyTypeFromSpec } from '@/utils/usePostscript.ts';
+import { ElOption, ElRadio, ElRadioGroup, ElScrollbar, ElSelect } from 'element-plus';
+import mime from 'mime';
+import { computed } from 'vue';
 
 const props = defineProps<{
     endpoint: Endpoint;
@@ -19,6 +19,34 @@ function getHeader(name: string): string | undefined {
 }
 
 const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'application/json') || 'json');
+
+const postscriptTypings = computed(() => {
+    const body = props.endpoint.request.body;
+    let bodyType: string | undefined;
+    if (body) {
+        try {
+            bodyType = jsonToTsType(JSON.parse(body));
+        } catch {
+            bodyType = 'string';
+        }
+    }
+
+    // Derive response body type: prefer actual response body, fall back to OpenAPI schema
+    let respBodyType: string | undefined;
+    const actualResponse = (props.endpoint as any).response;
+    if (actualResponse?.bodyStr) {
+        try {
+            respBodyType = jsonToTsType(JSON.parse(actualResponse.bodyStr));
+        } catch {
+            /* not JSON */
+        }
+    }
+    if (!respBodyType) {
+        respBodyType = responseBodyTypeFromSpec(props.endpoint);
+    }
+
+    return getPostscriptTypings(true, bodyType, respBodyType);
+});
 </script>
 
 <template>
@@ -94,16 +122,18 @@ const ext = computed(() => mime.getExtension(getHeader('Content-Type') || 'appli
                         </div>
                     </template>
                     <template v-else>
-                        <MonacoEditor v-model="endpoint.request.body" :language="endpoint.request.bodyType" />
+                        <AceEditor v-model="endpoint.request.body" :language="endpoint.request.bodyType" />
                     </template>
                 </div>
 
                 <!-- postscript Tab -->
                 <div v-if="endpoint.activeRequestTab === 'postscript'" class="space-y-2 h-full">
-                    <MonacoEditor
+                    <AceEditor
+                        :key="`ps-${(endpoint as any).response?.bodyStr?.length ?? ''}-${endpoint.request.body?.length ?? ''}`"
                         :model-value="endpoint.request.postscript ?? defaultPostscript(props.endpoint)"
                         @update:modelValue="(v) => (endpoint.request.postscript = v ?? '')"
                         language="typescript"
+                        :typings="postscriptTypings"
                     />
                 </div>
             </ElScrollbar>

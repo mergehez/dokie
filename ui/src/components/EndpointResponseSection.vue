@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import MonacoEditor from '@/components/MonacoEditor.vue';
+import AceEditor from '@/components/AceEditor.vue';
+import PreviewTab from '@/components/PreviewTab.vue';
 import TabButton from '@/components/TabButton.vue';
 import ArgButton from '@/components/ui/ArgButton.vue';
 import type { ApiResponse } from '@/utils/useDb.ts';
@@ -32,9 +33,43 @@ function copyBody() {
         });
 }
 
-function canBeViewed(): boolean {
-    const viewableExts = ['txt', 'json', 'html', 'htm', 'xml', 'csv', 'pdf'];
-    return props.response.ext ? viewableExts.includes(props.response.ext) : false;
+// Body tab: show editor only for text-based content
+const textExts = ['txt', 'json', 'xml', 'html', 'htm', 'csv', 'yaml', 'yml', 'md', 'log', 'env'];
+
+function canShowInEditor(): boolean {
+    return props.response.ext ? textExts.includes(props.response.ext) : false;
+}
+
+// Preview tab: media types that browsers can natively render
+const previewExts = [
+    'html',
+    'htm',
+    'pdf',
+    'svg',
+    'png',
+    'jpg',
+    'jpeg',
+    'gif',
+    'webp',
+    'bmp',
+    'ico',
+    'mp3',
+    'wav',
+    'ogg',
+    'aac',
+    'flac',
+    'mp4',
+    'webm',
+    'avi',
+    'mov',
+    'txt',
+    'csv',
+    'xlsx',
+    'xls',
+];
+
+function canShowInPreview(): boolean {
+    return props.response.ext ? previewExts.includes(props.response.ext) : false;
 }
 
 function sizeToString(size: number): string {
@@ -92,14 +127,6 @@ const statusCodeNames: Record<number, string> = {
 const statusText = computed(() => {
     return props.response.statusText || statusCodeNames[props.response.status] || '';
 });
-
-const pdfPreviewUrl = computed(() => {
-    if (props.response.ext === 'pdf' && props.response.bodyArrayBuffer) {
-        const blob = new Blob([props.response.bodyArrayBuffer], { type: 'application/pdf' });
-        return URL.createObjectURL(blob);
-    }
-    return null;
-});
 </script>
 
 <template>
@@ -135,7 +162,7 @@ const pdfPreviewUrl = computed(() => {
             <div class="flex-1 flex flex-col border-r border-x4 w-full">
                 <div class="flex border-b border-x4 items-center">
                     <TabButton v-model="activeTab" tab="body" text="Body" />
-                    <TabButton v-model="activeTab" tab="preview" text="Preview" v-if="canBeViewed()" />
+                    <TabButton v-model="activeTab" tab="preview" text="Preview" />
                     <TabButton v-model="activeTab" tab="headers" text="Headers" />
 
                     <i class="flex-1"></i>
@@ -147,13 +174,13 @@ const pdfPreviewUrl = computed(() => {
                     <!-- copy button if body -->
                 </div>
                 <div class="flex-1 relative">
-                    <MonacoEditor
+                    <AceEditor
+                        v-if="activeTab === 'body' && canShowInEditor()"
                         :model-value="response.bodyStr?.replace(/:line/g, ':line:')"
                         readonly
                         :language="response.ext || 'json'"
-                        :class="activeTab === 'body' && canBeViewed() ? '' : ' invisible'"
                     />
-                    <div :class="activeTab === 'body' && !canBeViewed() ? '' : 'invisible'" class="inset-0 absolute space-y-2 p-4 flex flex-col items-center justify-center">
+                    <div v-if="activeTab === 'body' && !canShowInEditor()" class="inset-0 absolute space-y-2 p-4 flex flex-col items-center justify-center">
                         <div class="text-center">
                             <u
                                 ><b>{{ response.ext || response.contentType }}</b></u
@@ -161,10 +188,16 @@ const pdfPreviewUrl = computed(() => {
                             files cannot be displayed in the editor.
                         </div>
 
-                        <ArgButton severity="secondary" class="z-10 px-2 py-1 text-xs" @click="downloadResponse">
-                            <i class="icon icon-[mdi--content-save]"></i>
-                            Download Response ({{ sizeToString(response.size) }})
-                        </ArgButton>
+                        <div class="flex gap-2">
+                            <ArgButton severity="secondary" class="px-2 py-1 text-xs" @click="downloadResponse">
+                                <i class="icon icon-[mdi--content-save]"></i>
+                                Download Response ({{ sizeToString(response.size) }})
+                            </ArgButton>
+                            <ArgButton v-if="canShowInPreview()" severity="primary" class="px-2 py-1 text-xs" @click="activeTab = 'preview'">
+                                <i class="icon icon-[mdi--eye]"></i>
+                                Go to Preview Tab
+                            </ArgButton>
+                        </div>
                     </div>
                     <div class="inset-0 absolute space-y-2 p-4" :class="activeTab === 'headers' ? '' : 'invisible'">
                         <div v-for="v in response.headers" :key="v[0]" class="flex">
@@ -172,23 +205,8 @@ const pdfPreviewUrl = computed(() => {
                             <span class="text-gray-600 dark:text-gray-400">{{ v[1] }}</span>
                         </div>
                     </div>
-                    <div class="inset-0 absolute space-y-2 p-4 flex overflow-auto" :class="activeTab === 'preview' ? '' : 'invisible'">
-                        <iframe v-if="response.ext == 'html' || response.ext == 'htm'" :srcdoc="response.bodyStr" class="w-full h-full border border-x4 rounded overflow-hidden">
-                        </iframe>
-                        <template v-else-if="response.ext === 'pdf'">
-                            <iframe v-if="pdfPreviewUrl" :src="pdfPreviewUrl" class="w-full h-full border border-x4 rounded overflow-hidden"></iframe>
-                            <div v-else class="text-gray-500 dark:text-gray-400 h-full w-full flex items-center justify-center">
-                                <span class="text-sm"> PDF preview is not available. </span>
-                            </div>
-                        </template>
-                        <div v-else class="text-gray-500 dark:text-gray-400 h-full w-full flex items-center justify-center">
-                            <span class="text-sm">
-                                Preview is only available for HTML responses. <br />
-                                But current response is: <strong>{{ response.contentType }}</strong>
-                            </span>
-                        </div>
-                    </div>
-                    <template v-if="canCopy && activeTab === 'body'">
+                    <PreviewTab v-if="activeTab === 'preview'" :response="response" />
+                    <template v-if="canCopy && activeTab === 'body' && canShowInEditor()">
                         <ArgButton
                             :severity="copied === true ? 'success' : copied === false ? 'danger' : 'primary'"
                             class="absolute z-10 right-6 top-2 px-2 py-1 text-xs"

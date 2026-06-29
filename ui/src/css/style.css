@@ -52,17 +52,20 @@ html {
 }
 
 @layer base {
-    .monaco-editor {
-        --vscode-editor-background: var(--bg0) !important;
-        --vscode-focusBorder: transparent !important;
-        --vscode-editorGutter-background: var(--color-x0) !important;
-        --vscode-scrollbar-shadow: var(--color-x2) !important;
-        --vscode-editorStickyScroll-background: var(--color-x1) !important;
-        --vscode-editorStickyScroll-shadow: var(--color-x0) !important;
-    }
-
-    .monaco-editor .margin {
+    .ace_gutter {
         @apply border-r border-x2/60;
+        background-color: var(--bg2) !important;
+        max-width: 52px !important;
+    }
+    .ace_gutter-layer {
+        max-width: 50px !important;
+    }
+    .ace_gutter-cell,
+    .ace_gutter-cell_svg-icons {
+        padding-left: 6px !important;
+    }
+    .ace_editor {
+        background-color: var(--bg0) !important;
     }
 }
 
