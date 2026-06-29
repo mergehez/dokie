@@ -1,6 +1,6 @@
 {
     "name": "@mergehez/dokie-node",
-    "version": "0.1.2",
+    "version": "0.1.4",
     "description": "A Node.js package for serving the Dokie API documentation UI across generic servers, Express, Fastify, and Hono.",
     "license": "MIT",
     "author": "mergehez",
