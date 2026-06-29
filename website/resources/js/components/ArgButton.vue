@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Icon from '@/components/ui/Icon.vue';
 import { twMerge } from 'tailwind-merge';
 import { computed } from 'vue';
 
@@ -11,7 +10,6 @@ export type ButtonProps = {
     small?: boolean;
     smallY?: boolean;
     iconOnly?: boolean;
-    icon?: `icon-${string}`;
 };
 const props = defineProps<ButtonProps>();
 
@@ -36,9 +34,7 @@ const severityClass = computed(() => {
         :class="twMerge(severityClass, iconOnly || small ? 'btn-sm rounded' : '', smallY ? 'small-y' : '', iconOnly ? 'px-1' : '', $attrs.class as any)"
         :disabled="props.loading"
     >
-        <Icon v-if="props.loading" icon="icon-[mingcute--loading-fill] animate-spin" />
-        <slot>
-            <Icon v-if="props.icon" :icon="props.icon" />
-        </slot>
+        <i v-if="props.loading" class="icon icon-[mingcute--loading-fill] animate-spin" />
+        <slot> </slot>
     </component>
 </template>

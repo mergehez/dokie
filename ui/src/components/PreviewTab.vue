@@ -37,7 +37,10 @@ const previewHandlers: Record<string, { mime: string; template: 'iframe' | 'img'
     mov: { mime: 'video/quicktime', template: 'video' },
     txt: { mime: 'text/plain', template: 'text' },
     csv: { mime: 'text/csv', template: 'office' },
-    xlsx: { mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', template: 'office' },
+    xlsx: {
+        mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        template: 'office',
+    },
     xls: { mime: 'application/vnd.ms-excel', template: 'office' },
 };
 

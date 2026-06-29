@@ -9,14 +9,14 @@
     },
     "dependencies": {
         "@mergehez/dokie-node": "file:../../packages/node",
-        "next": "^15.0.0",
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0"
+        "next": "^16.2.9",
+        "react": "^19.2.7",
+        "react-dom": "^19.2.7"
     },
     "devDependencies": {
-        "typescript": "^6.0.2",
-        "@types/react": "^19.0.0",
-        "@types/react-dom": "^19.0.0",
-        "@types/node": "^25.6.0"
+        "typescript": "^6.0.3",
+        "@types/react": "^19.2.17",
+        "@types/react-dom": "^19.2.3",
+        "@types/node": "^26.0.1"
     }
 }

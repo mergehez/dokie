@@ -14,7 +14,7 @@ This repository contains PHP, .NET, and JavaScript work. For JavaScript and Type
 
 - The JavaScript package lives in `packages/node/`.
 - Run install, checks, and builds from `packages/node/`.
-- The standard package build flow is: `bun install`, `vp check --fix`, `bun run build`.
+- The standard package build flow is: `bun install`, `bun run build`.
 
 ## Scripts
 

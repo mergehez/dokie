@@ -1,45 +1,42 @@
 {
     "name": "dokie",
-    "private": true,
     "version": "0.0.0",
+    "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vp dev --host",
-        "build": "vp check --fix && vue-tsc -b && vp build && bun copy.mjs",
-        "preview": "vp preview"
+        "dev": "vite --host",
+        "build": "oxfmt --write && oxlint && vue-tsc -b && vp build && bun copy.mjs",
+        "lint": "oxfmt --write && oxlint"
     },
     "dependencies": {
         "@formkit/auto-animate": "^0.9.0",
-        "@tailwindcss/vite": "^4.2.2",
-        "@vueuse/core": "^14.2.1",
+        "@tailwindcss/vite": "^4.3.1",
+        "@vueuse/core": "^14.3.0",
         "ace-builds": "^1.44.0",
         "ace-linters": "^2.2.0",
-        "axios": "1.15.0",
-        "dexie": "^4.4.2",
-        "element-plus": "2.13.7",
+        "axios": "1.18.1",
+        "dexie": "^4.4.4",
+        "element-plus": "2.14.2",
         "mime": "^4.1.0",
         "strip-json-comments": "^5.0.3",
-        "tailwind-merge": "^3.5.0",
-        "vue": "^3.5.32"
+        "tailwind-merge": "^3.6.0",
+        "vue": "^3.5.39"
     },
     "devDependencies": {
-        "@iconify/json": "^2.2.461",
+        "@iconify/json": "^2.2.493",
         "@iconify/tailwind4": "^1.2.3",
-        "@types/node": "^25.6.0",
-        "@vitejs/plugin-vue": "^6.0.5",
+        "@types/node": "^26.0.1",
+        "@vitejs/plugin-vue": "^6.0.7",
         "@vue/tsconfig": "^0.9.1",
         "openapi-typescript": "^7.13.0",
         "oxlint": "^1.71.0",
-        "tailwindcss": "^4.2.2",
-        "typescript": "~6.0.2",
-        "vite": "npm:@voidzero-dev/vite-plus-core",
-        "vite-plugin-singlefile": "^2.3.2",
-        "vite-plugin-vue-devtools": "^8.1.1",
-        "vite-plus": "^0.1.16",
-        "vue-tsc": "^3.2.6"
-    },
-    "overrides": {
-        "vite": "npm:@voidzero-dev/vite-plus-core@latest"
+        "oxlint-tsgolint": "^0.23.0",
+        "tailwindcss": "^4.3.1",
+        "typescript": "~6.0.3",
+        "vite": "^8.1.0",
+        "vite-plugin-singlefile": "^2.3.3",
+        "vite-plugin-vue-devtools": "^8.1.5",
+        "vue-tsc": "^3.3.5"
     },
     "packageManager": "bun@1.3.12"
 }

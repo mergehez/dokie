@@ -7,24 +7,26 @@
         "dev": "vite --config vite.config.js"
     },
     "devDependencies": {
-        "@iconify/json": "^2.2.461",
-        "@mergehez/barke": "^0.1.1",
+        "@iconify/json": "^2.2.493",
         "@iconify/tailwind4": "^1.2.3",
-        "@tailwindcss/vite": "^4.2.2",
+        "@mergehez/barke": "^0.1.1",
+        "@tailwindcss/vite": "^4.3.1",
+        "@types/node": "^26.0.1",
+        "@vitejs/plugin-vue": "^6.0.7",
+        "@vue/compiler-sfc": "^3.5.39",
         "@vue/tsconfig": "^0.9.1",
-        "concurrently": "^9.2.1",
-        "laravel-vite-plugin": "^3.0.1",
-        "tailwindcss": "^4.2.2",
-        "vite": "^8.0.8",
-        "vue-tsc": "^3.2.6",
-        "@vitejs/plugin-vue": "^6.0.5",
-        "@vue/compiler-sfc": "^3.5.32",
-        "typescript": "^6.0.2"
+        "concurrently": "^10.0.3",
+        "laravel-vite-plugin": "^3.1.0",
+        "oxlint-tsgolint": "^0.23.0",
+        "tailwindcss": "^4.3.1",
+        "typescript": "^6.0.3",
+        "vite": "^8.1.0",
+        "vue-tsc": "^3.3.5"
     },
     "dependencies": {
-        "axios": "^1.15.0",
-        "tailwind-merge": "^3.5.0",
-        "vue": "^3.5.32",
-        "vue-router": "^5.0.4"
+        "axios": "^1.18.1",
+        "tailwind-merge": "^3.6.0",
+        "vue": "^3.5.39",
+        "vue-router": "^5.1.0"
     }
 }

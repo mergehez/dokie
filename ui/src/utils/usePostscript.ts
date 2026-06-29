@@ -138,7 +138,8 @@ export function runPostscript(script: string, response: AxiosResponse) {
                     variables: Object.fromEntries(globalKeyVals.variables.keyVals.map((t) => [t.key, t.value])),
                 };
 
-                eval(script); // eslint-disable-line no-eval
+                // oxlint-disable-next-line no-eval
+                eval(script);
 
                 for (const [key, value] of Object.entries(envs.variables)) {
                     globalKeyVals.variables.upsert(key, value ?? '');

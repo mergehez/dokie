@@ -164,11 +164,11 @@ export async function sendRequest(e: Endpoint) {
         try {
             if (res.data instanceof ArrayBuffer) dataObj = JSON.parse(dataStr);
             else if (typeof res.data === 'object') dataObj = res.data;
-        } catch (_) {}
+        } catch {}
 
         const size = dataStr.length;
-        const contentType = res.headers?.['content-type'];
-        const isJson = contentType?.includes('application/json') || contentType?.includes('application/problem+json');
+        const contentType = res.headers?.['content-type']?.toString() || '';
+        const isJson = contentType.includes('application/json') || contentType.includes('application/problem+json');
 
         if (isJson) {
             const data = JSON.parse(dataStr);
@@ -177,7 +177,7 @@ export async function sendRequest(e: Endpoint) {
 
         e.request.headers = JSON.parse(JSON.stringify(res.config.headers));
 
-        const cType = res.headers?.['Content-Type'] || res.headers?.['content-type'] || '';
+        const cType = res.headers?.['Content-Type']?.toString() || res.headers?.['content-type']?.toString() || '';
         e.response = {
             duration: duration,
             isRedirect: res.status >= 300 && res.status < 400,

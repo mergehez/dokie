@@ -9,10 +9,10 @@
         "dev": "concurrently \"bun --watch express.js\" \"bun --watch fastify.js\" \"bun --watch hono.js\""
     },
     "dependencies": {
-        "@hono/node-server": "^1.19.3",
+        "@hono/node-server": "^2.0.6",
         "@mergehez/dokie-node": "file:../../packages/node",
-        "express": "^5.1.0",
-        "fastify": "^5.6.1",
-        "hono": "^4.9.6"
+        "express": "^5.2.1",
+        "fastify": "^5.9.0",
+        "hono": "^4.12.27"
     }
 }

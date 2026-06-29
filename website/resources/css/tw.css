@@ -1,12 +1,10 @@
 @layer theme, base, components, utilities;
 
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/preflight.css" layer(base);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
 
-@plugin "../../tailwind-iconify4" {
-    forceBrackets: false
-}
+@plugin "@iconify/tailwind4";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -18,7 +16,6 @@
     --txt4: oklch(76% 0 292);
     --txt5: oklch(88% 0 292);
     --txt6: oklch(100% 0 292);
-
 
     --bgreverse: oklch(0% 0 0);
     --bg0: oklch(100% 0 0);

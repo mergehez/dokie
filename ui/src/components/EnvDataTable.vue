@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { KeyVal } from '@/utils/useDb.ts';
 import ArgInput from '@/components/ui/ArgInput.vue';
 import AutocompleteText from '@/components/ui/AutocompleteText.vue';
-import type { KeyValCollection } from '@/utils/useKeyValCollection.ts';
 import Splitter from '@/components/ui/Splitter.vue';
+import type { KeyVal } from '@/utils/useDb.ts';
+import type { KeyValCollection } from '@/utils/useKeyValCollection.ts';
 
 const props = defineProps<{
     code: string; // for local-storage-key
@@ -34,6 +34,11 @@ function clickFileInput(p: KeyVal) {
         input.click();
     }
 }
+
+function onInputChange(p: KeyVal, newValue?: string) {
+    p.value = newValue ?? p.value;
+    props.onChange(p);
+}
 </script>
 
 <template>
@@ -59,15 +64,8 @@ function clickFileInput(p: KeyVal) {
                                 <!--&gt;</label>-->
                                 <input :id="`file-input-${p.id}`" type="file" @change="(e) => onFileChange(p, e)" class="file-input file-input-bordered w-full max-w-xs hidden" />
                             </template>
-                            <AutocompleteText v-else-if="autocomplete" :model-value="p.value?.toString()" @update:modelValue="(v) => (p.value = v || '')" />
-                            <ArgInput
-                                v-else
-                                :model-value="p.value?.toString()"
-                                @update:modelValue="(v) => (p.value = v)"
-                                @update:model-value="() => onChange(p)"
-                                placeholder="Value"
-                                autosize
-                            />
+                            <AutocompleteText v-else-if="autocomplete" :model-value="p.value?.toString()" @update:modelValue="(v) => onInputChange(p, v)" />
+                            <ArgInput v-else :model-value="p.value?.toString()" @update:modelValue="(v) => onInputChange(p, v)" placeholder="Value" autosize />
                         </div>
                     </template>
                 </Splitter>

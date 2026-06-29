@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useSpec } from '@/utils/useSpec.ts';
-import { useAppConfig } from '@/utils/useAppConfig.ts';
-import { distinct } from '@/utils/utils.ts';
-import type { OpenAPIV3 } from '@/utils/types.ts';
-import { useDb } from '@/utils/useDb.ts';
 import MainLayout from '@/components/MainLayout.vue';
+import type { OpenAPIV3 } from '@/utils/types.ts';
+import { useAppConfig } from '@/utils/useAppConfig.ts';
+import { useDb } from '@/utils/useDb.ts';
+import { useSpec } from '@/utils/useSpec.ts';
+import { distinct } from '@/utils/utils.ts';
 import axios, { type AxiosError } from 'axios';
+import { ref } from 'vue';
 
 const apiSpec = ref<OpenAPIV3>();
 const config = useAppConfig();
@@ -18,7 +18,7 @@ function init() {
         .get(config.openApiJsonUrl)
         .then(async (res) => {
             console.log(res);
-            const contentType = res.headers['content-type'] || res.headers['Content-Type'];
+            const contentType = res.headers['content-type']?.toString() || res.headers['Content-Type']?.toString() || '';
             if (!contentType.includes('application/json')) {
                 throw new Error(`Expected 'application/json' from the api but got '${contentType}'`);
             }

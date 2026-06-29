@@ -11,7 +11,7 @@ const props = defineProps<{
 const finalClass = computed(() => {
     return [
         {
-            'icon-mingcute--loading-fill animate-spin': props.loading,
+            'icon-[mingcute--loading-fill] animate-spin': props.loading,
             icon: props.icon || props.loading,
         },
         props.icon,

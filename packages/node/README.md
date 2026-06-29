@@ -16,7 +16,6 @@ Run package commands from `packages/node`:
 
 ```bash
 bun install
-vp check --fix
 bun run build
 ```
 

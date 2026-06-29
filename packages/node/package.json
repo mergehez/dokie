@@ -55,14 +55,14 @@
         "fetch"
     ],
     "scripts": {
-        "build": "vp check --fix && tsdown",
+        "build": "oxfmt --write && oxfmt && tsdown",
         "test": "bun test"
     },
     "devDependencies": {
-        "@types/bun": "^1.3.12",
-        "@types/node": "^25.6.0",
-        "tsdown": "^0.21.7",
-        "typescript": "^6.0.2"
+        "@types/bun": "^1.3.14",
+        "@types/node": "^26.0.1",
+        "tsdown": "^0.22.3",
+        "typescript": "^6.0.3"
     },
     "repository": {
         "type": "git",

@@ -4,9 +4,7 @@
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
-@plugin "../../tailwind-iconify4" {
-    forcebrackets: false;
-}
+@plugin "@iconify/tailwind4";
 
 @custom-variant dark (&:where(.dark, .dark *));
 @source "../../node_modules/@mergehez/vue-color-picker";

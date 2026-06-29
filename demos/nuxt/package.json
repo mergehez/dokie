@@ -9,9 +9,9 @@
     },
     "dependencies": {
         "@mergehez/dokie-node": "file:../../packages/node",
-        "nuxt": "^4.0.0"
+        "nuxt": "^4.4.8"
     },
     "devDependencies": {
-        "typescript": "^6.0.2"
+        "typescript": "^6.0.3"
     }
 }
