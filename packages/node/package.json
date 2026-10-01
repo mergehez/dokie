@@ -1,6 +1,6 @@
 {
     "name": "@mergehez/dokie-node",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "description": "A Node.js package for serving the Dokie API documentation UI across generic servers, Express, Fastify, and Hono.",
     "license": "MIT",
     "author": "mergehez",
@@ -59,9 +59,9 @@
         "test": "bun test"
     },
     "devDependencies": {
-        "@types/bun": "^1.3.14",
-        "@types/node": "^26.0.1",
-        "tsdown": "^0.22.3",
+        "@types/bun": "^1.4.2",
+        "@types/node": "^26.6.3",
+        "tsdown": "^0.23.0",
         "typescript": "^6.0.3"
     },
     "repository": {
