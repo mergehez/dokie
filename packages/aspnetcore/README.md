@@ -50,6 +50,7 @@ if (app.Environment.IsDevelopment())
     app.UseDokie("v1", new DokieOptions
     {
         Title = "Dokie",
+        RoutePath = "/dokie",
         HostnameOptions = ["https://prod-site.com"],
         PredefinedVariables = new Dictionary<string, string>
         {
@@ -61,7 +62,7 @@ if (app.Environment.IsDevelopment())
             { "x-api-key", "" },
             { "Content-Type", "application/json" },
         },
-        Postscripts = new Dictionary<string, string>
+        PredefinedPostscripts = new Dictionary<string, string>
         {
             { "GET /api/login", "envs.headers['x-api-key'] = response.data.value.ticket;" },
         },
@@ -76,6 +77,13 @@ app.Run();
 ```
 
 After setting up the above code, you can access the Dokie UI at `/dokie` in your browser.
+
+If you register Dokie multiple times in one app, set a unique `RoutePath` for each document:
+
+```csharp
+app.UseDokie("internal", new DokieOptions { RoutePath = "/dokie/internal" });
+app.UseDokie("external", new DokieOptions { RoutePath = "/dokie/external" });
+```
 
 ## Features
 

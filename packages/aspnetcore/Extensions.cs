@@ -20,6 +20,7 @@ namespace Dokie;
 public struct DokieOptions
 {
     public string Title { get; init; }
+    public string? RoutePath { get; init; }
     public List<string>? HostnameOptions { get; init; }
     public Dictionary<string, string>? PredefinedVariables { get; init; }
     public Dictionary<string, string>? PredefinedHeaders { get; init; }
@@ -35,6 +36,18 @@ public static class Extensions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
+
+    private static string NormalizeRoutePath(string? routePath)
+    {
+        if (string.IsNullOrWhiteSpace(routePath))
+            return "/dokie";
+
+        var route = routePath.Trim();
+        if (!route.StartsWith('/'))
+            route = "/" + route;
+
+        return route;
+    }
 
     private static string Serialize(object obj, DokieOptions? opts)
     {
@@ -77,7 +90,9 @@ public static class Extensions
 
     public static void UseDokie(this WebApplication app, string documentName, DokieOptions? options = null)
     {
-        app.MapGet("/dokie", (HttpContext httpContext) =>
+        var route = NormalizeRoutePath(options?.RoutePath);
+
+        app.MapGet(route, (HttpContext httpContext) =>
         {
             const string resourceName = "Dokie.wwwroot.dokie.html";
             var assembly = typeof(Extensions).GetTypeInfo().Assembly;
