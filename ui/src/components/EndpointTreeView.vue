@@ -4,18 +4,28 @@ import { CustomEndpointsTag, useNavState } from '@/utils/useNavState.ts';
 import { ElPopconfirm, ElScrollbar } from 'element-plus';
 import { sendRequest } from '@/utils/sendRequest.ts';
 import ArgButton from '@/components/ui/ArgButton.vue';
+import { computed } from 'vue';
+import type { Endpoint } from '@/utils/useEndpoint.ts';
 
-defineProps<{
+const props = defineProps<{
     query: string;
 }>();
 
 const sidebar = useNavState();
+
+const matchesQuery = (endpoint: Endpoint, query: string) => `${endpoint.method} ${endpoint.path}`.toLowerCase().includes(query.toLowerCase());
+
+// While searching, hide groups that contain no matching endpoints.
+const visibleGroups = computed(() => {
+    const query = props.query.trim();
+    return Object.entries(sidebar.groupedEndpoints).filter(([, endpoints]) => !query || endpoints.some((endpoint) => matchesQuery(endpoint, query)));
+});
 </script>
 
 <template>
     <div class="space-y-2 flex-1 overflow-y-auto">
         <ElScrollbar view-class="w-full h-full">
-            <div v-for="(endpoints, tag) in sidebar.groupedEndpoints" :key="tag" class="group">
+            <div v-for="[tag, endpoints] in visibleGroups" :key="tag" class="group">
                 <div @click="sidebar.toggleGroup(tag)" class="flex items-center gap-2 px-2 rounded cursor-pointer hover:bg-x2 transition-colors select-none">
                     <i class="icon opacity-80" :class="sidebar.isGroupExpanded(tag) ? 'icon-[mingcute--down-fill]' : 'icon-[mingcute--right-fill]'"></i>
                     <span class="font-bold text-gray-700 dark:text-gray-300 capitalize">{{ tag == CustomEndpointsTag ? 'Custom Endpoints' : tag }}</span>
@@ -26,7 +36,7 @@ const sidebar = useNavState();
                 <div v-show="sidebar.isGroupExpanded(tag)" class="space-y-1 mt-1 pr-2 pb-3">
                     <template v-for="endpoint in endpoints" :key="endpoint.hash">
                         <div
-                            v-if="!query || (endpoint.method + ' ' + endpoint.path).toLowerCase().includes(query.toLowerCase())"
+                            v-if="!query.trim() || matchesQuery(endpoint, query.trim())"
                             @click="sidebar.selectEndpoint(endpoint)"
                             class="flex text-xs items-center gap-2 p-1 pl-4 rounded cursor-pointer relative"
                             :class="{
