@@ -12,6 +12,10 @@ export async function sendRequest(e: Endpoint) {
     const globalKeyVals = useGlobalEnvs();
     let success = false;
 
+    function missingRequiredValue(kind: string, key: string) {
+        return new AxiosError(`Required ${kind} "${key}" is empty.`, 'ERR_MISSING_REQUIRED_VALUE');
+    }
+
     function applyEnvsToString(str: string) {
         const allGlobalKeyVals = globalKeyVals.headers.merge(globalKeyVals.variables);
         str = str?.toString() || '';
@@ -51,7 +55,7 @@ export async function sendRequest(e: Endpoint) {
             if (!key) continue;
             const resolvedValue = applyEnvsToString(value ?? '');
             if (required && !resolvedValue.trim()) {
-                throw new AxiosError(`Missing required query parameter: ${key}`);
+                throw missingRequiredValue('query parameter', key);
             }
             if (!resolvedValue.trim()) {
                 delete uri.params[key];
@@ -63,7 +67,7 @@ export async function sendRequest(e: Endpoint) {
         for (const { key, value, required } of Object.values(e.routeKeyVals.keyVals)) {
             const resolvedValue = applyEnvsToString(value ?? '');
             if (key && required && !resolvedValue.trim()) {
-                throw new AxiosError(`Missing required route parameter: ${key}`);
+                throw missingRequiredValue('route parameter', key);
             }
         }
 
@@ -85,7 +89,7 @@ export async function sendRequest(e: Endpoint) {
     function prepareHeaders() {
         for (const { key, value, required } of e.headerKeyVals.keyVals) {
             if (key && required && !applyEnvsToString(value ?? '').trim()) {
-                throw new AxiosError(`Missing required header: ${key}`);
+                throw missingRequiredValue('header', key);
             }
         }
 
@@ -124,7 +128,7 @@ export async function sendRequest(e: Endpoint) {
             const body = new FormData();
             for (const { key, value, required } of e.formData.keyVals) {
                 if (key && required && !applyEnvsToString(value ?? '').trim()) {
-                    throw new AxiosError(`Missing required form-data field: ${key}`);
+                    throw missingRequiredValue('form-data field', key);
                 }
             }
             const keyVals = e.formData.keyVals.filter((t) => t.key && t.value);

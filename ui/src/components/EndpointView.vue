@@ -8,10 +8,13 @@ import AutocompleteText from '@/components/ui/AutocompleteText.vue';
 import { sendRequest } from '@/utils/sendRequest.ts';
 import EndpointRequestSection from '@/components/EndpointRequestSection.vue';
 import EndpointResponseSection from '@/components/EndpointResponseSection.vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
     endpoint: Endpoint;
 }>();
+
+const isMissingRequiredValue = computed(() => props.endpoint.axiosError?.code === 'ERR_MISSING_REQUIRED_VALUE');
 
 const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 </script>
@@ -66,11 +69,14 @@ const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
                 <EndpointResponseSection v-if="endpoint.response" :endpoint="endpoint" :response="endpoint.response" />
                 <div
                     v-else-if="endpoint.axiosError"
-                    class="flex-1 flex flex-col border border-red-200 dark:border-red-700 rounded p-4 text-sm text-red-500 dark:text-red-400 overflow-y-auto"
+                    class="flex-1 flex flex-col gap-2 border border-red-200 dark:border-red-700 rounded p-4 text-sm text-red-500 dark:text-red-400 overflow-y-auto"
                 >
-                    <pre class="">CLIENT ERROR <br/>This error is not from the API. <br/>Check DevTools for more info! <br/><br/>{{
-                            JSON.stringify(endpoint.axiosError, null, 2)
-                        }}</pre>
+                    <div class="flex items-center gap-2 font-semibold">
+                        <i class="icon icon-[mdi--alert-circle-outline]"></i>
+                        {{ isMissingRequiredValue ? 'Request not sent' : 'Request error' }}
+                    </div>
+                    <p class="break-words">{{ endpoint.axiosError.message || 'An unexpected error prevented the request.' }}</p>
+                    <p v-if="isMissingRequiredValue" class="text-xs opacity-80">Fill in the required value or provide a non-empty variable in the sidebar, then try again.</p>
                 </div>
                 <div v-else class="border border-x4 rounded p-4 text-sm text-gray-500 dark:text-gray-400">No response yet</div>
             </template>
