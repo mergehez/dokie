@@ -15,36 +15,59 @@ export async function sendRequest(e: Endpoint) {
     function applyEnvsToString(str: string) {
         const allGlobalKeyVals = globalKeyVals.headers.merge(globalKeyVals.variables);
         str = str?.toString() || '';
-        str = str.replace(/{{([A-z0-9_-]+)}}/g, (match, p1) => allGlobalKeyVals.find((t) => t.key == p1)?.value || match);
-        str = str.replace(/{([A-z0-9_-]+)}/g, (match, p1) => {
-            return e.routeKeyVals.getValue(p1) || match;
+        const applyGlobalValues = (value: string) =>
+            value.replace(/{{([A-Za-z0-9_-]+)}}/g, (match, key: string) => {
+                const variable = allGlobalKeyVals.find((t) => t.key === key);
+                return variable ? (variable.value ?? '') : match;
+            });
+
+        str = applyGlobalValues(str);
+        str = str.replace(/(?<!\{)\{([A-Za-z0-9_-]+)\}(?!\})/g, (match, key: string) => {
+            const routeParam = e.routeKeyVals.get(key);
+            return routeParam ? applyGlobalValues(routeParam.value ?? '') : match;
         });
 
         return str;
     }
 
     function prepareUrl() {
-        let hostname = globalKeyVals.hostname ?? '';
+        let hostname = applyEnvsToString(globalKeyVals.hostname ?? '');
         if (hostname.endsWith('/')) hostname = hostname.substring(0, hostname.length - 1);
         const url = applyEnvsToString(e.request.url);
         const useHostname = !url.startsWith('http://') && !url.startsWith('https://');
         const uri = useUri((useHostname ? hostname : '') + url);
-        for (const { key, value, required } of Object.values(e.queryKeyVals.keyVals)) {
-            if (key && value) {
-                uri.params[key] = applyEnvsToString(value);
+
+        uri.path = applyEnvsToString(uri.path);
+        for (const [key, value] of Object.entries(uri.params)) {
+            const resolvedValue = applyEnvsToString(value);
+            if (!resolvedValue.trim()) {
+                delete uri.params[key];
+            } else {
+                uri.params[key] = resolvedValue;
             }
-            if (key && required && !value) {
+        }
+
+        for (const { key, value, required } of Object.values(e.queryKeyVals.keyVals)) {
+            if (!key) continue;
+            const resolvedValue = applyEnvsToString(value ?? '');
+            if (required && !resolvedValue.trim()) {
                 throw new AxiosError(`Missing required query parameter: ${key}`);
+            }
+            if (!resolvedValue.trim()) {
+                delete uri.params[key];
+            } else {
+                uri.params[key] = resolvedValue;
             }
         }
 
         for (const { key, value, required } of Object.values(e.routeKeyVals.keyVals)) {
-            if (key && required && !value) {
+            const resolvedValue = applyEnvsToString(value ?? '');
+            if (key && required && !resolvedValue.trim()) {
                 throw new AxiosError(`Missing required route parameter: ${key}`);
             }
         }
 
-        return applyEnvsToString(uri.toString().join(''));
+        return uri.toString().join('');
     }
 
     function getContentTypeForBody() {
@@ -60,6 +83,12 @@ export async function sendRequest(e: Endpoint) {
     }
 
     function prepareHeaders() {
+        for (const { key, value, required } of e.headerKeyVals.keyVals) {
+            if (key && required && !applyEnvsToString(value ?? '').trim()) {
+                throw new AxiosError(`Missing required header: ${key}`);
+            }
+        }
+
         const res = {
             accept: '*/*',
             'cache-control': 'no-cache',
@@ -93,6 +122,11 @@ export async function sendRequest(e: Endpoint) {
 
         if (contentType.includes('form-data')) {
             const body = new FormData();
+            for (const { key, value, required } of e.formData.keyVals) {
+                if (key && required && !applyEnvsToString(value ?? '').trim()) {
+                    throw new AxiosError(`Missing required form-data field: ${key}`);
+                }
+            }
             const keyVals = e.formData.keyVals.filter((t) => t.key && t.value);
             for (const { key, value, type } of e.formData.keyVals) {
                 if (!key || !value) continue;
@@ -204,6 +238,8 @@ export async function sendRequest(e: Endpoint) {
         return res;
     }
 
+    e.response = undefined;
+    e.axiosError = undefined;
     e.isSending = true;
     try {
         // wait 0.1 second to show the loading state
