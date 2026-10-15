@@ -25,3 +25,9 @@ This repository contains PHP, .NET, and JavaScript work. For JavaScript and Type
 
 - Keep package outputs compatible with both ESM and CJS when the package already publishes both.
 - Keep the Node package self-contained so published JS packages do not depend on private workspace packages at runtime.
+
+## Git
+
+- After making changes to the repository, always commit your changes with a meaningful message.
+- Use short, concise commit messages that still convey the purpose of the changes.
+- Use commit description only if additional context is necessary beyond the commit message.
