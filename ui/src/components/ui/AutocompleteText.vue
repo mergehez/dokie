@@ -98,7 +98,7 @@ function onInput() {
 </script>
 
 <template>
-    <ElInput v-if="masked" v-model="modelValue" type="password" show-password class="bg-x1/50" />
+    <ElInput v-if="masked" v-model="modelValue" type="password" class="bg-x1/50" />
     <ElMention
         v-else
         v-model="modelValue"

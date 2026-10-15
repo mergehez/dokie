@@ -116,14 +116,8 @@ function onInputChange(p: KeyVal, newValue?: string) {
                     </span>
                     <template #dropdown>
                         <ElDropdownMenu>
-                            <ElDropdownItem v-if="isMasked(p)" command="unmask">
-                                <i class="icon icon-[mdi--eye-outline] mr-2"></i>
-                                Unmask value
-                            </ElDropdownItem>
-                            <ElDropdownItem v-else command="mask">
-                                <i class="icon icon-[mdi--eye-off-outline] mr-2"></i>
-                                Mask value
-                            </ElDropdownItem>
+                            <ElDropdownItem v-if="isMasked(p)" command="unmask"> Unmask value </ElDropdownItem>
+                            <ElDropdownItem v-else command="mask"> Mask value </ElDropdownItem>
                             <ElDropdownItem v-if="!isPredefinedRow(p)" command="remove" divided>
                                 <i class="icon icon-[mdi--delete-outline] mr-2"></i>
                                 Remove
