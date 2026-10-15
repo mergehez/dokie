@@ -34,15 +34,7 @@ function serializeJsonC(json: JsonCObject, indent = 0): string {
         const obj = value as any;
 
         if (Array.isArray(value)) {
-            const objStrs = [];
-            for (const arrItem of value) {
-                const objStr = serializeJsonC(arrItem as JsonCObject, 0)
-                    .split('\n')
-                    .map((l) => `${' '.repeat(tabSize)}${indentStr}${l}`)
-                    .join('\n');
-                objStrs.push(objStr);
-            }
-            return `${indentStr}"${key}": [\n` + objStrs.join(',\n') + `\n${indentStr}],`;
+            return `${indentStr}"${key}": ${serializeJsonCArray(value, indentStr, tabSize)},`;
         }
 
         if (obj instanceof CommentedValue) {
@@ -58,4 +50,31 @@ function serializeJsonC(json: JsonCObject, indent = 0): string {
     } else {
         return lines.join('\n');
     }
+}
+
+function serializeJsonCArray(items: JsonCValue[], indentStr: string, tabSize: number): string {
+    const itemIndent = `${' '.repeat(tabSize)}${indentStr}`;
+    const rendered = items.map((item) => {
+        const raw = item instanceof CommentedValue ? item.value : item;
+        const comment = item instanceof CommentedValue ? ` // ${item.comment}` : '';
+        return `${renderArrayItem(raw, itemIndent, tabSize)}${comment}`;
+    });
+    return `[\n${rendered.join(',\n')}\n${indentStr}]`;
+}
+
+function renderArrayItem(item: any, itemIndent: string, tabSize: number): string {
+    if (Array.isArray(item)) {
+        const nested = serializeJsonCArray(item, itemIndent, tabSize);
+        return nested
+            .split('\n')
+            .map((l, i) => (i === 0 ? `${itemIndent}${l}` : l))
+            .join('\n');
+    }
+    if (item !== null && typeof item === 'object') {
+        return serializeJsonC(item as JsonCObject, 0)
+            .split('\n')
+            .map((l) => `${itemIndent}${l}`)
+            .join('\n');
+    }
+    return `${itemIndent}${JSON.stringify(item)}`;
 }
