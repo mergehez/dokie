@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { ElInput } from 'element-plus';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const modelValue = defineModel<string | undefined>({ required: true });
 const props = defineProps<{
     placeholder?: string;
     inputStyle?: string;
     autosize?: boolean;
+    type?: 'text' | 'password';
 }>();
+
+const inputType = computed(() => {
+    if (props.type === 'password') return 'password';
+    return props.autosize ? 'textarea' : 'text';
+});
 
 // const autosize = ref<any>(props.autosize ? {minRows: 1, maxRows: 1} : false);
 // const uniqueKey = ref('aaa');
@@ -59,8 +65,9 @@ const isFocused = ref(false);
             '*:max-h-25': !isFocused,
         }"
         :placeholder="placeholder"
-        :autosize="autosize"
-        :type="autosize ? 'textarea' : 'text'"
+        :autosize="inputType === 'password' ? false : autosize"
+        :type="inputType"
+        :show-password="inputType === 'password'"
         resize="none"
         @focus="isFocused = true"
         @click="isFocused = true"

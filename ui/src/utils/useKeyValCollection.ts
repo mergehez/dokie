@@ -1,5 +1,6 @@
 import { uniqueId } from '@/utils/utils.ts';
 import type { KeyVal } from '@/utils/useDb.ts';
+import { isSecretName } from '@/utils/maskedKeys.ts';
 import { reactive } from 'vue';
 
 export type KeyValCollection = ReturnType<typeof useKeyValCollection>;
@@ -20,6 +21,7 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
             id: uniqueId(),
             key: key ?? '',
             value: value ?? '',
+            masked: isSecretName(key),
         };
         keyVals.push(newVal);
     }
@@ -53,13 +55,13 @@ export function useKeyValCollection(keyVals: KeyVal[]) {
         if (index !== -1) {
             keyVals[index]!.value = value;
         } else {
-            keyVals.push({ id: uniqueId(), key, value });
+            keyVals.push({ id: uniqueId(), key, value, masked: isSecretName(key) });
         }
     };
 
     const insertIfNotExists = (key: string, value: string, locked?: boolean, required?: boolean) => {
         if (!keyVals.some((t) => t.key === key)) {
-            keyVals.push({ id: uniqueId(), key, value, locked, required });
+            keyVals.push({ id: uniqueId(), key, value, locked, required, masked: isSecretName(key) });
         }
     };
 

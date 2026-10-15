@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElMention, type MentionOption } from 'element-plus';
+import { ElInput, ElMention, type MentionOption } from 'element-plus';
 import { uniqueId } from '@/utils/utils.ts';
 import { onMounted, ref, watch } from 'vue';
 import { useGlobalEnvs } from '@/utils/useGlobalEnvs';
@@ -14,6 +14,7 @@ watch(modelValue, (nv) => {
 const props = defineProps<{
     textarea?: boolean;
     autosize?: { minRows?: number; maxRows?: number };
+    masked?: boolean;
 }>();
 
 const mentionRef = ref<HTMLTextAreaElement>();
@@ -97,7 +98,9 @@ function onInput() {
 </script>
 
 <template>
+    <ElInput v-if="masked" v-model="modelValue" type="password" show-password class="bg-x1/50" />
     <ElMention
+        v-else
         v-model="modelValue"
         :id="id"
         :type="textarea ? 'textarea' : undefined"

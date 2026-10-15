@@ -12,6 +12,7 @@ export type KeyVal = {
     desc?: string;
     required?: boolean;
     locked?: boolean;
+    masked?: boolean; // hide the value behind a password input
     type?: 'file' | 'text'; // used for form-data
     fileName?: string; // used for form-data
 };

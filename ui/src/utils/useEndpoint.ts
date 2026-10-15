@@ -8,6 +8,7 @@ import { JSONC } from '@/utils/json_helpers.ts';
 import { generateDefaultBodyFromSchema, Parsed } from '@/utils/useEndpointBody.ts';
 import { useAppConfig } from '@/utils/useAppConfig.ts';
 import { useKeyValCollection } from '@/utils/useKeyValCollection.ts';
+import { isSecretName } from '@/utils/maskedKeys.ts';
 
 type Part = 'query' | 'header' | 'route';
 
@@ -112,6 +113,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
                         desc: param.description,
                         value: defValue,
                         required: param.required,
+                        masked: isSecretName(param.name),
                     } satisfies KeyVal);
                 } else {
                     if (param.required && !fromState.value?.trim()) fromState.value = defValue;

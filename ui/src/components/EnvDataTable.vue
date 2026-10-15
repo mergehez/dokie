@@ -2,8 +2,10 @@
 import ArgInput from '@/components/ui/ArgInput.vue';
 import AutocompleteText from '@/components/ui/AutocompleteText.vue';
 import Splitter from '@/components/ui/Splitter.vue';
+import { getMaskedOverride, isMasked as resolveMasked, isSecretName, setMaskedOverride } from '@/utils/maskedKeys.ts';
 import type { KeyVal } from '@/utils/useDb.ts';
 import type { KeyValCollection } from '@/utils/useKeyValCollection.ts';
+import { ElDropdown, ElDropdownItem, ElDropdownMenu } from 'element-plus';
 
 const props = defineProps<{
     code: string; // for local-storage-key
@@ -14,6 +16,29 @@ const props = defineProps<{
 }>();
 
 const localStorageKey = `env-data-table-splitter-${props.code}`;
+
+function isMasked(p: KeyVal): boolean {
+    return resolveMasked(p);
+}
+
+function onKeyChange(p: KeyVal) {
+    // Keep auto-masking in sync with the key name until the user explicitly toggles this row.
+    if (getMaskedOverride(p.id) === undefined) {
+        p.masked = isSecretName(p.key);
+    }
+    props.onChange(p);
+}
+
+function onMenuCommand(p: KeyVal, command: 'mask' | 'unmask' | 'remove') {
+    if (command === 'remove') {
+        props.kvCollection.remove(p);
+        return;
+    }
+    const masked = command === 'mask';
+    p.masked = masked;
+    setMaskedOverride(p.id, masked);
+    props.onChange(p);
+}
 
 function onFileChange(p: KeyVal, e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0] || null;
@@ -51,7 +76,7 @@ function onInputChange(p: KeyVal, newValue?: string) {
                 <i v-else></i>
                 <Splitter base-side="left" default-width="50%" class="w-auto h-auto border-none" :local-storage-key="localStorageKey" dragger-invisible>
                     <template #left>
-                        <ArgInput v-model="p.key" @update:model-value="() => onChange(p)" placeholder="Key" />
+                        <ArgInput v-model="p.key" @update:model-value="() => onKeyChange(p)" placeholder="Key" />
                     </template>
                     <template #right>
                         <div class="flex-1 flex gap-1 items-stretch">
@@ -64,20 +89,39 @@ function onInputChange(p: KeyVal, newValue?: string) {
                                 <!--&gt;</label>-->
                                 <input :id="`file-input-${p.id}`" type="file" @change="(e) => onFileChange(p, e)" class="file-input file-input-bordered w-full max-w-xs hidden" />
                             </template>
-                            <AutocompleteText v-else-if="autocomplete" :model-value="p.value?.toString()" @update:modelValue="(v) => onInputChange(p, v)" />
-                            <ArgInput v-else :model-value="p.value?.toString()" @update:modelValue="(v) => onInputChange(p, v)" placeholder="Value" autosize />
+                            <AutocompleteText v-else-if="autocomplete" :model-value="p.value?.toString()" :masked="isMasked(p)" @update:modelValue="(v) => onInputChange(p, v)" />
+                            <ArgInput
+                                v-else
+                                :model-value="p.value?.toString()"
+                                :type="isMasked(p) ? 'password' : 'text'"
+                                @update:modelValue="(v) => onInputChange(p, v)"
+                                placeholder="Value"
+                                autosize
+                            />
                         </div>
                     </template>
                 </Splitter>
-                <span @click="() => kvCollection.remove(p)" class="px-1 py-2 text-surface-600 hover:text-surface-200 cursor-pointer transition-colors" v-if="!p.locked">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                            fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd"
-                        />
-                    </svg>
-                </span>
+                <ElDropdown v-if="!p.locked" trigger="click" @command="(cmd) => onMenuCommand(p, cmd as 'mask' | 'unmask' | 'remove')">
+                    <span class="px-1 py-2 text-surface-600 hover:text-surface-200 cursor-pointer transition-colors outline-none">
+                        <i class="icon icon-[mdi--dots-vertical] block size-4"></i>
+                    </span>
+                    <template #dropdown>
+                        <ElDropdownMenu>
+                            <ElDropdownItem v-if="isMasked(p)" command="unmask">
+                                <i class="icon icon-[mdi--eye-outline] mr-2"></i>
+                                Unmask value
+                            </ElDropdownItem>
+                            <ElDropdownItem v-else command="mask">
+                                <i class="icon icon-[mdi--eye-off-outline] mr-2"></i>
+                                Mask value
+                            </ElDropdownItem>
+                            <ElDropdownItem command="remove" divided>
+                                <i class="icon icon-[mdi--delete-outline] mr-2"></i>
+                                Remove
+                            </ElDropdownItem>
+                        </ElDropdownMenu>
+                    </template>
+                </ElDropdown>
                 <i v-else></i>
                 <div v-if="p.desc" class="text-xs opacity-70 pl-1 -mt-1 col-span-full">{{ p.desc }}</div>
             </template>
