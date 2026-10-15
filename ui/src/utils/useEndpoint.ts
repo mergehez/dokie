@@ -34,14 +34,18 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     const _all = reactive(_allKeyVals.getEndpoint(id));
 
     const config = useAppConfig();
+    const hasConfiguredBody = Object.prototype.hasOwnProperty.call(config.bodies, id);
+    const configuredBody = hasConfiguredBody ? config.bodies[id] : undefined;
+    const hasConfiguredPostscript = Object.prototype.hasOwnProperty.call(config.postscripts, id);
+    const configuredPostscript = hasConfiguredPostscript ? config.postscripts[id] : undefined;
     const response = ref<ApiResponse>();
     const request = reactive<ApiRequest>({
         method: opts.method,
         url: opts.path,
-        body: _all.body || config.bodies[id] || '',
+        body: hasConfiguredBody ? configuredBody! : _all.body || '',
         bodyType: 'json',
         headers: Object.fromEntries(_all.header.map((t) => [t.key, t.value || ''])),
-        postscript: _all.postscript ?? config.postscripts[id]!,
+        postscript: hasConfiguredPostscript ? configuredPostscript! : (_all.postscript ?? config.postscripts[id]!),
     });
 
     const path = ref(opts.path);
@@ -82,7 +86,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     }
 
     setTimeout(() => {
-        if (!request.body) request.body = JSONC.stringify(generateDefaultBody().unparse(false));
+        if (!request.body && !hasConfiguredBody) request.body = JSONC.stringify(generateDefaultBody().unparse(false));
     }, 200);
 
     const activeRequestTab = ref<'params' | 'body' | 'headers' | 'postscript'>('params');

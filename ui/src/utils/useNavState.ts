@@ -189,7 +189,9 @@ const createNavState = () => {
 
     const selectEndpoint = (endpoint: Endpoint) => {
         // console.log('select', endpoint)
-        endpoint.request.body ||= JSONC.stringify(endpoint.generateDefaultBody().unparse(false));
+        if (!Object.prototype.hasOwnProperty.call(appConfig.bodies, endpoint.id)) {
+            endpoint.request.body ||= JSONC.stringify(endpoint.generateDefaultBody().unparse(false));
+        }
         activeEndpoint.value = endpoint;
         if (!selectedEndpoints.value.some((t) => t.id == endpoint.id)) {
             selectedEndpoints.value.push(endpoint);
