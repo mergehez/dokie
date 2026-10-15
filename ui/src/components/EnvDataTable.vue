@@ -2,7 +2,7 @@
 import ArgInput from '@/components/ui/ArgInput.vue';
 import AutocompleteText from '@/components/ui/AutocompleteText.vue';
 import Splitter from '@/components/ui/Splitter.vue';
-import { getMaskedOverride, isMasked as resolveMasked, isSecretName, setMaskedOverride } from '@/utils/maskedKeys.ts';
+import { getMaskedOverride, isSecretName, isMasked as resolveMasked, setMaskedOverride } from '@/utils/maskedKeys.ts';
 import type { KeyVal } from '@/utils/useDb.ts';
 import type { KeyValCollection } from '@/utils/useKeyValCollection.ts';
 import { ElDropdown, ElDropdownItem, ElDropdownMenu } from 'element-plus';
@@ -110,7 +110,7 @@ function onInputChange(p: KeyVal, newValue?: string) {
                         </div>
                     </template>
                 </Splitter>
-                <ElDropdown trigger="click" @command="(cmd) => onMenuCommand(p, cmd as 'mask' | 'unmask' | 'remove')">
+                <ElDropdown :tabindex="-1" trigger="click" @command="(cmd) => onMenuCommand(p, cmd as 'mask' | 'unmask' | 'remove')">
                     <span class="px-1 py-2 text-surface-600 hover:text-surface-200 cursor-pointer transition-colors outline-none">
                         <i class="icon icon-[mdi--dots-vertical] block size-4"></i>
                     </span>
