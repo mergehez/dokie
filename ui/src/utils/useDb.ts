@@ -9,6 +9,7 @@ export type KeyVal = {
     readonly id: string;
     key: string;
     value?: string;
+    defaultValue?: string; // latest OpenAPI example/default used to prefill this parameter
     desc?: string;
     required?: boolean;
     locked?: boolean;

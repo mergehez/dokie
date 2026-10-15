@@ -19,6 +19,24 @@ export type CustomEndpointDef = {
     method: string;
     path: string;
 };
+
+function resolveParameterSchema(schema: ParameterObject['schema'], spec?: OpenAPIV3): SchemaObject | undefined {
+    const visitedRefs = new Set<string>();
+    let resolvedSchema = schema;
+
+    while (resolvedSchema && '$ref' in resolvedSchema) {
+        if (visitedRefs.has(resolvedSchema.$ref)) return undefined;
+        visitedRefs.add(resolvedSchema.$ref);
+
+        const prefix = '#/components/schemas/';
+        if (!resolvedSchema.$ref.startsWith(prefix)) return undefined;
+        const name = resolvedSchema.$ref.slice(prefix.length).replace(/~1/g, '/').replace(/~0/g, '~');
+        resolvedSchema = spec?.components?.schemas?.[name];
+    }
+
+    return resolvedSchema;
+}
+
 type UseEndpointOpts = {
     isCustom?: boolean;
     name?: string;
@@ -108,20 +126,33 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
             const k = key as Part;
             const params = allParams[k] ?? [];
             for (const param of params) {
-                const s = param.schema as SchemaObject;
+                const s = resolveParameterSchema(param.schema, opts.spec);
                 const fromState = _all[k].find((kv) => kv.key === param.name);
-                const defValue = String(param.example || (s && s.default) || '');
+                const example = param.example ?? s?.example ?? s?.default;
+                const defValue = example == null ? '' : String(example);
                 if (!fromState) {
                     _all[k].push({
                         id: uniqueId(),
                         key: param.name,
                         desc: param.description,
                         value: defValue,
+                        defaultValue: defValue,
                         required: param.required,
                         masked: isSecretName(param.name),
                     } satisfies KeyVal);
                 } else {
-                    if (param.required && !fromState.value?.trim()) fromState.value = defValue;
+                    const wasUsingPreviousDefault = fromState.defaultValue !== undefined && fromState.value === fromState.defaultValue;
+                    const isLegacyEmpty = fromState.defaultValue === undefined && !fromState.value?.trim();
+                    const isRequiredButEmpty = Boolean(param.required && !fromState.value?.trim());
+                    if (isRequiredButEmpty) {
+                        fromState.value = defValue;
+                        fromState.defaultValue = defValue;
+                    } else if (defValue && (wasUsingPreviousDefault || isLegacyEmpty)) {
+                        fromState.value = defValue;
+                        fromState.defaultValue = defValue;
+                    } else if (fromState.defaultValue === undefined) {
+                        fromState.defaultValue = defValue;
+                    }
                     fromState.desc = param.description;
                     fromState.required = param.required;
                 }
