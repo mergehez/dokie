@@ -107,6 +107,37 @@ export function generateDefaultBodyFromSchema(spec: OpenAPIV3, requestBody: Requ
     return createDefaultFromSchema(spec, mediaTypeObject.schema, new Set(), propsToSkip);
 }
 
+// Some generators (e.g. .NET) emit schemas without an explicit `type`
+// (e.g. `{ "pattern": "...", "format": "int32" }`). Infer it so these
+// properties don't fall through to an empty object.
+function inferTypeFromSchema(schema: SchemaObject): SchemaObject['type'] {
+    if (schema.format) {
+        switch (schema.format) {
+            case 'int32':
+            case 'int64':
+                return 'integer';
+            case 'float':
+            case 'double':
+            case 'decimal':
+                return 'number';
+            case 'boolean':
+                return 'boolean';
+            default:
+                return 'string';
+        }
+    }
+    if (schema.properties) return 'object';
+    if (schema.items) return 'array';
+    if (schema.pattern) return 'string';
+    if (schema.enum && schema.enum.length > 0) {
+        const first = schema.enum[0];
+        if (typeof first == 'string') return 'string';
+        if (typeof first == 'boolean') return 'boolean';
+        if (typeof first == 'number') return Number.isInteger(first) ? 'integer' : 'number';
+    }
+    return undefined;
+}
+
 function createDefaultFromSchema(
     spec: OpenAPIV3,
     schema: SchemaObject | ReferenceObject,
@@ -146,7 +177,7 @@ function createDefaultFromSchema(
     }
 
     // Handle different types
-    const type = Array.isArray(schema.type) ? schema.type.filter((t) => t != 'null' && t != 'undefined')[0] : schema.type;
+    const type = (Array.isArray(schema.type) ? schema.type.filter((t) => t != 'null' && t != 'undefined')[0] : schema.type) ?? inferTypeFromSchema(schema);
     switch (type) {
         case 'string':
             if (schema.format == 'date-time') return Parsed.primitive(new Date().toISOString(), schema.description);
