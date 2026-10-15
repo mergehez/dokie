@@ -66,6 +66,130 @@ export class Parsed {
     }
 }
 
+export type RequestBodySchema = {
+    required: string[];
+    properties: Record<string, RequestBodySchema>;
+    items?: RequestBodySchema;
+};
+
+export type ResolvedBodyValue = { keep: true; value: unknown } | { keep: false };
+
+export function getRequestBodySchema(spec: OpenAPIV3, requestBody?: RequestBodyObject | ReferenceObject): RequestBodySchema | undefined {
+    const resolvedRequestBody = resolveRequestBodyReference(spec, requestBody);
+    if (!resolvedRequestBody) return undefined;
+
+    const content = Object.entries(resolvedRequestBody.content ?? {});
+    const mediaType = content.find(([type]) => type === 'application/json' || type.endsWith('+json'))?.[1] ?? content[0]?.[1];
+    if (!mediaType?.schema) return undefined;
+
+    return createRequestBodySchema(spec, mediaType.schema);
+}
+
+function resolveRequestBodyReference(spec: OpenAPIV3, requestBody?: RequestBodyObject | ReferenceObject, visitedRefs = new Set<string>()): RequestBodyObject | undefined {
+    if (!requestBody) return undefined;
+    if (!('$ref' in requestBody)) return requestBody;
+    if (visitedRefs.has(requestBody.$ref)) return undefined;
+
+    const name = getComponentName(requestBody.$ref, 'requestBodies');
+    const referencedBody = name ? spec.components?.requestBodies?.[name] : undefined;
+    if (!referencedBody) return undefined;
+
+    const nextVisitedRefs = new Set(visitedRefs);
+    nextVisitedRefs.add(requestBody.$ref);
+    return resolveRequestBodyReference(spec, referencedBody, nextVisitedRefs);
+}
+
+function getComponentName(ref: string, component: 'requestBodies' | 'schemas'): string | undefined {
+    const prefix = `#/components/${component}/`;
+    if (!ref.startsWith(prefix)) return undefined;
+    return ref.slice(prefix.length).replace(/~1/g, '/').replace(/~0/g, '~');
+}
+
+function createRequestBodySchema(spec: OpenAPIV3, schema: SchemaObject | ReferenceObject, visitedRefs = new Set<string>()): RequestBodySchema {
+    if ('$ref' in schema) {
+        if (visitedRefs.has(schema.$ref)) return { required: [], properties: {} };
+        const name = getComponentName(schema.$ref, 'schemas');
+        const referencedSchema = name ? spec.components?.schemas?.[name] : undefined;
+        if (!referencedSchema) return { required: [], properties: {} };
+
+        const nextVisitedRefs = new Set(visitedRefs);
+        nextVisitedRefs.add(schema.$ref);
+        return createRequestBodySchema(spec, referencedSchema, nextVisitedRefs);
+    }
+
+    let result: RequestBodySchema = { required: [], properties: {} };
+    for (const allOfSchema of schema.allOf ?? []) {
+        result = mergeRequestBodySchemas(result, createRequestBodySchema(spec, allOfSchema, visitedRefs));
+    }
+
+    const properties = Object.fromEntries(Object.entries(schema.properties ?? {}).map(([name, value]) => [name, createRequestBodySchema(spec, value, visitedRefs)]));
+    result = mergeRequestBodySchemas(result, {
+        required: schema.required ?? [],
+        properties,
+        ...(schema.items ? { items: createRequestBodySchema(spec, schema.items, visitedRefs) } : {}),
+    });
+
+    return result;
+}
+
+function mergeRequestBodySchemas(left: RequestBodySchema, right: RequestBodySchema): RequestBodySchema {
+    const properties = { ...left.properties };
+    for (const [name, schema] of Object.entries(right.properties)) {
+        properties[name] = properties[name] ? mergeRequestBodySchemas(properties[name]!, schema) : schema;
+    }
+
+    const items = left.items && right.items ? mergeRequestBodySchemas(left.items, right.items) : (left.items ?? right.items);
+    return {
+        required: [...new Set([...left.required, ...right.required])],
+        properties,
+        ...(items ? { items } : {}),
+    };
+}
+
+export function resolveBodyVariables(
+    value: unknown,
+    schema: RequestBodySchema | undefined,
+    resolveString: (value: string) => string,
+    onMissingRequired: (path: string) => never,
+    path = ''
+): ResolvedBodyValue {
+    if (typeof value === 'string') {
+        const resolvedValue = resolveString(value);
+        const containsVariable = /{{[A-Za-z0-9_-]+}}|(?<!\{)\{[A-Za-z0-9_-]+\}(?!\})/.test(value);
+        return value.trim() && containsVariable && !resolvedValue.trim() ? { keep: false } : { keep: true, value: resolvedValue };
+    }
+
+    if (Array.isArray(value)) {
+        const resolvedItems: unknown[] = [];
+        value.forEach((item, index) => {
+            const resolvedItem = resolveBodyVariables(item, schema?.items, resolveString, onMissingRequired, `${path}[${index}]`);
+            if (resolvedItem.keep) resolvedItems.push(resolvedItem.value);
+        });
+        if (path && value.length > 0 && resolvedItems.length === 0) return { keep: false };
+        return { keep: true, value: resolvedItems };
+    }
+
+    if (value && typeof value === 'object') {
+        const object = value as Record<string, unknown>;
+        for (const key of Object.keys(object)) {
+            const propertyPath = path ? `${path}.${key}` : key;
+            const propertySchema = schema?.properties[key];
+            const resolvedValue = resolveBodyVariables(object[key], propertySchema, resolveString, onMissingRequired, propertyPath);
+            if (!resolvedValue.keep) {
+                const capitalizedKey = `${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+                const isRequired = schema?.required.some((name) => name === key || name === capitalizedKey);
+                if (isRequired) onMissingRequired(propertyPath);
+                delete object[key];
+            } else {
+                object[key] = resolvedValue.value;
+            }
+        }
+        return { keep: true, value: object };
+    }
+
+    return { keep: true, value };
+}
+
 export function generateDefaultBodyFromSchema(spec: OpenAPIV3, requestBody: RequestBodyObject, propsToSkip: string[] = []): Parsed {
     if (!requestBody || !requestBody.content) {
         return Parsed.emptyObject();

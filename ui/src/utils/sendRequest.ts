@@ -2,6 +2,7 @@ import { JSONC } from '@/utils/json_helpers.ts';
 import { type Endpoint } from '@/utils/useEndpoint.ts';
 import { useNavState } from '@/utils/useNavState.ts';
 import { runPostscript } from '@/utils/usePostscript.ts';
+import { resolveBodyVariables } from '@/utils/useEndpointBody.ts';
 import { useUri } from '@/utils/useUri.ts';
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import mime from 'mime';
@@ -134,12 +135,14 @@ export async function sendRequest(e: Endpoint) {
             const keyVals = e.formData.keyVals.filter((t) => t.key && t.value);
             for (const { key, value, type } of e.formData.keyVals) {
                 if (!key || !value) continue;
+                const resolvedValue = applyEnvsToString(value);
+                if (!resolvedValue.trim()) continue;
 
-                if (type == 'file' && value!.startsWith('data:')) {
-                    const base64Index = value!.indexOf(';base64,');
+                if (type == 'file' && resolvedValue.startsWith('data:')) {
+                    const base64Index = resolvedValue.indexOf(';base64,');
                     if (base64Index !== -1) {
-                        const mimeType = value!.substring(5, base64Index);
-                        const base64Data = value!.substring(base64Index + 8);
+                        const mimeType = resolvedValue.substring(5, base64Index);
+                        const base64Data = resolvedValue.substring(base64Index + 8);
                         const byteCharacters = atob(base64Data);
                         const byteArray = new Uint8Array(Array.from({ length: byteCharacters.length }, (_, i) => byteCharacters.charCodeAt(i)));
                         const blob = new Blob([byteArray], { type: mimeType });
@@ -148,29 +151,31 @@ export async function sendRequest(e: Endpoint) {
                         continue;
                     }
                 }
-                body.append(key, applyEnvsToString(value!));
+                body.append(key, resolvedValue);
             }
             delete headers['content-type']; // Let browser set the correct boundary
             return body;
         }
 
         let body = e.request.body;
-        const isContentJson = contentType == 'application/json';
-        // Handle JSONC body
-        if (isContentJson && body && (body.includes('//') || body.includes('/*'))) {
-            body = JSON.stringify(JSONC.parse(body), null, 2);
-        }
-        if (body) {
-            body = applyEnvsToString(body);
-        }
+        const isContentJson = contentType.includes('json');
         if (isContentJson && body) {
+            let parsedBody: unknown;
             try {
-                body = JSON.parse(body);
+                parsedBody = JSONC.parse(body);
             } catch (err) {
-                throw new AxiosError('Invalid JSON body: ' + (err as Error).message);
+                try {
+                    parsedBody = JSONC.parse(applyEnvsToString(body));
+                } catch {
+                    throw new AxiosError('Invalid JSON body: ' + (err as Error).message);
+                }
             }
+            const resolvedBody = resolveBodyVariables(parsedBody, e.bodySchema, applyEnvsToString, (path) => {
+                throw missingRequiredValue('body property', path);
+            });
+            return resolvedBody.keep ? resolvedBody.value : undefined;
         }
-        return body;
+        return body ? applyEnvsToString(body) : body;
     }
 
     function prepareRequest() {

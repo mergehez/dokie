@@ -5,7 +5,7 @@ import { type ApiRequest, type ApiResponse, type KeyVal, useDb } from '@/utils/u
 import { AxiosError } from 'axios';
 import { useUri } from '@/utils/useUri.ts';
 import { JSONC } from '@/utils/json_helpers.ts';
-import { generateDefaultBodyFromSchema, Parsed } from '@/utils/useEndpointBody.ts';
+import { generateDefaultBodyFromSchema, getRequestBodySchema, Parsed } from '@/utils/useEndpointBody.ts';
 import { useAppConfig } from '@/utils/useAppConfig.ts';
 import { useKeyValCollection } from '@/utils/useKeyValCollection.ts';
 import { isSecretName } from '@/utils/maskedKeys.ts';
@@ -34,6 +34,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     const _all = reactive(_allKeyVals.getEndpoint(id));
 
     const config = useAppConfig();
+    const bodySchema = opts.spec ? getRequestBodySchema(opts.spec, opts.openApiEndpoint.requestBody) : undefined;
     const hasConfiguredBody = Object.prototype.hasOwnProperty.call(config.bodies, id);
     const configuredBody = hasConfiguredBody ? config.bodies[id] : undefined;
     const hasConfiguredPostscript = Object.prototype.hasOwnProperty.call(config.postscripts, id);
@@ -151,6 +152,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
         headerKeyVals: headerKeyVals,
         routeKeyVals: routeKeyVals,
         formData: formData,
+        bodySchema: bodySchema,
         request: request,
         response: response,
         activeRequestTab: activeRequestTab,
