@@ -13,6 +13,7 @@ const props = defineProps<{
 }>();
 
 const req = computed(() => props.endpoint.request);
+const tableStorageCode = (code: string) => `request-${props.endpoint.id}-${code}`;
 
 function getHeader(name: string): string | undefined {
     return Object.entries(req.value.headers).find((t) => t[0].toLowerCase() === name.toLowerCase())?.[1];
@@ -73,7 +74,7 @@ const postscriptTypings = computed(() => {
                         <div class="flex items-center">
                             <div class="text-sm font-medium">Route Parameters</div>
                         </div>
-                        <EnvDataTable code="routeKeyVals" :kv-collection="endpoint.routeKeyVals" :on-change="endpoint.updateCurrentUrl" autocomplete />
+                        <EnvDataTable :code="tableStorageCode('routeKeyVals')" :kv-collection="endpoint.routeKeyVals" :on-change="endpoint.updateCurrentUrl" autocomplete />
                         <hr class="border-x4" />
                     </div>
 
@@ -86,7 +87,7 @@ const postscriptTypings = computed(() => {
                                 Add
                             </button>
                         </div>
-                        <EnvDataTable code="queryKeyVals" :kv-collection="endpoint.queryKeyVals" :on-change="endpoint.updateCurrentUrl" autocomplete />
+                        <EnvDataTable :code="tableStorageCode('queryKeyVals')" :kv-collection="endpoint.queryKeyVals" :on-change="endpoint.updateCurrentUrl" autocomplete />
                     </div>
                 </div>
 
@@ -98,7 +99,7 @@ const postscriptTypings = computed(() => {
                             Add Header
                         </button>
                     </div>
-                    <EnvDataTable code="headerKeyVals" :kv-collection="endpoint.headerKeyVals" :on-change="endpoint.updateCurrentUrl" autocomplete />
+                    <EnvDataTable :code="tableStorageCode('headerKeyVals')" :kv-collection="endpoint.headerKeyVals" :on-change="endpoint.updateCurrentUrl" autocomplete />
                 </div>
 
                 <!-- Body Tab -->
@@ -111,7 +112,7 @@ const postscriptTypings = computed(() => {
                                     Add
                                 </button>
                             </div>
-                            <EnvDataTable code="bodyFD" :kv-collection="endpoint.formData" :on-change="endpoint.updateCurrentUrl" autocomplete>
+                            <EnvDataTable :code="tableStorageCode('bodyFD')" :kv-collection="endpoint.formData" :on-change="endpoint.updateCurrentUrl" autocomplete>
                                 <template #center="{ item }">
                                     <ElSelect :model-value="item.type || 'text'" @change="(v) => (item.type = v)" style="width: 100px; height: 100%">
                                         <ElOption label="Text" value="text" />

@@ -2,17 +2,23 @@ import { computed, reactive, ref } from 'vue';
 import { defineStore } from '@/utils/utils.ts';
 
 function createSplitterData(localStorageKey: string, defaultValue: string) {
-    let v = localStorage.getItem(localStorageKey) || defaultValue || '50%';
-    if (!Number.isNaN(parseInt(v)) && !v.includes('%')) {
-        v = defaultValue || '50%';
-        localStorage.setItem(localStorageKey, v);
+    let v = (localStorageKey ? localStorage.getItem(localStorageKey) : null) || defaultValue || '50%';
+    // Older splitter code may have stored a bare pixel count. Normalize it to
+    // a CSS length instead of discarding the user's saved size.
+    if (/^-?(?:\d+\.?\d*|\.\d+)$/.test(v)) {
+        v = `${v}px`;
+        if (localStorageKey) {
+            localStorage.setItem(localStorageKey, v);
+        }
     }
     const storageValue = ref(v);
     const width = computed({
         get: () => storageValue.value,
         set: (val: string) => {
             storageValue.value = val;
-            localStorage.setItem(localStorageKey, val.toString());
+            if (localStorageKey) {
+                localStorage.setItem(localStorageKey, val.toString());
+            }
         },
     });
 

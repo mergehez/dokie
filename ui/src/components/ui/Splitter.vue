@@ -67,9 +67,6 @@ const onResize = (event: MouseEvent) => {
     }
 
     splitterData.width = newWidth + 'px';
-    if (props.localStorageKey) {
-        localStorage.setItem(props.localStorageKey, newWidth.toString());
-    }
 };
 
 const stopResize = () => {
