@@ -13,6 +13,7 @@ const props = defineProps<{
     onChange: (kv: KeyVal) => any;
     skip?: (kv: KeyVal) => boolean;
     autocomplete?: boolean;
+    isPredefined?: (kv: KeyVal) => boolean;
 }>();
 
 const localStorageKey = `env-data-table-splitter-${props.code}`;
@@ -21,7 +22,14 @@ function isMasked(p: KeyVal): boolean {
     return resolveMasked(p);
 }
 
+function isPredefinedRow(p: KeyVal): boolean {
+    return props.isPredefined ? props.isPredefined(p) : Boolean(p.locked);
+}
+
 function onKeyChange(p: KeyVal) {
+    if (props.isPredefined) {
+        p.locked = props.isPredefined(p);
+    }
     // Keep auto-masking in sync with the key name until the user explicitly toggles this row.
     if (getMaskedOverride(p.id) === undefined) {
         p.masked = isSecretName(p.key);
@@ -31,6 +39,7 @@ function onKeyChange(p: KeyVal) {
 
 function onMenuCommand(p: KeyVal, command: 'mask' | 'unmask' | 'remove') {
     if (command === 'remove') {
+        if (isPredefinedRow(p)) return;
         props.kvCollection.remove(p);
         return;
     }
@@ -101,7 +110,7 @@ function onInputChange(p: KeyVal, newValue?: string) {
                         </div>
                     </template>
                 </Splitter>
-                <ElDropdown v-if="!p.locked" trigger="click" @command="(cmd) => onMenuCommand(p, cmd as 'mask' | 'unmask' | 'remove')">
+                <ElDropdown trigger="click" @command="(cmd) => onMenuCommand(p, cmd as 'mask' | 'unmask' | 'remove')">
                     <span class="px-1 py-2 text-surface-600 hover:text-surface-200 cursor-pointer transition-colors outline-none">
                         <i class="icon icon-[mdi--dots-vertical] block size-4"></i>
                     </span>
@@ -115,14 +124,13 @@ function onInputChange(p: KeyVal, newValue?: string) {
                                 <i class="icon icon-[mdi--eye-off-outline] mr-2"></i>
                                 Mask value
                             </ElDropdownItem>
-                            <ElDropdownItem command="remove" divided>
+                            <ElDropdownItem v-if="!isPredefinedRow(p)" command="remove" divided>
                                 <i class="icon icon-[mdi--delete-outline] mr-2"></i>
                                 Remove
                             </ElDropdownItem>
                         </ElDropdownMenu>
                     </template>
                 </ElDropdown>
-                <i v-else></i>
                 <div v-if="p.desc" class="text-xs opacity-70 pl-1 -mt-1 col-span-full">{{ p.desc }}</div>
             </template>
         </template>

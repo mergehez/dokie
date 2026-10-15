@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { type KeyVal } from '@/utils/useDb.ts';
 import { useGlobalEnvs } from '@/utils/useGlobalEnvs';
+import { useAppConfig } from '@/utils/useAppConfig.ts';
 import EnvDataTable from './EnvDataTable.vue';
 import { ref } from 'vue';
 import ArgInput from '@/components/ui/ArgInput.vue';
 
 const globalKeyVals = useGlobalEnvs();
+const config = useAppConfig();
+
+const isPredefinedVariable = (kv: KeyVal) => Object.prototype.hasOwnProperty.call(config.variables, kv.key);
+const isPredefinedHeader = (kv: KeyVal) => Object.prototype.hasOwnProperty.call(config.headers, kv.key);
 
 const updateKeyValue = (kv: KeyVal) => {
     // envStore.set(kv.key, value)
@@ -65,7 +70,13 @@ function onHostnameChange(val: string, index: number) {
                 Add
             </button>
         </div>
-        <EnvDataTable code="globals" :kv-collection="globalKeyVals.variables" :on-change="updateKeyValue" :skip="(p) => p.key === 'hostname' || p.key === 'hostnames'" />
+        <EnvDataTable
+            code="globals"
+            :kv-collection="globalKeyVals.variables"
+            :on-change="updateKeyValue"
+            :skip="(p) => p.key === 'hostname' || p.key === 'hostnames'"
+            :is-predefined="isPredefinedVariable"
+        />
 
         <i></i>
 
@@ -76,6 +87,6 @@ function onHostnameChange(val: string, index: number) {
                 Add
             </button>
         </div>
-        <EnvDataTable code="globals" :kv-collection="globalKeyVals.headers" :on-change="updateKeyValue" />
+        <EnvDataTable code="globals" :kv-collection="globalKeyVals.headers" :on-change="updateKeyValue" :is-predefined="isPredefinedHeader" />
     </div>
 </template>

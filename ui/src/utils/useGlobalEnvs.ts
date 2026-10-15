@@ -14,9 +14,19 @@ function _createGlobalEnvs() {
     const headers = useKeyValCollection(all.value.headers);
     const variables = useKeyValCollection(all.value.variables);
 
+    const predefinedHeaderKeys = new Set(Object.keys(config.headers));
+    for (const header of headers.keyVals) {
+        header.locked = predefinedHeaderKeys.has(header.key);
+    }
+
     for (const predefinedHeader in config.headers) {
         headers.upsert(predefinedHeader, config.headers[predefinedHeader]!);
         headers.get(predefinedHeader)!.locked = true;
+    }
+
+    const predefinedVariableKeys = new Set(Object.keys(config.variables));
+    for (const variable of variables.keyVals) {
+        variable.locked = predefinedVariableKeys.has(variable.key);
     }
 
     for (const predefinedVariable in config.variables) {
