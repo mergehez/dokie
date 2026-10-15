@@ -67,6 +67,7 @@ const isFocused = ref(false);
         :placeholder="placeholder"
         :autosize="inputType === 'password' ? false : autosize"
         :type="inputType"
+        autocomplete="new-password"
         resize="none"
         @focus="isFocused = true"
         @click="isFocused = true"
