@@ -9,7 +9,6 @@ export class ParsedObject {
 export class Parsed {
     type: 'primitive' | 'array' | 'skip' | 'emptyObject' | 'parsedObject' | 'commentedValue';
     value: any;
-    comment?: string;
 
     constructor(type: 'primitive' | 'array' | 'skip' | 'emptyObject' | 'parsedObject' | 'commentedValue', value: any) {
         this.type = type;
@@ -59,7 +58,7 @@ export class Parsed {
             return res;
         }
         if (this.type == 'array') {
-            return this.value.map((t: Parsed) => (t.comment ? new CommentedValue(t.unparse(onlyRequired), t.comment) : t.unparse(onlyRequired)));
+            return this.value.map((t: Parsed) => t.unparse(onlyRequired));
         }
 
         // primitive or commentedValue
@@ -202,10 +201,6 @@ function createDefaultFromSchema(
             const example = createDefaultFromSchema(spec, schema.items, visitedRefs, propsToSkip);
             if (example.type == 'skip') {
                 return Parsed.array([]);
-            }
-            if (example.type != 'commentedValue') {
-                const itemDescription = '$ref' in schema.items ? undefined : schema.items.description;
-                example.comment = schema.description ?? itemDescription ?? 'example item';
             }
             return Parsed.array([example]);
         }
