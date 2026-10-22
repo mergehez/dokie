@@ -277,6 +277,31 @@ function inferTypeFromSchema(schema: SchemaObject): SchemaObject['type'] {
     return undefined;
 }
 
+function coerceSchemaExample(example: unknown, schema: SchemaObject): unknown {
+    if (typeof example !== 'string') return example;
+
+    const value = example.trim();
+    const type = schema.type ?? inferTypeFromSchema(schema);
+    if (type === 'integer' || type === 'number') {
+        const number = Number(value);
+        return value && Number.isFinite(number) && (type !== 'integer' || Number.isInteger(number)) ? number : example;
+    }
+    if (type === 'boolean') {
+        if (value.toLowerCase() === 'true') return true;
+        if (value.toLowerCase() === 'false') return false;
+    }
+    if (type === 'object' || type === 'array') {
+        try {
+            const parsed = JSON.parse(value);
+            if (type === 'array' ? Array.isArray(parsed) : parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+        } catch {
+            // Keep examples that aren't JSON as their original string value.
+        }
+    }
+
+    return example;
+}
+
 function createDefaultFromSchema(
     spec: OpenAPIV3,
     schema: SchemaObject | ReferenceObject,
@@ -312,7 +337,7 @@ function createDefaultFromSchema(
 
     // Explicit OpenAPI examples take precedence over generated values and defaults.
     if (schema.example !== undefined) {
-        return Parsed.primitive(schema.example);
+        return Parsed.primitive(coerceSchemaExample(schema.example, schema));
     }
 
     // Use default value if provided in schema
