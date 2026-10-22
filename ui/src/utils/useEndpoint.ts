@@ -98,8 +98,7 @@ function _createEndpoint(id: string, opts: UseEndpointOpts) {
     let requestDefaultBody: Parsed;
 
     function generateDefaultBody() {
-        if (opts.spec && opts.openApiEndpoint.requestBody && 'content' in opts.openApiEndpoint.requestBody)
-            requestDefaultBody ??= generateDefaultBodyFromSchema(opts.spec, opts.openApiEndpoint.requestBody);
+        if (opts.spec && opts.openApiEndpoint.requestBody) requestDefaultBody ??= generateDefaultBodyFromSchema(opts.spec, opts.openApiEndpoint.requestBody);
         else requestDefaultBody ??= Parsed.emptyObject();
         return requestDefaultBody;
     }

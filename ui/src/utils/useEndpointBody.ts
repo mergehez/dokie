@@ -31,7 +31,7 @@ export class Parsed {
         return new Parsed('commentedValue', new CommentedValue(value, comment));
     }
 
-    static primitive(value: string | number | boolean, comment?: string) {
+    static primitive(value: unknown, comment?: string) {
         if (comment) {
             return Parsed.commentedValue(value, comment);
         }
@@ -78,11 +78,15 @@ export function getRequestBodySchema(spec: OpenAPIV3, requestBody?: RequestBodyO
     const resolvedRequestBody = resolveRequestBodyReference(spec, requestBody);
     if (!resolvedRequestBody) return undefined;
 
-    const content = Object.entries(resolvedRequestBody.content ?? {});
-    const mediaType = content.find(([type]) => type === 'application/json' || type.endsWith('+json'))?.[1] ?? content[0]?.[1];
+    const mediaType = getRequestBodyMediaType(resolvedRequestBody);
     if (!mediaType?.schema) return undefined;
 
     return createRequestBodySchema(spec, mediaType.schema);
+}
+
+function getRequestBodyMediaType(requestBody: RequestBodyObject): RequestBodyObject['content'][string] | undefined {
+    const content = Object.entries(requestBody.content ?? {});
+    return content.find(([type]) => type === 'application/json' || type.endsWith('+json'))?.[1] ?? content[0]?.[1];
 }
 
 function resolveRequestBodyReference(spec: OpenAPIV3, requestBody?: RequestBodyObject | ReferenceObject, visitedRefs = new Set<string>()): RequestBodyObject | undefined {
@@ -99,7 +103,7 @@ function resolveRequestBodyReference(spec: OpenAPIV3, requestBody?: RequestBodyO
     return resolveRequestBodyReference(spec, referencedBody, nextVisitedRefs);
 }
 
-function getComponentName(ref: string, component: 'requestBodies' | 'schemas'): string | undefined {
+function getComponentName(ref: string, component: 'requestBodies' | 'schemas' | 'examples'): string | undefined {
     const prefix = `#/components/${component}/`;
     if (!ref.startsWith(prefix)) return undefined;
     return ref.slice(prefix.length).replace(/~1/g, '/').replace(/~0/g, '~');
@@ -190,21 +194,16 @@ export function resolveBodyVariables(
     return { keep: true, value };
 }
 
-export function generateDefaultBodyFromSchema(spec: OpenAPIV3, requestBody: RequestBodyObject, propsToSkip: string[] = []): Parsed {
-    if (!requestBody || !requestBody.content) {
-        return Parsed.emptyObject();
-    }
+export function generateDefaultBodyFromSchema(spec: OpenAPIV3, requestBody: RequestBodyObject | ReferenceObject, propsToSkip: string[] = []): Parsed {
+    const resolvedRequestBody = resolveRequestBodyReference(spec, requestBody);
+    if (!resolvedRequestBody) return Parsed.emptyObject();
 
-    // Find the first available content type (typically application/json)
-    const contentTypes = Object.keys(requestBody.content);
-    if (contentTypes.length === 0) {
-        return Parsed.emptyObject();
-    }
+    const mediaTypeObject = getRequestBodyMediaType(resolvedRequestBody);
+    if (!mediaTypeObject) return Parsed.emptyObject();
 
-    const mediaTypeObject = requestBody.content[contentTypes[0]!];
-    if (!mediaTypeObject || !mediaTypeObject.schema) {
-        return Parsed.emptyObject();
-    }
+    const example = resolveMediaTypeExample(spec, mediaTypeObject);
+    if (example !== undefined) return Parsed.primitive(example);
+    if (!mediaTypeObject.schema) return Parsed.emptyObject();
 
     if (propsToSkip.length == 0) {
         propsToSkip.push(
@@ -228,6 +227,23 @@ export function generateDefaultBodyFromSchema(spec: OpenAPIV3, requestBody: Requ
     }
 
     return createDefaultFromSchema(spec, mediaTypeObject.schema, new Set(), propsToSkip);
+}
+
+function resolveMediaTypeExample(spec: OpenAPIV3, mediaType: NonNullable<ReturnType<typeof getRequestBodyMediaType>>): unknown {
+    if (mediaType.example !== undefined) return mediaType.example;
+
+    for (const example of Object.values(mediaType.examples ?? {})) {
+        let resolvedExample: typeof example | undefined = example;
+        if ('$ref' in example) {
+            const name = getComponentName(example.$ref, 'examples');
+            resolvedExample = name ? spec.components?.examples?.[name] : undefined;
+        }
+        if (resolvedExample && !('$ref' in resolvedExample) && 'value' in resolvedExample && resolvedExample.value !== undefined) {
+            return resolvedExample.value;
+        }
+    }
+
+    return undefined;
 }
 
 // Some generators (e.g. .NET) emit schemas without an explicit `type`
@@ -292,6 +308,11 @@ function createDefaultFromSchema(
             }
         }
         return Parsed.emptyObject();
+    }
+
+    // Explicit OpenAPI examples take precedence over generated values and defaults.
+    if (schema.example !== undefined) {
+        return Parsed.primitive(schema.example);
     }
 
     // Use default value if provided in schema

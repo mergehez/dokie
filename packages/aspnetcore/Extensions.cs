@@ -55,10 +55,24 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Find all parameters with <see cref="ExampleAttribute"/> and add them to the OpenAPI document as examples.
+    /// Find parameters and properties with <see cref="ExampleAttribute"/> and add them to the OpenAPI document as examples.
     /// </summary>
     public static OpenApiOptions AddDokie(this OpenApiOptions options)
     {
+        options.AddSchemaTransformer((schema, ctx, _) =>
+        {
+            if (ctx.JsonPropertyInfo?.AttributeProvider?.GetCustomAttributes(typeof(ExampleAttribute), true).FirstOrDefault() is ExampleAttribute exAttr)
+            {
+#if NET10_0_OR_GREATER
+                schema.Example = JsonValue.Create(exAttr.Value);
+#else
+                schema.Example = new OpenApiString(exAttr.Value);
+#endif
+            }
+
+            return Task.CompletedTask;
+        });
+
         return options.AddOperationTransformer((a, ctx, _) =>
         {
             foreach (var pd in ctx.Description.ParameterDescriptions)
